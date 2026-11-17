@@ -7,7 +7,7 @@ import net.minecraft.resources.Identifier;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-public class MitchellSEnhancedVanilla implements ModInitializer {
+public class MitchellEnhancedVanilla implements ModInitializer {
 	public static final String MOD_ID = "mitchells-enhanced-vanilla";
 
 	// This logger is used to write text to the console and the log file.
@@ -22,6 +22,7 @@ public class MitchellSEnhancedVanilla implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+		ModItems.initialize();
 	}
 
 	public static Identifier id(String path) {

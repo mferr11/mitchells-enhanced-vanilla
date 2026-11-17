@@ -16,7 +16,7 @@
 	"environment": "*",
 	"entrypoints": {
 		"main": [
-			"mitchellenhancedvanilla.modid.MitchellSEnhancedVanilla"
+			"mitchellenhancedvanilla.modid.MitchellEnhancedVanilla"
 		],
 		"client": [
 			"mitchellenhancedvanilla.modid.client.MitchellSEnhancedVanillaClient"
