@@ -1,0 +1,10 @@
+{
+  "type": "mitchells-enhanced-vanilla:fletching",
+  "tip": "minecraft:flint",
+  "shaft": "minecraft:stick",
+  "fletching": "minecraft:feather",
+  "result": {
+    "id": "minecraft:arrow",
+    "count": 8
+  }
+}

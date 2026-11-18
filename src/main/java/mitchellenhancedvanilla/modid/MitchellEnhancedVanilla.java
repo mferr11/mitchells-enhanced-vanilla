@@ -1,5 +1,8 @@
 package mitchellenhancedvanilla.modid;
 
+import mitchellenhancedvanilla.modid.menu.FletchingTableInteraction;
+import mitchellenhancedvanilla.modid.menu.ModMenus;
+import mitchellenhancedvanilla.modid.recipe.ModRecipes;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.minecraft.core.component.DataComponents;
@@ -26,6 +29,9 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		LOGGER.info("Hello Fabric world!");
 		ModItems.initialize();
 		ModEntities.initialize();
+		ModRecipes.initialize();
+		ModMenus.initialize();
+		FletchingTableInteraction.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
 			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 32)));
 	}
