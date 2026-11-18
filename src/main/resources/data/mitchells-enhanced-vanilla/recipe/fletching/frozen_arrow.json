@@ -1,0 +1,10 @@
+{
+  "type": "mitchells-enhanced-vanilla:fletching",
+  "tip": "minecraft:ice",
+  "shaft": "minecraft:stick",
+  "fletching": "minecraft:feather",
+  "result": {
+    "id": "mitchells-enhanced-vanilla:frozen_arrow",
+    "count": 8
+  }
+}

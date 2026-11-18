@@ -1,6 +1,7 @@
 {
     "replace": false,
     "values": [
-        "mitchells-enhanced-vanilla:reinforced_arrow"
+        "mitchells-enhanced-vanilla:reinforced_arrow",
+        "mitchells-enhanced-vanilla:frozen_arrow"
     ]
 }
