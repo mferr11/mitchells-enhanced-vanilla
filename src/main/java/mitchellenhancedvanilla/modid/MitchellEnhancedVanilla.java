@@ -27,7 +27,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		ModItems.initialize();
 		ModEntities.initialize();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
-			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 50)));
+			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 32)));
 	}
 
 	public static Identifier id(String path) {
