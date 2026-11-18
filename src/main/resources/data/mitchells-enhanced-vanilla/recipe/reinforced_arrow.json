@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "equipment",
+  "key": {
+    "#": "minecraft:stick",
+    "X": "minecraft:iron_nugget",
+    "Y": "minecraft:feather"
+  },
+  "pattern": [
+    "X",
+    "#",
+    "Y"
+  ],
+  "result": {
+    "count": 8,
+    "id": "mitchells-enhanced-vanilla:reinforced_arrow"
+  }
+}
