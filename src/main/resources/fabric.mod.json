@@ -19,10 +19,10 @@
 			"mitchellenhancedvanilla.modid.MitchellEnhancedVanilla"
 		],
 		"client": [
-			"mitchellenhancedvanilla.modid.client.MitchellSEnhancedVanillaClient"
+			"mitchellenhancedvanilla.modid.client.MitchellEnhancedVanillaClient"
 		],
 		"fabric-datagen": [
-			"mitchellenhancedvanilla.modid.client.MitchellSEnhancedVanillaDataGenerator"
+			"mitchellenhancedvanilla.modid.client.MitchellEnhancedVanillaDataGenerator"
 		]
 	},
 	"mixins": [

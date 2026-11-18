@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import java.util.function.Function;
 
+import mitchellenhancedvanilla.modid.item.ReinforcedArrowItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -23,5 +24,5 @@ public class ModItems {
 		.register((creativeTab) -> creativeTab.accept(ModItems.REINFORCED_ARROW));
     }
 
-    public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW, Item::new, new Item.Properties());
+    public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW, ReinforcedArrowItem::new, new Item.Properties());
 }

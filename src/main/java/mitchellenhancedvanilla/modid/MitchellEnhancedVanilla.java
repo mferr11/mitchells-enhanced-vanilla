@@ -25,8 +25,9 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 
 		LOGGER.info("Hello Fabric world!");
 		ModItems.initialize();
+		ModEntities.initialize();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
-			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 10)));
+			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 50)));
 	}
 
 	public static Identifier id(String path) {
