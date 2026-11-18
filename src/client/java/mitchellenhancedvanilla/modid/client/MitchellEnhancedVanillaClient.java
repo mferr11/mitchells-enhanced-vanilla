@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.client;
 
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.client.hud.BowHud;
+import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.client.render.ReinforcedArrowRenderer;
 import net.fabricmc.api.ClientModInitializer;
 import net.minecraft.client.renderer.entity.EntityRenderers;
@@ -11,5 +12,6 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		EntityRenderers.register(ModEntities.REINFORCED_ARROW, ReinforcedArrowRenderer::new);
 		BowHud.register();
+		BowAmmoProperty.register();
 	}
 }

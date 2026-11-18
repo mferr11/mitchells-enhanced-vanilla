@@ -1,35 +1,69 @@
 {
   "model": {
     "type": "minecraft:condition",
+    "property": "minecraft:using_item",
     "on_false": {
       "type": "minecraft:model",
       "model": "minecraft:item/bow"
     },
     "on_true": {
-      "type": "minecraft:range_dispatch",
-      "entries": [
+      "type": "minecraft:select",
+      "property": "mitchells-enhanced-vanilla:bow_ammo",
+      "cases": [
         {
+          "when": "mitchells-enhanced-vanilla:reinforced_arrow",
           "model": {
-            "type": "minecraft:model",
-            "model": "minecraft:item/bow_pulling_1"
-          },
-          "threshold": 0.65
-        },
-        {
-          "model": {
-            "type": "minecraft:model",
-            "model": "minecraft:item/bow_pulling_2"
-          },
-          "threshold": 0.9
+            "type": "minecraft:range_dispatch",
+            "property": "minecraft:use_duration",
+            "scale": 0.033333,
+            "entries": [
+              {
+                "threshold": 0.65,
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_1"
+                }
+              },
+              {
+                "threshold": 0.9,
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_2"
+                }
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_0"
+            }
+          }
         }
       ],
       "fallback": {
-        "type": "minecraft:model",
-        "model": "minecraft:item/bow_pulling_0"
-      },
-      "property": "minecraft:use_duration",
-      "scale": 0.033333
-    },
-    "property": "minecraft:using_item"
+        "type": "minecraft:range_dispatch",
+        "property": "minecraft:use_duration",
+        "scale": 0.033333,
+        "entries": [
+          {
+            "threshold": 0.65,
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/bow_pulling_1"
+            }
+          },
+          {
+            "threshold": 0.9,
+            "model": {
+              "type": "minecraft:model",
+              "model": "minecraft:item/bow_pulling_2"
+            }
+          }
+        ],
+        "fallback": {
+          "type": "minecraft:model",
+          "model": "minecraft:item/bow_pulling_0"
+        }
+      }
+    }
   }
 }
