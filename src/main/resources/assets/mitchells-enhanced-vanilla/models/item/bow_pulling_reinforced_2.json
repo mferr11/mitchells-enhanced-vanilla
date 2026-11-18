@@ -1,6 +1,0 @@
-{
-    "parent": "minecraft:item/bow",
-    "textures": {
-        "layer0": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_2"
-    }
-}

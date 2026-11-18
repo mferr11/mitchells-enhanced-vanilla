@@ -7,62 +7,115 @@
       "model": "minecraft:item/bow"
     },
     "on_true": {
-      "type": "minecraft:select",
-      "property": "mitchells-enhanced-vanilla:bow_ammo",
-      "cases": [
+      "type": "minecraft:range_dispatch",
+      "property": "minecraft:use_duration",
+      "scale": 0.033333,
+      "entries": [
         {
-          "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+          "threshold": 0.65,
           "model": {
-            "type": "minecraft:range_dispatch",
-            "property": "minecraft:use_duration",
-            "scale": 0.033333,
-            "entries": [
+            "type": "minecraft:composite",
+            "models": [
               {
-                "threshold": 0.65,
+                "type": "minecraft:model",
+                "model": "mitchells-enhanced-vanilla:item/bow/pulling_1"
+              },
+              {
+                "type": "minecraft:select",
+                "property": "mitchells-enhanced-vanilla:bow_ammo",
+                "cases": [
+                  {
+                    "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:frozen_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_1"
+                    }
+                  }
+                ],
+                "fallback": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "mitchells-enhanced-vanilla:item/bow/pulling_2"
+              },
+              {
+                "type": "minecraft:select",
+                "property": "mitchells-enhanced-vanilla:bow_ammo",
+                "cases": [
+                  {
+                    "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:frozen_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_2"
+                    }
+                  }
+                ],
+                "fallback": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_2"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:composite",
+        "models": [
+          {
+            "type": "minecraft:model",
+            "model": "mitchells-enhanced-vanilla:item/bow/pulling_0"
+          },
+          {
+            "type": "minecraft:select",
+            "property": "mitchells-enhanced-vanilla:bow_ammo",
+            "cases": [
+              {
+                "when": "mitchells-enhanced-vanilla:reinforced_arrow",
                 "model": {
                   "type": "minecraft:model",
-                  "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_1"
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_0"
                 }
               },
               {
-                "threshold": 0.9,
+                "when": "mitchells-enhanced-vanilla:frozen_arrow",
                 "model": {
                   "type": "minecraft:model",
-                  "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_2"
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_0"
                 }
               }
             ],
             "fallback": {
               "type": "minecraft:model",
-              "model": "mitchells-enhanced-vanilla:item/bow_pulling_reinforced_0"
+              "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_0"
             }
           }
-        }
-      ],
-      "fallback": {
-        "type": "minecraft:range_dispatch",
-        "property": "minecraft:use_duration",
-        "scale": 0.033333,
-        "entries": [
-          {
-            "threshold": 0.65,
-            "model": {
-              "type": "minecraft:model",
-              "model": "minecraft:item/bow_pulling_1"
-            }
-          },
-          {
-            "threshold": 0.9,
-            "model": {
-              "type": "minecraft:model",
-              "model": "minecraft:item/bow_pulling_2"
-            }
-          }
-        ],
-        "fallback": {
-          "type": "minecraft:model",
-          "model": "minecraft:item/bow_pulling_0"
-        }
+        ]
       }
     }
   }
