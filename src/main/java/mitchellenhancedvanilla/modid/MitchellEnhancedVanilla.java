@@ -1,8 +1,10 @@
 package mitchellenhancedvanilla.modid;
 
 import net.fabricmc.api.ModInitializer;
-
+import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.resources.Identifier;
+import net.minecraft.world.item.Items;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,6 +25,8 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 
 		LOGGER.info("Hello Fabric world!");
 		ModItems.initialize();
+		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
+			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 10)));
 	}
 
 	public static Identifier id(String path) {

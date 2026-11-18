@@ -3,7 +3,8 @@
 	"package": "mitchellenhancedvanilla.modid.mixin",
 	"compatibilityLevel": "JAVA_25",
 	"mixins": [
-		"ExampleMixin"
+		"ExampleMixin",
+		"BowItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
