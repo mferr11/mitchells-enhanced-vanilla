@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import java.util.function.Function;
 
+import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
@@ -26,6 +27,7 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.accept(ModItems.REINFORCED_ARROW);
 			creativeTab.accept(ModItems.FROZEN_ARROW);
+			creativeTab.accept(ModItems.COPPER_ARROW);
 		});
     }
 
@@ -33,4 +35,6 @@ public class ModItems {
         p -> new ModArrowItem(p, ReinforcedArrowEntity::new, ReinforcedArrowEntity::new), new Item.Properties());
     public static final Item FROZEN_ARROW = register(ModItemIds.FROZEN_ARROW,
         p -> new ModArrowItem(p, FrozenArrowEntity::new, FrozenArrowEntity::new), new Item.Properties());
+    public static final Item COPPER_ARROW = register(ModItemIds.COPPER_ARROW,
+        p -> new ModArrowItem(p, CopperArrowEntity::new, CopperArrowEntity::new), new Item.Properties());
 }

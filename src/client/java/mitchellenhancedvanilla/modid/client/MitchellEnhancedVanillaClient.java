@@ -3,7 +3,8 @@ package mitchellenhancedvanilla.modid.client;
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.client.hud.BowHud;
 import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
-import mitchellenhancedvanilla.modid.client.render.FrozenCritParticle;
+import mitchellenhancedvanilla.modid.ModParticles;
+import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
 import mitchellenhancedvanilla.modid.client.screen.FletchingTableScreen;
@@ -16,10 +17,13 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 	public void onInitializeClient() {
 		ModArrowRenderer.register(ModEntities.REINFORCED_ARROW);
 		ModArrowRenderer.register(ModEntities.FROZEN_ARROW);
+		ModArrowRenderer.register(ModEntities.COPPER_ARROW);
 		BowHud.register();
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
 		FrozenParticles.register();
-		FrozenCritParticle.register();
+		// Arrow crit trail colours
+		ColoredCritParticle.register(ModParticles.FROZEN_CRIT, 0x66B2FF);
+		ColoredCritParticle.register(ModParticles.COPPER_CRIT, 0xFF8A2E);
 	}
 }

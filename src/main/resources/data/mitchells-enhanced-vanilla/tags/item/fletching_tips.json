@@ -1,7 +1,8 @@
 {
-  "values": [
-    "minecraft:flint",
-    "minecraft:iron_nugget",
-    "minecraft:ice"
-  ]
+    "values": [
+        "minecraft:flint",
+        "minecraft:iron_nugget",
+        "minecraft:ice",
+        "minecraft:copper_nugget"
+    ]
 }

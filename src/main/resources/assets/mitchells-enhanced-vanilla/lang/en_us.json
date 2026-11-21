@@ -3,5 +3,7 @@
     "entity.mitchells-enhanced-vanilla.reinforced_arrow": "Reinforced Arrow",
     "item.mitchells-enhanced-vanilla.frozen_arrow": "Frozen Arrow",
     "entity.mitchells-enhanced-vanilla.frozen_arrow": "Frozen Arrow",
+    "item.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
+    "entity.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
     "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table"
 }

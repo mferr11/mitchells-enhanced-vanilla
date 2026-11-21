@@ -2,6 +2,8 @@ package mitchellenhancedvanilla.modid.entity;
 
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.ModItems;
+import mitchellenhancedvanilla.modid.ModParticles;
+import net.minecraft.core.particles.SimpleParticleType;
 import net.minecraft.world.effect.MobEffectInstance;
 import net.minecraft.world.effect.MobEffects;
 import net.minecraft.world.entity.EntityType;
@@ -41,6 +43,11 @@ public class FrozenArrowEntity extends ModArrowEntity {
     @Override
     protected Item arrowItem() {
         return ModItems.FROZEN_ARROW;
+    }
+
+    @Override
+    public SimpleParticleType critParticle() {
+        return ModParticles.FROZEN_CRIT;
     }
 
     // Freezes like powdered snow; freeze-immune targets are unaffected

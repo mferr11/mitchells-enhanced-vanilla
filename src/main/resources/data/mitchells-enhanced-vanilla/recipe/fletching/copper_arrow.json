@@ -1,0 +1,10 @@
+{
+    "type": "mitchells-enhanced-vanilla:fletching",
+    "tip": "minecraft:copper_nugget",
+    "shaft": "minecraft:stick",
+    "fletching": "minecraft:feather",
+    "result": {
+        "id": "mitchells-enhanced-vanilla:copper_arrow",
+        "count": 8
+    }
+}

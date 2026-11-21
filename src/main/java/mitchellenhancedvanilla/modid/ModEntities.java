@@ -1,5 +1,6 @@
 package mitchellenhancedvanilla.modid;
 
+import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import net.minecraft.core.Registry;
@@ -27,6 +28,14 @@ public class ModEntities {
 
     public static final EntityType<FrozenArrowEntity> FROZEN_ARROW = register("frozen_arrow",
         EntityType.Builder.<FrozenArrowEntity>of(FrozenArrowEntity::new, MobCategory.MISC)
+            .noLootTable()
+            .sized(0.5F, 0.5F)
+            .eyeHeight(0.13F)
+            .clientTrackingRange(4)
+            .updateInterval(20));
+
+    public static final EntityType<CopperArrowEntity> COPPER_ARROW = register("copper_arrow",
+        EntityType.Builder.<CopperArrowEntity>of(CopperArrowEntity::new, MobCategory.MISC)
             .noLootTable()
             .sized(0.5F, 0.5F)
             .eyeHeight(0.13F)

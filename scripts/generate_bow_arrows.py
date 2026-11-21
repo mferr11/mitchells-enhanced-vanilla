@@ -12,6 +12,7 @@ ARROWS = {
     "minecraft:arrow": "arrow",
     "mitchells-enhanced-vanilla:reinforced_arrow": "reinforced_arrow",
     "mitchells-enhanced-vanilla:frozen_arrow": "frozen_arrow",
+    "mitchells-enhanced-vanilla:copper_arrow": "copper_arrow",
 }
 
 MOD_ID = "mitchells-enhanced-vanilla"
