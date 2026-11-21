@@ -5,5 +5,7 @@
     "entity.mitchells-enhanced-vanilla.frozen_arrow": "Frozen Arrow",
     "item.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
     "entity.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
+    "item.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
+    "entity.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
     "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table"
 }

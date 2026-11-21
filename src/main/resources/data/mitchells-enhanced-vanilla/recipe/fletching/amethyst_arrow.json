@@ -1,0 +1,10 @@
+{
+    "type": "mitchells-enhanced-vanilla:fletching",
+    "tip": "minecraft:amethyst_shard",
+    "shaft": "minecraft:stick",
+    "fletching": "minecraft:feather",
+    "result": {
+        "id": "mitchells-enhanced-vanilla:amethyst_arrow",
+        "count": 8
+    }
+}

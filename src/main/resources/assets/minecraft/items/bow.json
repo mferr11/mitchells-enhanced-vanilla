@@ -44,6 +44,13 @@
                       "type": "minecraft:model",
                       "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_1"
                     }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_1"
+                    }
                   }
                 ],
                 "fallback": {
@@ -87,6 +94,13 @@
                       "type": "minecraft:model",
                       "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_2"
                     }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_2"
+                    }
                   }
                 ],
                 "fallback": {
@@ -128,6 +142,13 @@
                 "model": {
                   "type": "minecraft:model",
                   "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_0"
                 }
               }
             ],

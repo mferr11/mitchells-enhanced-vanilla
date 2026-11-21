@@ -26,6 +26,9 @@ public class CopperArrowEntity extends ModArrowEntity {
     // Chance of lightning on impact during a thunderstorm
     public static final float LIGHTNING_CHANCE = 0.5F;
 
+    // Vanilla arrows have a base damage of 2.0
+    public static final double BASE_DAMAGE = 3.0;
+
     // Only roll once, even if it hits a mob then a block
     private boolean lightningRolled;
 
@@ -39,6 +42,11 @@ public class CopperArrowEntity extends ModArrowEntity {
 
     public CopperArrowEntity(Level level, double x, double y, double z, ItemStack pickupItem, @Nullable ItemStack firedFromWeapon) {
         super(ModEntities.COPPER_ARROW, level, x, y, z, pickupItem, firedFromWeapon);
+    }
+
+    @Override
+    protected double baseDamage() {
+        return BASE_DAMAGE;
     }
 
     @Override
