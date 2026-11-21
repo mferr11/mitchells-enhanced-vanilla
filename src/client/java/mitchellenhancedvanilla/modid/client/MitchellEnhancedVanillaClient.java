@@ -23,6 +23,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
 		FrozenParticles.register();
+		ArrowTooltip.register();
 		// Arrow crit trail colours
 		ColoredCritParticle.register(ModParticles.FROZEN_CRIT, 0x66B2FF);
 		ColoredCritParticle.register(ModParticles.COPPER_CRIT, 0xFF8A2E);

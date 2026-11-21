@@ -34,11 +34,11 @@ public class ModItems {
     }
 
     public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW,
-        p -> new ModArrowItem(p, ReinforcedArrowEntity::new, ReinforcedArrowEntity::new), new Item.Properties());
+        p -> new ModArrowItem(p, ReinforcedArrowEntity.BASE_DAMAGE, ReinforcedArrowEntity::new, ReinforcedArrowEntity::new), new Item.Properties());
     public static final Item FROZEN_ARROW = register(ModItemIds.FROZEN_ARROW,
-        p -> new ModArrowItem(p, FrozenArrowEntity::new, FrozenArrowEntity::new), new Item.Properties());
+        p -> new ModArrowItem(p, FrozenArrowEntity.BASE_DAMAGE, FrozenArrowEntity::new, FrozenArrowEntity::new), new Item.Properties());
     public static final Item COPPER_ARROW = register(ModItemIds.COPPER_ARROW,
-        p -> new ModArrowItem(p, CopperArrowEntity::new, CopperArrowEntity::new), new Item.Properties());
+        p -> new ModArrowItem(p, CopperArrowEntity.BASE_DAMAGE, CopperArrowEntity::new, CopperArrowEntity::new), new Item.Properties());
     public static final Item AMETHYST_ARROW = register(ModItemIds.AMETHYST_ARROW,
-        p -> new ModArrowItem(p, AmethystArrowEntity::new, AmethystArrowEntity::new), new Item.Properties());
+        p -> new ModArrowItem(p, AmethystArrowEntity.BASE_DAMAGE, AmethystArrowEntity::new, AmethystArrowEntity::new), new Item.Properties());
 }

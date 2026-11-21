@@ -7,5 +7,8 @@
     "entity.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
     "item.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
     "entity.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
-    "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table"
+    "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table",
+    "tooltip.mitchells-enhanced-vanilla.arrow.fired": "When Fired:",
+    "tooltip.mitchells-enhanced-vanilla.arrow.damage": "%s Base Damage",
+    "tooltip.mitchells-enhanced-vanilla.arrow.shrapnel": "%s Shrapnel Damage"
 }

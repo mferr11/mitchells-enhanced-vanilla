@@ -13,7 +13,7 @@ public class BowItemMixin {
             target = "Lnet/minecraft/world/item/BowItem;shoot(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Ljava/util/List;FFZLnet/minecraft/world/entity/LivingEntity;)V"),
         index = 5)
     private float mev$velocity(float velocity) {
-        return velocity * 0.5F; // 40% weaker than vanilla
+        return velocity * BowStats.VELOCITY_MULTIPLIER;
     }
 
     @ModifyConstant(method = "getPowerForTime", constant = @Constant(floatValue = 20.0F))

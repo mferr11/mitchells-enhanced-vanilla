@@ -24,13 +24,23 @@ public class ModArrowItem extends ArrowItem {
         AbstractArrow create(Level level, double x, double y, double z, ItemStack pickupItem, @Nullable ItemStack firedFromWeapon);
     }
 
+    // Vanilla arrows' base damage
+    public static final double VANILLA_BASE_DAMAGE = 2.0;
+
+    private final double baseDamage;
     private final ShotFactory shotFactory;
     private final DispenseFactory dispenseFactory;
 
-    public ModArrowItem(Properties properties, ShotFactory shotFactory, DispenseFactory dispenseFactory) {
+    public ModArrowItem(Properties properties, double baseDamage, ShotFactory shotFactory, DispenseFactory dispenseFactory) {
         super(properties);
+        this.baseDamage = baseDamage;
         this.shotFactory = shotFactory;
         this.dispenseFactory = dispenseFactory;
+    }
+
+    // For the tooltip; the entity applies the same value
+    public double baseDamage() {
+        return baseDamage;
     }
 
     // Fired from a bow or crossbow
