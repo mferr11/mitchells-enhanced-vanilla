@@ -2,8 +2,9 @@ package mitchellenhancedvanilla.modid;
 
 import java.util.function.Function;
 
-import mitchellenhancedvanilla.modid.item.FrozenArrowItem;
-import mitchellenhancedvanilla.modid.item.ReinforcedArrowItem;
+import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
+import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
+import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -28,6 +29,8 @@ public class ModItems {
 		});
     }
 
-    public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW, ReinforcedArrowItem::new, new Item.Properties());
-    public static final Item FROZEN_ARROW = register(ModItemIds.FROZEN_ARROW, FrozenArrowItem::new, new Item.Properties());
+    public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW,
+        p -> new ModArrowItem(p, ReinforcedArrowEntity::new, ReinforcedArrowEntity::new), new Item.Properties());
+    public static final Item FROZEN_ARROW = register(ModItemIds.FROZEN_ARROW,
+        p -> new ModArrowItem(p, FrozenArrowEntity::new, FrozenArrowEntity::new), new Item.Properties());
 }
