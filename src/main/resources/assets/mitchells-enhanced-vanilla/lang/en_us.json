@@ -7,6 +7,8 @@
     "entity.mitchells-enhanced-vanilla.copper_arrow": "Copper Arrow",
     "item.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
     "entity.mitchells-enhanced-vanilla.amethyst_arrow": "Amethyst Arrow",
+    "item.mitchells-enhanced-vanilla.gold_arrow": "Gold Arrow",
+    "entity.mitchells-enhanced-vanilla.gold_arrow": "Gold Arrow",
     "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table",
     "tooltip.mitchells-enhanced-vanilla.arrow.fired": "When Fired:",
     "tooltip.mitchells-enhanced-vanilla.arrow.damage": "%s Base Damage",

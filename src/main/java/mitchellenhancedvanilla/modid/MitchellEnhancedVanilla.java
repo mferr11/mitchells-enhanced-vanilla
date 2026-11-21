@@ -32,6 +32,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		ModRecipes.initialize();
 		ModMenus.initialize();
 		ModParticles.initialize();
+		ModLootTables.register();
 		FletchingTableInteraction.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
 			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 32)));

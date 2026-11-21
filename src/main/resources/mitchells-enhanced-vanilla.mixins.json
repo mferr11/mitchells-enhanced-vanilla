@@ -5,7 +5,10 @@
 	"mixins": [
 		"ExampleMixin",
 		"BowItemMixin",
-		"AbstractArrowMixin"
+		"AbstractArrowMixin",
+		"LivingEntityMixin",
+		"EnchantmentHelperMixin",
+		"PiglinAiMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

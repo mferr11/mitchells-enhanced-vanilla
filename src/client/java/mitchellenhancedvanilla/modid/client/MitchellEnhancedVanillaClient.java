@@ -19,6 +19,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.FROZEN_ARROW);
 		ModArrowRenderer.register(ModEntities.COPPER_ARROW);
 		ModArrowRenderer.register(ModEntities.AMETHYST_ARROW);
+		ModArrowRenderer.register(ModEntities.GOLD_ARROW);
 		BowHud.register();
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
@@ -28,5 +29,6 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ColoredCritParticle.register(ModParticles.FROZEN_CRIT, 0x66B2FF);
 		ColoredCritParticle.register(ModParticles.COPPER_CRIT, 0xFF8A2E);
 		ColoredCritParticle.register(ModParticles.AMETHYST_CRIT, 0xB38EF3);
+		ColoredCritParticle.register(ModParticles.GOLD_CRIT, 0xF9D93B);
 	}
 }

@@ -5,6 +5,7 @@ import java.util.function.Function;
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
+import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -30,6 +31,7 @@ public class ModItems {
 			creativeTab.accept(ModItems.FROZEN_ARROW);
 			creativeTab.accept(ModItems.COPPER_ARROW);
 			creativeTab.accept(ModItems.AMETHYST_ARROW);
+			creativeTab.accept(ModItems.GOLD_ARROW);
 		});
     }
 
@@ -41,4 +43,6 @@ public class ModItems {
         p -> new ModArrowItem(p, CopperArrowEntity.BASE_DAMAGE, CopperArrowEntity::new, CopperArrowEntity::new), new Item.Properties());
     public static final Item AMETHYST_ARROW = register(ModItemIds.AMETHYST_ARROW,
         p -> new ModArrowItem(p, AmethystArrowEntity.BASE_DAMAGE, AmethystArrowEntity::new, AmethystArrowEntity::new), new Item.Properties());
+    public static final Item GOLD_ARROW = register(ModItemIds.GOLD_ARROW,
+        p -> new ModArrowItem(p, GoldArrowEntity.BASE_DAMAGE, GoldArrowEntity::new, GoldArrowEntity::new), new Item.Properties());
 }

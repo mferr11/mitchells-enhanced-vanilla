@@ -1,0 +1,10 @@
+{
+    "type": "mitchells-enhanced-vanilla:fletching",
+    "tip": "minecraft:gold_nugget",
+    "shaft": "minecraft:stick",
+    "fletching": "minecraft:feather",
+    "result": {
+        "id": "mitchells-enhanced-vanilla:gold_arrow",
+        "count": 8
+    }
+}
