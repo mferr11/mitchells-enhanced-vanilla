@@ -4,6 +4,7 @@ import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
+import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -54,6 +55,14 @@ public class ModEntities {
 
     public static final EntityType<GoldArrowEntity> GOLD_ARROW = register("gold_arrow",
         EntityType.Builder.<GoldArrowEntity>of(GoldArrowEntity::new, MobCategory.MISC)
+            .noLootTable()
+            .sized(0.5F, 0.5F)
+            .eyeHeight(0.13F)
+            .clientTrackingRange(4)
+            .updateInterval(20));
+
+    public static final EntityType<PrismarineArrowEntity> PRISMARINE_ARROW = register("prismarine_arrow",
+        EntityType.Builder.<PrismarineArrowEntity>of(PrismarineArrowEntity::new, MobCategory.MISC)
             .noLootTable()
             .sized(0.5F, 0.5F)
             .eyeHeight(0.13F)

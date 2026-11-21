@@ -1,0 +1,10 @@
+{
+    "type": "mitchells-enhanced-vanilla:fletching",
+    "tip": "minecraft:prismarine_crystals",
+    "shaft": "minecraft:stick",
+    "fletching": "minecraft:feather",
+    "result": {
+        "id": "mitchells-enhanced-vanilla:prismarine_arrow",
+        "count": 8
+    }
+}

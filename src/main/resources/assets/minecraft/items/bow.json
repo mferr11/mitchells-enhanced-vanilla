@@ -58,6 +58,13 @@
                       "type": "minecraft:model",
                       "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_1"
                     }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_1"
+                    }
                   }
                 ],
                 "fallback": {
@@ -115,6 +122,13 @@
                       "type": "minecraft:model",
                       "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_2"
                     }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_2"
+                    }
                   }
                 ],
                 "fallback": {
@@ -170,6 +184,13 @@
                 "model": {
                   "type": "minecraft:model",
                   "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_0"
                 }
               }
             ],
