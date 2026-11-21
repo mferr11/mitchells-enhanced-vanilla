@@ -6,7 +6,9 @@
 		"ExampleClientMixin",
 		"AbstractClientPlayerMixin",
 		"LivingEntityRendererMixin",
-		"RenderLayerMixin"
+		"RenderLayerMixin",
+		"SlimeOuterLayerMixin",
+		"EquipmentLayerRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
