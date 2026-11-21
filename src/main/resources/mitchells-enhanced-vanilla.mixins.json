@@ -6,9 +6,11 @@
 		"ExampleMixin",
 		"BowItemMixin",
 		"AbstractArrowMixin",
-		"LivingEntityMixin",
-		"EnchantmentHelperMixin",
-		"PiglinAiMixin"
+		"PiglinAiMixin",
+		"MobDecoyMixin",
+		"BrainDecoyMixin",
+		"CubeMobDecoyMixin",
+		"CubeMobMoveControlMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

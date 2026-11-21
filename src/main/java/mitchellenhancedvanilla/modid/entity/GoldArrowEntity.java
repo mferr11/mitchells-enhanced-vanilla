@@ -1,5 +1,6 @@
 package mitchellenhancedvanilla.modid.entity;
 
+import mitchellenhancedvanilla.modid.DecoyTarget;
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.ModItems;
 import mitchellenhancedvanilla.modid.ModParticles;
@@ -13,12 +14,18 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
+import net.minecraft.world.entity.monster.Enemy;
+import net.minecraft.world.entity.monster.creaking.Creaking;
+import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.BlockHitResult;
 import org.jspecify.annotations.Nullable;
 
@@ -26,18 +33,25 @@ public class GoldArrowEntity extends ModArrowEntity {
     // Vanilla arrows have a base damage of 2.0
     public static final double BASE_DAMAGE = 4.0;
 
-    // Kills count as at least this Looting level
-    public static final int LOOTING_LEVEL = 2;
-
     // How long a hit piglin admires the arrow before fighting back (ticks)
     public static final int PIGLIN_ADMIRE_TICKS = 3 * 20;
+
+    // How long it glitters in the ground before disintegrating (ticks)
+    public static final int GROUND_LIFE_TICKS = 7 * 20;
+
+    // Hostile mobs within this range that can see it get distracted (blocks)
+    public static final double DECOY_RADIUS = 16.0;
+
+    // How often nearby mobs are re-checked, and how long each check holds them (ticks)
+    public static final int DECOY_SCAN_INTERVAL = 5;
+    public static final int DECOY_HOLD_TICKS = 15;
+
+    // Ticks between glints while stuck in the ground
+    public static final int GLINT_INTERVAL = 4;
 
     // Disintegration burst: particle count and speed (amethyst is 48 at 0.48)
     public static final int BURST_PARTICLES = 20;
     public static final double BURST_SPEED = 0.3;
-
-    // Set while a mob killed by a Gold Arrow drops its loot (read by EnchantmentHelperMixin)
-    public static boolean droppingLoot;
 
     public GoldArrowEntity(EntityType<? extends GoldArrowEntity> type, Level level) {
         super(type, level);
@@ -79,11 +93,52 @@ public class GoldArrowEntity extends ModArrowEntity {
         piglin.getBrain().setMemoryWithExpiry(MemoryModuleType.ADMIRING_ITEM, true, PIGLIN_ADMIRE_TICKS);
     }
 
-    // Disintegrates on blocks instead of sticking
+    // Ticks spent stuck in the ground (not reset if it falls loose)
+    private int groundTicks;
+
+    // Save key for groundTicks, so the countdown survives reloads
+    private static final String GROUND_TICKS_KEY = "GroundTicks";
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        output.putInt(GROUND_TICKS_KEY, groundTicks);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        groundTicks = input.getIntOr(GROUND_TICKS_KEY, 0);
+    }
+
+    // Sticks but can never be picked back up
     @Override
     protected void onHitBlock(BlockHitResult result) {
         super.onHitBlock(result);
-        if (level() instanceof ServerLevel level) disintegrate(level);
+        pickup = Pickup.DISALLOWED;
+    }
+
+    @Override
+    public void tick() {
+        super.tick();
+        if (isRemoved() || !isInGround()) return;
+        if (level() instanceof ServerLevel level) {
+            if (++groundTicks >= GROUND_LIFE_TICKS) {
+                disintegrate(level);
+            } else if (groundTicks % DECOY_SCAN_INTERVAL == 1) {
+                lureMobs(level);
+            }
+        } else if (tickCount % GLINT_INTERVAL == 0) {
+            level().addParticle(ModParticles.GOLD_CRIT, getRandomX(0.3), getY() + 0.1, getRandomZ(0.3), 0.0, 0.05, 0.0);
+        }
+    }
+
+    // Shiny decoy: nearby hostiles that can see it drop their target and go stare
+    private void lureMobs(ServerLevel level) {
+        for (Mob mob : level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(DECOY_RADIUS),
+                m -> m instanceof Enemy && !(m instanceof Warden) && !(m instanceof Creaking) && m.isAlive() && m.hasLineOfSight(this))) {
+            ((DecoyTarget) mob).mev$distract(this, DECOY_HOLD_TICKS);
+        }
     }
 
     // Harmless puff of gold
