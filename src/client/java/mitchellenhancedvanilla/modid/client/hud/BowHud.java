@@ -10,18 +10,14 @@ import net.minecraft.client.gui.Font;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.player.LocalPlayer;
 import net.minecraft.network.chat.Component;
+import net.minecraft.util.ARGB;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 
-/**
- * Bow HUD under the crosshair:
- *  - a draw bar on a dark track, filling in whole GUI pixels; turns gold with end ticks at full draw
- *  - the ammo icon and count, centered under the bar
- *  - the ammo's name, shown briefly under that row when the ammo type changes, then fading out
- */
+// Bow draw bar, ammo and ammo name under the crosshair
 public final class BowHud {
     private static final int CROSSHAIR_SIZE = 15; // vanilla crosshair sprite size
 
@@ -32,23 +28,23 @@ public final class BowHud {
 
     // Ammo row
     private static final int AMMO_GAP = 3;      // bar -> ammo row
-    private static final float ICON_SCALE = 0.75F; // items are 16px, so 12px
-    private static final float COUNT_SCALE = 0.75F; // count text size relative to normal
+    private static final float ICON_SCALE = 0.75F; // of 16px
+    private static final float COUNT_SCALE = 0.75F; // of normal text size
     private static final int ICON_TEXT_GAP = 2;
 
     // Ammo name
     private static final int NAME_GAP = 3;           // ammo row -> name
-    private static final float NAME_SCALE = 0.75F;   // text size relative to normal
-    private static final long NAME_SHOW_MS = 750;   // fully visible for this long...
-    private static final long NAME_FADE_MS = 500;    // ...then fades out over this long
+    private static final float NAME_SCALE = 0.75F;   // of normal text size
+    private static final long NAME_SHOW_MS = 750;   // fully visible
+    private static final long NAME_FADE_MS = 500;    // then fades
 
-    private static final int COLOR_TRACK = 0x50000000;   // dark track
-    private static final int COLOR_FILL = 0x60C0C0C0;    // transparent grey while drawing
-    private static final int COLOR_FULL = 0xFFFFFFFF;    // opaque white at full draw
-    private static final int COLOR_COUNT = 0xFFFFFFFF;
-    private static final int COLOR_NAME_RGB = 0xFFFFFF;  // white (alpha is added for the fade)
+    private static final int COLOR_TRACK = ARGB.color(0x50, 0x000000);  // dark track
+    private static final int COLOR_FILL = ARGB.color(0x60, 0xC0C0C0);   // while drawing
+    private static final int COLOR_FULL = ARGB.opaque(0xFFFFFF);        // at full draw
+    private static final int COLOR_COUNT = ARGB.opaque(0xFFFFFF);
+    private static final int COLOR_NAME_RGB = 0xFFFFFF;                 // alpha added for the fade
 
-    // Last ammo shown, so we can tell when it changes
+    // Last ammo shown, to detect changes
     private static ItemStack lastAmmo = ItemStack.EMPTY;
     private static long nameShownAt = Long.MIN_VALUE;
 
@@ -107,10 +103,8 @@ public final class BowHud {
         }
     }
 
-    /** Draws the ammo icon and count centered on centerX. Returns the row's height. */
     private static int drawAmmoRow(GuiGraphicsExtractor graphics, Font font, LocalPlayer player, ItemStack ammo, int centerX, int top) {
-        // Total of this exact ammo type (tipped arrows of different effects count separately).
-        // 0 means the bow is using free creative-mode ammo, so no count is shown.
+        // 0 = free creative ammo, so no count
         int count = countInInventory(player.getInventory(), ammo);
         String countText = count > 0 ? String.valueOf(count) : "";
 
@@ -127,7 +121,7 @@ public final class BowHud {
         pose.popMatrix();
 
         if (!countText.isEmpty()) {
-            // Vertically centered on the icon (lineHeight includes 1px below the glyphs)
+            // Centre on the icon
             float countHeight = (font.lineHeight - 1) * COUNT_SCALE;
             pose.pushMatrix();
             pose.translate(left + iconSize + ICON_TEXT_GAP, top + (iconSize - countHeight) / 2);
@@ -144,7 +138,7 @@ public final class BowHud {
 
         float alpha = elapsed <= NAME_SHOW_MS ? 1.0F : 1.0F - (elapsed - NAME_SHOW_MS) / (float) NAME_FADE_MS;
         int a = Math.round(alpha * 255);
-        if (a < 8) return; // very low alpha text can render as fully opaque
+        if (a < 8) return; // near-zero alpha renders opaque
 
         Matrix3x2fStack pose = graphics.pose();
         pose.pushMatrix();

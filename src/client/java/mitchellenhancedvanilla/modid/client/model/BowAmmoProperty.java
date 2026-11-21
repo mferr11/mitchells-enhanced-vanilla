@@ -14,10 +14,7 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import org.jspecify.annotations.Nullable;
 
-/**
- * Item model "select" property: the item ID of the ammo a bow would fire, e.g. "minecraft:arrow".
- * Use in an items/*.json file as "property": "mitchells-enhanced-vanilla:bow_ammo".
- */
+// Item model property: ID of the ammo the bow would fire
 public record BowAmmoProperty() implements SelectItemModelProperty<Identifier> {
     public static final Identifier ID = MitchellEnhancedVanilla.id("bow_ammo");
     public static final SelectItemModelProperty.Type<BowAmmoProperty, Identifier> TYPE =
@@ -31,8 +28,7 @@ public record BowAmmoProperty() implements SelectItemModelProperty<Identifier> {
 
     @Override
     public Identifier get(ItemStack stack, @Nullable ClientLevel level, @Nullable LivingEntity entity, int seed, ItemDisplayContext context) {
-        // Only players have an ammo lookup. Other players' inventories aren't synced to this client,
-        // so for them this usually falls back to the default model.
+        // Other players' inventories aren't synced, so they get the default
         if (!(entity instanceof Player player)) return NONE;
         ItemStack ammo = player.getProjectile(stack);
         return ammo.isEmpty() ? NONE : BuiltInRegistries.ITEM.getKey(ammo.getItem());

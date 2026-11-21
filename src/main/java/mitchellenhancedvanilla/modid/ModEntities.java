@@ -34,6 +34,6 @@ public class ModEntities {
             .updateInterval(20));
 
     public static void initialize() {
-        // Loads this class so the entity types above get registered.
+        // Loads the class so the fields above register
     }
 }

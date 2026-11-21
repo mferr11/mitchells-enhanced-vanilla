@@ -16,7 +16,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.Blocks;
 import net.minecraft.world.level.block.state.BlockState;
 
-/** Fletching table: tip + shaft + fletching -> arrows. Slot positions match the GUI texture. */
+// Slot positions match the GUI texture
 public class FletchingTableMenu extends ItemCombinerMenu {
     public static final int TIP_SLOT = 0;
     public static final int SHAFT_SLOT = 1;
@@ -30,7 +30,7 @@ public class FletchingTableMenu extends ItemCombinerMenu {
 
     private final Level level;
 
-    // Client side (opened from a server packet)
+    // Client side
     public FletchingTableMenu(int containerId, Inventory inventory) {
         this(containerId, inventory, ContainerLevelAccess.NULL);
     }
@@ -64,7 +64,7 @@ public class FletchingTableMenu extends ItemCombinerMenu {
 
     @Override
     public void createResult() {
-        // Recipes only exist on the server; the result slot is synced to the client.
+        // Recipes are server-only; the result syncs to the client
         if (!(level instanceof ServerLevel serverLevel)) return;
 
         FletchingRecipeInput input = createRecipeInput();

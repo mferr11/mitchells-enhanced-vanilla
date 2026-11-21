@@ -6,6 +6,7 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
+import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
@@ -18,7 +19,7 @@ public class FletchingTableScreen extends ItemCombinerScreen<FletchingTableMenu>
     private static final ItemStack TIP_HINT = new ItemStack(Items.FLINT);
     private static final ItemStack SHAFT_HINT = new ItemStack(Items.STICK);
     private static final ItemStack FLETCHING_HINT = new ItemStack(Items.FEATHER);
-    private static final int HINT_FADE = 0xA08B8B8B; // slot colour drawn over the item to fade it
+    private static final int HINT_FADE = ARGB.color(0xA0, 0x8B8B8B); // slot colour drawn over the item to fade it
 
     public FletchingTableScreen(FletchingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, TEXTURE);

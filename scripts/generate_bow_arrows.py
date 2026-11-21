@@ -1,19 +1,5 @@
-"""
-Generates the bow's arrow overlays and the bow item model definition.
-
-The bow is drawn as two layers while pulling:
-  1. the bow itself:  assets/mitchells-enhanced-vanilla/textures/item/bow/pulling_<stage>.png  (hand-drawn, no arrow)
-  2. the arrow:       generated here from one sprite per arrow type in art/bow_arrows/
-
-Each arrow sprite is drawn once, at the draw-stage-0 position (copy art/bow_arrows/arrow.png to start).
-Vanilla moves the arrow back by 1 pixel diagonally per stage, so stages 1 and 2 are just shifted copies.
-
-To add an arrow type:
-  1. draw art/bow_arrows/<name>.png
-  2. add a line to ARROWS below
-  3. run:  python scripts/generate_bow_arrows.py
-Requires Pillow (pip install pillow).
-"""
+# Generates bow arrow overlays + bow.json from art/bow_arrows/<name>.png (stage-0 position).
+# To add an arrow: draw the sprite, add it to ARROWS, run: python scripts/generate_bow_arrows.py
 
 import json
 import re
@@ -21,8 +7,7 @@ from pathlib import Path
 
 from PIL import Image
 
-# Item ID of the ammo -> sprite name in art/bow_arrows/.
-# The first entry is also used for any ammo not listed (e.g. spectral and tipped arrows).
+# Ammo item ID -> sprite name. First entry is the fallback for unlisted ammo.
 ARROWS = {
     "minecraft:arrow": "arrow",
     "mitchells-enhanced-vanilla:reinforced_arrow": "reinforced_arrow",
@@ -31,8 +16,8 @@ ARROWS = {
 
 MOD_ID = "mitchells-enhanced-vanilla"
 STAGES = 3
-STAGE_SHIFT = (1, 1)            # pixels the arrow moves per stage (x, y)
-STAGE_THRESHOLDS = [0.65, 0.9]  # pull amount at which stages 1 and 2 start (vanilla values)
+STAGE_SHIFT = (1, 1)            # pixels per stage (x, y)
+STAGE_THRESHOLDS = [0.65, 0.9]  # pull amount for stages 1 and 2
 
 ROOT = Path(__file__).resolve().parent.parent
 ART = ROOT / "art" / "bow_arrows"
@@ -52,7 +37,7 @@ def read_draw_ticks() -> float:
 
 def shifted(sprite: Image.Image, dx: int, dy: int) -> Image.Image:
     out = Image.new("RGBA", sprite.size, (0, 0, 0, 0))
-    out.paste(sprite, (dx, dy))  # pixels pushed off the edge are dropped
+    out.paste(sprite, (dx, dy))
     return out
 
 
@@ -75,7 +60,7 @@ def generate_overlays() -> None:
             dx, dy = STAGE_SHIFT[0] * stage, STAGE_SHIFT[1] * stage
             shifted(sprite, dx, dy).save(TEXTURES / f"{name}_{stage}.png")
             write_json(MODELS / f"{name}_{stage}.json", {
-                # Parent gives the overlay the same in-hand transforms as the bow
+                # Same in-hand transforms as the bow
                 "parent": "minecraft:item/bow",
                 "textures": {"layer0": f"{MOD_ID}:item/bow_arrow/{name}_{stage}"},
             })

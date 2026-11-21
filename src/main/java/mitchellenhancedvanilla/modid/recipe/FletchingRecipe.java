@@ -16,21 +16,7 @@ import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
 import net.minecraft.world.level.Level;
 
-/**
- * A fletching table recipe: one tip, one shaft and one fletching item make the result.
- *
- * JSON (data/<namespace>/recipe/...):
- * <pre>
- * {
- *   "type": "mitchells-enhanced-vanilla:fletching",
- *   "tip": "minecraft:flint",
- *   "shaft": "minecraft:stick",
- *   "fletching": "minecraft:feather",
- *   "result": { "id": "minecraft:arrow", "count": 8 }
- * }
- * </pre>
- * Each ingredient can also be a tag ("#minecraft:...") or a list of items.
- */
+// Fletching table recipe: tip + shaft + fletching -> result
 public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
     public static final MapCodec<FletchingRecipe> MAP_CODEC = RecordCodecBuilder.mapCodec(instance -> instance.group(
         Recipe.CommonInfo.MAP_CODEC.forGetter(r -> r.commonInfo),
@@ -73,7 +59,7 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
         return result.create();
     }
 
-    // Keeps these recipes out of the recipe book, which has no fletching tab.
+    // Keeps it out of the recipe book
     @Override
     public boolean isSpecial() {
         return true;
@@ -109,7 +95,6 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
 
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        // Required, but unused because isSpecial() keeps these out of the recipe book.
         return RecipeBookCategories.CRAFTING_EQUIPMENT;
     }
 }

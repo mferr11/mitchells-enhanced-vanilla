@@ -4,7 +4,9 @@
 	"compatibilityLevel": "JAVA_25",
 	"client": [
 		"ExampleClientMixin",
-		"AbstractClientPlayerMixin"
+		"AbstractClientPlayerMixin",
+		"LivingEntityRendererMixin",
+		"RenderLayerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

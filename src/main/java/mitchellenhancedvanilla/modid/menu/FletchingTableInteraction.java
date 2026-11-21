@@ -9,7 +9,7 @@ import net.minecraft.world.SimpleMenuProvider;
 import net.minecraft.world.inventory.ContainerLevelAccess;
 import net.minecraft.world.level.block.Blocks;
 
-/** Right-clicking a fletching table opens the fletching menu (vanilla's fletching table does nothing). */
+// Right-click opens the fletching menu
 public final class FletchingTableInteraction {
     private static final Component TITLE =
         Component.translatable("container." + MitchellEnhancedVanilla.MOD_ID + ".fletching_table");
@@ -22,7 +22,7 @@ public final class FletchingTableInteraction {
             if (!level.getBlockState(pos).is(Blocks.FLETCHING_TABLE) || player.isSpectator()) {
                 return InteractionResult.PASS;
             }
-            // Sneaking with an item in hand places it against the table, like other workstations
+            // Sneak + item places it, like other workstations
             if (player.isSecondaryUseActive() && !player.getItemInHand(hand).isEmpty()) {
                 return InteractionResult.PASS;
             }
