@@ -20,8 +20,14 @@
     "item.mitchells-enhanced-vanilla.emerald_arrow": "Emerald Arrow",
     "item.mitchells-enhanced-vanilla.emerald_arrow.desc": "Imbued with Looting III",
     "entity.mitchells-enhanced-vanilla.emerald_arrow": "Emerald Arrow",
+    "item.mitchells-enhanced-vanilla.iron_bow": "Reinforced Bow",
+    "item.mitchells-enhanced-vanilla.golden_bow": "Gilded Bow",
+    "item.mitchells-enhanced-vanilla.diamond_bow": "Diamond Bow",
     "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table",
     "tooltip.mitchells-enhanced-vanilla.arrow.fired": "When Fired:",
     "tooltip.mitchells-enhanced-vanilla.arrow.damage": "%s Base Damage",
-    "tooltip.mitchells-enhanced-vanilla.arrow.shrapnel": "%s Shrapnel Damage"
+    "tooltip.mitchells-enhanced-vanilla.arrow.shrapnel": "%s Shrapnel Damage",
+    "tooltip.mitchells-enhanced-vanilla.bow.drawn": "When Drawn:",
+    "tooltip.mitchells-enhanced-vanilla.bow.draw_time": "%ss Draw Time",
+    "tooltip.mitchells-enhanced-vanilla.bow.arrow_speed": "%sx Arrow Speed"
 }

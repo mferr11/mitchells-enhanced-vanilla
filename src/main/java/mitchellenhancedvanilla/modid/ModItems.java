@@ -14,8 +14,10 @@ import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
+import net.minecraft.world.item.Items;
 
 public class ModItems {
 	public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
@@ -29,6 +31,9 @@ public class ModItems {
     public static void initialize() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
 		.register((creativeTab) -> {
+			creativeTab.accept(ModItems.IRON_BOW);
+			creativeTab.accept(ModItems.GOLDEN_BOW);
+			creativeTab.accept(ModItems.DIAMOND_BOW);
 			creativeTab.accept(ModItems.REINFORCED_ARROW);
 			creativeTab.accept(ModItems.FROZEN_ARROW);
 			creativeTab.accept(ModItems.COPPER_ARROW);
@@ -53,4 +58,12 @@ public class ModItems {
         p -> new ModArrowItem(p, PrismarineArrowEntity.BASE_DAMAGE, PrismarineArrowEntity::new, PrismarineArrowEntity::new), new Item.Properties());
     public static final Item EMERALD_ARROW = register(ModItemIds.EMERALD_ARROW,
         p -> new ModArrowItem(p, EmeraldArrowEntity.BASE_DAMAGE, EmeraldArrowEntity::new, EmeraldArrowEntity::new), new Item.Properties());
+
+    // Enchantability matches the material's tools (vanilla bow is 1)
+    public static final Item IRON_BOW = register(ModItemIds.IRON_BOW, BowItem::new,
+        new Item.Properties().durability(BowStats.IRON_DURABILITY).enchantable(14).repairable(Items.IRON_INGOT));
+    public static final Item GOLDEN_BOW = register(ModItemIds.GOLDEN_BOW, BowItem::new,
+        new Item.Properties().durability(BowStats.GOLDEN_DURABILITY).enchantable(22).repairable(Items.GOLD_INGOT));
+    public static final Item DIAMOND_BOW = register(ModItemIds.DIAMOND_BOW, BowItem::new,
+        new Item.Properties().durability(BowStats.DIAMOND_DURABILITY).enchantable(10).repairable(Items.DIAMOND));
 }

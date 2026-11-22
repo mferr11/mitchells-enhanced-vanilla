@@ -67,8 +67,9 @@ public final class BowHud {
 
         int ticks = player.getTicksUsingItem();
 
-        boolean full = BowItem.getPowerForTime(ticks) >= 1.0F;
-        float progress = full ? 1.0F : Math.min(ticks / BowStats.DRAW_TICKS, 1.0F);
+        BowStats stats = BowStats.of(bow);
+        boolean full = stats.power(ticks) >= 1.0F;
+        float progress = full ? 1.0F : Math.min(ticks / stats.drawTicks(), 1.0F);
 
         int centerX = (graphics.guiWidth() - CROSSHAIR_SIZE) / 2 + CROSSHAIR_SIZE / 2;
         int centerY = (graphics.guiHeight() - CROSSHAIR_SIZE) / 2 + CROSSHAIR_SIZE / 2;

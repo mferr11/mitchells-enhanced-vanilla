@@ -1,0 +1,227 @@
+{
+  "model": {
+    "type": "minecraft:condition",
+    "property": "minecraft:using_item",
+    "on_false": {
+      "type": "minecraft:model",
+      "model": "mitchells-enhanced-vanilla:item/diamond_bow"
+    },
+    "on_true": {
+      "type": "minecraft:range_dispatch",
+      "property": "minecraft:use_duration",
+      "scale": 0.066667,
+      "entries": [
+        {
+          "threshold": 0.65,
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "mitchells-enhanced-vanilla:item/bow/diamond_bow_pulling_1"
+              },
+              {
+                "type": "minecraft:select",
+                "property": "mitchells-enhanced-vanilla:bow_ammo",
+                "cases": [
+                  {
+                    "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:frozen_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:copper_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:gold_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_1"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:emerald_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/emerald_arrow_1"
+                    }
+                  }
+                ],
+                "fallback": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_1"
+                }
+              }
+            ]
+          }
+        },
+        {
+          "threshold": 0.9,
+          "model": {
+            "type": "minecraft:composite",
+            "models": [
+              {
+                "type": "minecraft:model",
+                "model": "mitchells-enhanced-vanilla:item/bow/diamond_bow_pulling_2"
+              },
+              {
+                "type": "minecraft:select",
+                "property": "mitchells-enhanced-vanilla:bow_ammo",
+                "cases": [
+                  {
+                    "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:frozen_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:copper_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:gold_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_2"
+                    }
+                  },
+                  {
+                    "when": "mitchells-enhanced-vanilla:emerald_arrow",
+                    "model": {
+                      "type": "minecraft:model",
+                      "model": "mitchells-enhanced-vanilla:item/bow_arrow/emerald_arrow_2"
+                    }
+                  }
+                ],
+                "fallback": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_2"
+                }
+              }
+            ]
+          }
+        }
+      ],
+      "fallback": {
+        "type": "minecraft:composite",
+        "models": [
+          {
+            "type": "minecraft:model",
+            "model": "mitchells-enhanced-vanilla:item/bow/diamond_bow_pulling_0"
+          },
+          {
+            "type": "minecraft:select",
+            "property": "mitchells-enhanced-vanilla:bow_ammo",
+            "cases": [
+              {
+                "when": "mitchells-enhanced-vanilla:reinforced_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/reinforced_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:frozen_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/frozen_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:copper_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/copper_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:amethyst_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/amethyst_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:gold_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/gold_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:prismarine_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/prismarine_arrow_0"
+                }
+              },
+              {
+                "when": "mitchells-enhanced-vanilla:emerald_arrow",
+                "model": {
+                  "type": "minecraft:model",
+                  "model": "mitchells-enhanced-vanilla:item/bow_arrow/emerald_arrow_0"
+                }
+              }
+            ],
+            "fallback": {
+              "type": "minecraft:model",
+              "model": "mitchells-enhanced-vanilla:item/bow_arrow/arrow_0"
+            }
+          }
+        ]
+      }
+    }
+  }
+}

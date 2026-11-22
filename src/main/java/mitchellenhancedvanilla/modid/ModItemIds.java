@@ -17,4 +17,7 @@ public class ModItemIds {
     public static final ResourceKey<Item> GOLD_ARROW = create("gold_arrow");
     public static final ResourceKey<Item> PRISMARINE_ARROW = create("prismarine_arrow");
     public static final ResourceKey<Item> EMERALD_ARROW = create("emerald_arrow");
+    public static final ResourceKey<Item> IRON_BOW = create("iron_bow");
+    public static final ResourceKey<Item> GOLDEN_BOW = create("golden_bow");
+    public static final ResourceKey<Item> DIAMOND_BOW = create("diamond_bow");
 }

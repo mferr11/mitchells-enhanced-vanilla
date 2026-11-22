@@ -35,7 +35,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		ModLootTables.register();
 		FletchingTableInteraction.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
-			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, 32)));
+			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, BowStats.WOODEN_DURABILITY)));
 	}
 
 	public static Identifier id(String path) {

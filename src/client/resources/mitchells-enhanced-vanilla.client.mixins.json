@@ -8,7 +8,8 @@
 		"LivingEntityRendererMixin",
 		"RenderLayerMixin",
 		"SlimeOuterLayerMixin",
-		"EquipmentLayerRendererMixin"
+		"EquipmentLayerRendererMixin",
+		"FirstPersonHandsAndItemsMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
