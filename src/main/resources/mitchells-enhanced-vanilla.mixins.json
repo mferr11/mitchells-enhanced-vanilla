@@ -12,7 +12,8 @@
 		"MobDecoyMixin",
 		"BrainDecoyMixin",
 		"CubeMobDecoyMixin",
-		"CubeMobMoveControlMixin"
+		"CubeMobMoveControlMixin",
+		"SmithingTemplateItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
