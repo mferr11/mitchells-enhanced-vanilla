@@ -3,12 +3,12 @@
   "category": "equipment",
   "key": {
     "#": "minecraft:iron_ingot",
-    "X": "minecraft:string"
+    "X": "minecraft:bow"
   },
   "pattern": [
-    " #X",
-    "# X",
-    " #X"
+    "###",
+    "#X#",
+    "###"
   ],
   "result": {
     "id": "mitchells-enhanced-vanilla:iron_bow"

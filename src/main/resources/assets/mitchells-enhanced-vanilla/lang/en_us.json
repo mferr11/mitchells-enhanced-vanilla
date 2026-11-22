@@ -23,6 +23,7 @@
     "item.mitchells-enhanced-vanilla.iron_bow": "Reinforced Bow",
     "item.mitchells-enhanced-vanilla.golden_bow": "Gilded Bow",
     "item.mitchells-enhanced-vanilla.diamond_bow": "Longbow",
+    "item.mitchells-enhanced-vanilla.netherite_bow": "Netherite Longbow",
     "container.mitchells-enhanced-vanilla.fletching_table": "Fletching Table",
     "tooltip.mitchells-enhanced-vanilla.arrow.fired": "When Fired:",
     "tooltip.mitchells-enhanced-vanilla.arrow.damage": "%s Base Damage",

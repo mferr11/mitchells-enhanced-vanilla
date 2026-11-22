@@ -34,6 +34,7 @@ public class ModItems {
 			creativeTab.accept(ModItems.IRON_BOW);
 			creativeTab.accept(ModItems.GOLDEN_BOW);
 			creativeTab.accept(ModItems.DIAMOND_BOW);
+			creativeTab.accept(ModItems.NETHERITE_BOW);
 			creativeTab.accept(ModItems.REINFORCED_ARROW);
 			creativeTab.accept(ModItems.FROZEN_ARROW);
 			creativeTab.accept(ModItems.COPPER_ARROW);
@@ -66,4 +67,6 @@ public class ModItems {
         new Item.Properties().durability(BowStats.GOLDEN_DURABILITY).enchantable(22).repairable(Items.GOLD_INGOT));
     public static final Item DIAMOND_BOW = register(ModItemIds.DIAMOND_BOW, BowItem::new,
         new Item.Properties().durability(BowStats.DIAMOND_DURABILITY).enchantable(10).repairable(Items.DIAMOND));
+    public static final Item NETHERITE_BOW = register(ModItemIds.NETHERITE_BOW, BowItem::new,
+        new Item.Properties().durability(BowStats.NETHERITE_DURABILITY).enchantable(15).repairable(Items.NETHERITE_INGOT).fireResistant());
 }

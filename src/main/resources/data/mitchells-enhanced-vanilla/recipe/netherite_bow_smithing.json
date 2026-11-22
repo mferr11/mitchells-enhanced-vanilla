@@ -1,0 +1,9 @@
+{
+  "type": "minecraft:smithing_transform",
+  "addition": "#minecraft:netherite_tool_materials",
+  "base": "mitchells-enhanced-vanilla:diamond_bow",
+  "result": {
+    "id": "mitchells-enhanced-vanilla:netherite_bow"
+  },
+  "template": "minecraft:netherite_upgrade_smithing_template"
+}

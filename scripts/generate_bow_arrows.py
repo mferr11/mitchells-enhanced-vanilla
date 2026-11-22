@@ -28,6 +28,7 @@ BOWS = {
     f"{MOD_ID}:iron_bow": ("IRON", f"{MOD_ID}/items/iron_bow.json", f"{MOD_ID}:item/iron_bow", "bow/iron_bow_pulling"),
     f"{MOD_ID}:golden_bow": ("GOLDEN", f"{MOD_ID}/items/golden_bow.json", f"{MOD_ID}:item/golden_bow", "bow/gold_bow_pulling"),
     f"{MOD_ID}:diamond_bow": ("DIAMOND", f"{MOD_ID}/items/diamond_bow.json", f"{MOD_ID}:item/diamond_bow", "bow/diamond_bow_pulling"),
+    f"{MOD_ID}:netherite_bow": ("NETHERITE", f"{MOD_ID}/items/netherite_bow.json", f"{MOD_ID}:item/netherite_bow", "bow/netherite_bow_pulling"),
 }
 STAGES = 3
 STAGE_SHIFT = (1, 1)            # pixels per stage (x, y)

@@ -3,12 +3,12 @@
   "category": "equipment",
   "key": {
     "#": "minecraft:diamond",
-    "X": "minecraft:string"
+    "X": "minecraft:bow"
   },
   "pattern": [
-    " #X",
-    "# X",
-    " #X"
+    "###",
+    "#X#",
+    "###"
   ],
   "result": {
     "id": "mitchells-enhanced-vanilla:diamond_bow"
