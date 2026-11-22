@@ -4,22 +4,19 @@ import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
 import mitchellenhancedvanilla.modid.menu.FletchingTableMenu;
 import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.gui.screens.inventory.ItemCombinerScreen;
+import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.Identifier;
-import net.minecraft.util.ARGB;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
 
 public class FletchingTableScreen extends ItemCombinerScreen<FletchingTableMenu> {
     private static final Identifier TEXTURE =
         MitchellEnhancedVanilla.id("textures/gui/container/fletching_table.png");
 
-    // Faded hints shown in empty input slots
-    private static final ItemStack TIP_HINT = new ItemStack(Items.FLINT);
-    private static final ItemStack SHAFT_HINT = new ItemStack(Items.STICK);
-    private static final ItemStack FLETCHING_HINT = new ItemStack(Items.FEATHER);
-    private static final int HINT_FADE = ARGB.color(0xA0, 0x8B8B8B); // slot colour drawn over the item to fade it
+    // Outline hints shown in empty input slots, like the smithing table's
+    private static final Identifier TIP_HINT = MitchellEnhancedVanilla.id("container/slot/arrow_tip");
+    private static final Identifier SHAFT_HINT = MitchellEnhancedVanilla.id("container/slot/stick");
+    private static final Identifier FLETCHING_HINT = MitchellEnhancedVanilla.id("container/slot/feather");
 
     public FletchingTableScreen(FletchingTableMenu menu, Inventory inventory, Component title) {
         super(menu, inventory, title, TEXTURE);
@@ -33,12 +30,9 @@ public class FletchingTableScreen extends ItemCombinerScreen<FletchingTableMenu>
         drawHint(graphics, FletchingTableMenu.FLETCHING_SLOT, FLETCHING_HINT, FletchingTableMenu.FLETCHING_Y);
     }
 
-    private void drawHint(GuiGraphicsExtractor graphics, int slot, ItemStack hint, int slotY) {
+    private void drawHint(GuiGraphicsExtractor graphics, int slot, Identifier sprite, int slotY) {
         if (menu.getSlot(slot).hasItem()) return;
-        int x = leftPos + FletchingTableMenu.INPUT_X;
-        int y = topPos + slotY;
-        graphics.fakeItem(hint, x, y);
-        graphics.fill(x, y, x + 16, y + 16, HINT_FADE);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, sprite, leftPos + FletchingTableMenu.INPUT_X, topPos + slotY, 16, 16);
     }
 
     @Override
