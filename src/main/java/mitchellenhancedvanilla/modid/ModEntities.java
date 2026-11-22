@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
+import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
@@ -63,6 +64,14 @@ public class ModEntities {
 
     public static final EntityType<PrismarineArrowEntity> PRISMARINE_ARROW = register("prismarine_arrow",
         EntityType.Builder.<PrismarineArrowEntity>of(PrismarineArrowEntity::new, MobCategory.MISC)
+            .noLootTable()
+            .sized(0.5F, 0.5F)
+            .eyeHeight(0.13F)
+            .clientTrackingRange(4)
+            .updateInterval(20));
+
+    public static final EntityType<EmeraldArrowEntity> EMERALD_ARROW = register("emerald_arrow",
+        EntityType.Builder.<EmeraldArrowEntity>of(EmeraldArrowEntity::new, MobCategory.MISC)
             .noLootTable()
             .sized(0.5F, 0.5F)
             .eyeHeight(0.13F)

@@ -12,6 +12,7 @@ public class ModParticles {
     public static final SimpleParticleType AMETHYST_CRIT = register("amethyst_crit");
     public static final SimpleParticleType GOLD_CRIT = register("gold_crit");
     public static final SimpleParticleType PRISMARINE_CRIT = register("prismarine_crit");
+    public static final SimpleParticleType EMERALD_CRIT = register("emerald_crit");
 
     private static SimpleParticleType register(String name) {
         return Registry.register(BuiltInRegistries.PARTICLE_TYPE, MitchellEnhancedVanilla.id(name), FabricParticleTypes.simple());

@@ -1,0 +1,10 @@
+{
+    "type": "mitchells-enhanced-vanilla:fletching",
+    "tip": "minecraft:emerald",
+    "shaft": "minecraft:stick",
+    "fletching": "minecraft:feather",
+    "result": {
+        "id": "mitchells-enhanced-vanilla:emerald_arrow",
+        "count": 8
+    }
+}

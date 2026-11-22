@@ -4,6 +4,7 @@ import java.util.function.Function;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
+import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
@@ -34,6 +35,7 @@ public class ModItems {
 			creativeTab.accept(ModItems.AMETHYST_ARROW);
 			creativeTab.accept(ModItems.GOLD_ARROW);
 			creativeTab.accept(ModItems.PRISMARINE_ARROW);
+			creativeTab.accept(ModItems.EMERALD_ARROW);
 		});
     }
 
@@ -49,4 +51,6 @@ public class ModItems {
         p -> new ModArrowItem(p, GoldArrowEntity.BASE_DAMAGE, GoldArrowEntity::new, GoldArrowEntity::new), new Item.Properties());
     public static final Item PRISMARINE_ARROW = register(ModItemIds.PRISMARINE_ARROW,
         p -> new ModArrowItem(p, PrismarineArrowEntity.BASE_DAMAGE, PrismarineArrowEntity::new, PrismarineArrowEntity::new), new Item.Properties());
+    public static final Item EMERALD_ARROW = register(ModItemIds.EMERALD_ARROW,
+        p -> new ModArrowItem(p, EmeraldArrowEntity.BASE_DAMAGE, EmeraldArrowEntity::new, EmeraldArrowEntity::new), new Item.Properties());
 }

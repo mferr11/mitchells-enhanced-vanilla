@@ -16,6 +16,7 @@ ARROWS = {
     "mitchells-enhanced-vanilla:amethyst_arrow": "amethyst_arrow",
     "mitchells-enhanced-vanilla:gold_arrow": "gold_arrow",
     "mitchells-enhanced-vanilla:prismarine_arrow": "prismarine_arrow",
+    "mitchells-enhanced-vanilla:emerald_arrow": "emerald_arrow",
 }
 
 MOD_ID = "mitchells-enhanced-vanilla"
