@@ -20,6 +20,11 @@ public class AbstractClientPlayerMixin {
         return BowStats.of(((AbstractClientPlayer) (Object) this).getUseItem()).drawTicks();
     }
 
+    @ModifyConstant(method = "getFieldOfViewModifier", constant = @Constant(floatValue = 0.15F))
+    private float mev$bowZoomStrength(float original) {
+        return BowStats.of(((AbstractClientPlayer) (Object) this).getUseItem()).zoom();
+    }
+
     // Vanilla only zooms for the wooden bow
     @WrapOperation(method = "getFieldOfViewModifier",
         at = @At(value = "INVOKE", target = "Lnet/minecraft/world/item/ItemStack;is(Ljava/lang/Object;)Z"))

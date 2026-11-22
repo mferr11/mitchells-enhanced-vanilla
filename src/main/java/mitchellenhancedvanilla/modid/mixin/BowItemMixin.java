@@ -27,6 +27,15 @@ public class BowItemMixin {
         return velocity * BowStats.of(bow).velocityMultiplier();
     }
 
+    @ModifyArg(
+        method = "releaseUsing",
+        at = @At(value = "INVOKE",
+            target = "Lnet/minecraft/world/item/BowItem;shoot(Lnet/minecraft/server/level/ServerLevel;Lnet/minecraft/world/entity/LivingEntity;Lnet/minecraft/world/InteractionHand;Lnet/minecraft/world/item/ItemStack;Ljava/util/List;FFZLnet/minecraft/world/entity/LivingEntity;)V"),
+        index = 6)
+    private float mev$inaccuracy(float inaccuracy, @Local(argsOnly = true) ItemStack bow) {
+        return BowStats.of(bow).inaccuracy();
+    }
+
     // Other callers (skeleton AI) have no bow stack, so they get the wooden draw time
     @ModifyConstant(method = "getPowerForTime", constant = @Constant(floatValue = 20.0F))
     private static float mev$drawTime(float original) {
