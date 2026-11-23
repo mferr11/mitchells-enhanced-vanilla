@@ -31,17 +31,11 @@ public class ModItems {
     public static void initialize() {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.COMBAT)
 		.register((creativeTab) -> {
-			creativeTab.accept(ModItems.IRON_BOW);
-			creativeTab.accept(ModItems.GOLDEN_BOW);
-			creativeTab.accept(ModItems.DIAMOND_BOW);
-			creativeTab.accept(ModItems.NETHERITE_BOW);
-			creativeTab.accept(ModItems.REINFORCED_ARROW);
-			creativeTab.accept(ModItems.FROZEN_ARROW);
-			creativeTab.accept(ModItems.COPPER_ARROW);
-			creativeTab.accept(ModItems.AMETHYST_ARROW);
-			creativeTab.accept(ModItems.GOLD_ARROW);
-			creativeTab.accept(ModItems.PRISMARINE_ARROW);
-			creativeTab.accept(ModItems.EMERALD_ARROW);
+			creativeTab.insertAfter(Items.BOW,
+				ModItems.IRON_BOW, ModItems.GOLDEN_BOW, ModItems.DIAMOND_BOW, ModItems.NETHERITE_BOW);
+			creativeTab.insertAfter(Items.ARROW,
+				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
+				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 		});
     }
 
