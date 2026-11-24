@@ -38,6 +38,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		FletchingTableInteraction.register();
 		Quiver.initialize();
 		CycleQuiverPayload.register();
+		ModArmour.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
 			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, BowStats.WOODEN_DURABILITY)));
 	}

@@ -22,6 +22,7 @@ public class ModItemIds {
     public static final ResourceKey<Item> DIAMOND_BOW = create("diamond_bow");
     public static final ResourceKey<Item> NETHERITE_BOW = create("netherite_bow");
     public static final ResourceKey<Item> QUIVER = create("quiver");
+    public static final ResourceKey<Item> CHAINMAIL_ARMOUR_PLATING = create("chainmail_armour_plating");
     public static final ResourceKey<Item> COPPER_ARMOUR_PLATING = create("copper_armour_plating");
     public static final ResourceKey<Item> IRON_ARMOUR_PLATING = create("iron_armour_plating");
     public static final ResourceKey<Item> GOLD_ARMOUR_PLATING = create("gold_armour_plating");

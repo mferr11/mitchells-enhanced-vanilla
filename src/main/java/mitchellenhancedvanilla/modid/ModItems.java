@@ -45,6 +45,7 @@ public class ModItems {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
+			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.CHAINMAIL_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.IRON_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.GOLD_INGOT, ModItems.GOLD_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.DIAMOND, ModItems.DIAMOND_ARMOUR_PLATING);
@@ -80,6 +81,7 @@ public class ModItems {
         new Item.Properties().stacksTo(1).component(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY));
 
     // Crafted from a 2x2 of the material, used in place of it in armour recipes
+    public static final Item CHAINMAIL_ARMOUR_PLATING = register(ModItemIds.CHAINMAIL_ARMOUR_PLATING, Item::new, new Item.Properties());
     public static final Item COPPER_ARMOUR_PLATING = register(ModItemIds.COPPER_ARMOUR_PLATING, Item::new, new Item.Properties());
     public static final Item IRON_ARMOUR_PLATING = register(ModItemIds.IRON_ARMOUR_PLATING, Item::new, new Item.Properties());
     public static final Item GOLD_ARMOUR_PLATING = register(ModItemIds.GOLD_ARMOUR_PLATING, Item::new, new Item.Properties());
