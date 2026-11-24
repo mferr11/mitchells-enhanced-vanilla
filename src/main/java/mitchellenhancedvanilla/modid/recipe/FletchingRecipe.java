@@ -59,10 +59,26 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
         return result.create();
     }
 
-    // Keeps it out of the recipe book
+    // Not special, so the player's recipe book tracks unlocks; with no display() it never shows in the crafting book
     @Override
     public boolean isSpecial() {
-        return true;
+        return false;
+    }
+
+    public Ingredient tip() {
+        return tip;
+    }
+
+    public Ingredient shaft() {
+        return shaft;
+    }
+
+    public Ingredient fletching() {
+        return fletching;
+    }
+
+    public ItemStackTemplate result() {
+        return result;
     }
 
     @Override

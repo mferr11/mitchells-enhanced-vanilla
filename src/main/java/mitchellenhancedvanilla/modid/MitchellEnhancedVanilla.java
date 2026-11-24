@@ -1,5 +1,6 @@
 package mitchellenhancedvanilla.modid;
 
+import mitchellenhancedvanilla.modid.menu.FletchingRecipesPayload;
 import mitchellenhancedvanilla.modid.menu.FletchingTableInteraction;
 import mitchellenhancedvanilla.modid.menu.ModMenus;
 import mitchellenhancedvanilla.modid.quiver.CycleQuiverPayload;
@@ -39,6 +40,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		Quiver.initialize();
 		CycleQuiverPayload.register();
 		ModArmour.register();
+		FletchingRecipesPayload.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
 			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, BowStats.WOODEN_DURABILITY)));
 	}

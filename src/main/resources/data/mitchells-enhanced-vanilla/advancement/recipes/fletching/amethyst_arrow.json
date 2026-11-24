@@ -1,0 +1,43 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_tip": {
+      "conditions": {
+        "items": [
+          {
+            "items": "minecraft:amethyst_shard"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_arrow": {
+      "conditions": {
+        "items": [
+          {
+            "items": "mitchells-enhanced-vanilla:amethyst_arrow"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "mitchells-enhanced-vanilla:fletching/amethyst_arrow"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_tip",
+      "has_arrow"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mitchells-enhanced-vanilla:fletching/amethyst_arrow"
+    ]
+  }
+}

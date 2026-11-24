@@ -9,6 +9,7 @@ import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
+import mitchellenhancedvanilla.modid.client.screen.FletchingRecipePanel;
 import mitchellenhancedvanilla.modid.client.screen.FletchingTableScreen;
 import mitchellenhancedvanilla.modid.menu.ModMenus;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
@@ -41,6 +42,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		});
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
+		FletchingRecipePanel.register();
 		FrozenParticles.register();
 		ArrowTooltip.register();
 		BowTooltip.register();
