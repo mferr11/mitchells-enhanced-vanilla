@@ -6,6 +6,7 @@ import java.util.List;
 import net.minecraft.network.RegistryFriendlyByteBuf;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
 import net.minecraft.world.item.ItemStackTemplate;
 import net.minecraft.world.item.crafting.Ingredient;
 import net.minecraft.world.item.crafting.PlacementInfo;
@@ -14,6 +15,9 @@ import net.minecraft.world.item.crafting.RecipeBookCategories;
 import net.minecraft.world.item.crafting.RecipeBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.item.crafting.RecipeType;
+import net.minecraft.world.item.crafting.display.RecipeDisplay;
+import net.minecraft.world.item.crafting.display.SlotDisplay;
+import net.minecraft.world.item.crafting.display.SmithingRecipeDisplay;
 import net.minecraft.world.level.Level;
 
 // Fletching table recipe: tip + shaft + fletching -> result
@@ -59,7 +63,7 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
         return result.create();
     }
 
-    // Not special, so the player's recipe book tracks unlocks; with no display() it never shows in the crafting book
+    // Not special, so the player's recipe book tracks unlocks
     @Override
     public boolean isSpecial() {
         return false;
@@ -79,6 +83,13 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
 
     public ItemStackTemplate result() {
         return result;
+    }
+
+    // Smithing's display has the same shape (3 inputs, result, station) and drives the unlock toast
+    @Override
+    public List<RecipeDisplay> display() {
+        return List.of(new SmithingRecipeDisplay(tip.display(), shaft.display(), fletching.display(),
+            new SlotDisplay.ItemStackSlotDisplay(result), new SlotDisplay.ItemSlotDisplay(Items.FLETCHING_TABLE)));
     }
 
     @Override
@@ -109,8 +120,9 @@ public class FletchingRecipe implements Recipe<FletchingRecipeInput> {
         return placementInfo;
     }
 
+    // No vanilla recipe book screen shows the smithing category
     @Override
     public RecipeBookCategory recipeBookCategory() {
-        return RecipeBookCategories.CRAFTING_EQUIPMENT;
+        return RecipeBookCategories.SMITHING;
     }
 }
