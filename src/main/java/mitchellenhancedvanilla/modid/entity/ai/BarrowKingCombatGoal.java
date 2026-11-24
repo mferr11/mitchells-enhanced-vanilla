@@ -16,7 +16,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-// Phase 1 duel: sword combos with clear wind-ups, and a telegraphed charge
+// The King's fight: sword combos and a telegraphed charge, retainer waves in phase 2, faster and harder in phase 3
 public class BarrowKingCombatGoal extends Goal {
     // Sword combo
     public static final int COMBO_MIN = 2;
@@ -46,14 +46,30 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int CHARGE_MISS_STUN_TICKS = 40;
     public static final int CHARGE_WALL_STUN_TICKS = 70;
     // Shield knocked aside by an axe (vanilla disables player shields for 5s)
-    public static final int GUARD_BREAK_STUN_TICKS = 60;
+    public static final int GUARD_BREAK_STUN_TICKS = 40;
+
+    // Phase 2: sword raised, shield down while the ground stirs, then a wave rises
+    public static final int SUMMON_TICKS = 30;
+    public static final int SUMMON_RECOVER_TICKS = 10;
+    public static final int RETAINER_WAVE_INTERVAL = 15 * 20;
+
+    // Phase 3: quicker wind-ups, longer combos and shorter cooldowns (stuns stay the same)
+    public static final int ENRAGED_COMBO_MIN = 3;
+    public static final int ENRAGED_COMBO_MAX = 4;
+    public static final int ENRAGED_FIRST_WINDUP_TICKS = 9;
+    public static final int ENRAGED_FOLLOWUP_WINDUP_TICKS = 10;
+    public static final int ENRAGED_COMBO_RECOVER_TICKS = 12;
+    public static final int ENRAGED_ATTACK_COOLDOWN_TICKS = 25;
+    public static final int ENRAGED_CHARGE_COOLDOWN_TICKS = 5 * 20;
+    // Roars in place as he throws the shield away
+    public static final int ENRAGE_ROAR_TICKS = 25;
 
     public static final double CHASE_SPEED = 1.0;
     // Keeps pressing forward through a combo, a little slower than his chase
     public static final double COMBO_MOVE_SPEED = 0.8;
     public static final int REPATH_INTERVAL = 10;
 
-    private enum State { CHASE, WINDUP, RECOVER, CHARGE_WINDUP, CHARGING, STUNNED }
+    private enum State { CHASE, WINDUP, RECOVER, CHARGE_WINDUP, CHARGING, STUNNED, SUMMON }
 
     private final BarrowKingEntity king;
     private State state = State.CHASE;
@@ -61,6 +77,7 @@ public class BarrowKingCombatGoal extends Goal {
     private int comboLeft;
     private int attackCooldown;
     private int chargeCooldown = CHARGE_COOLDOWN_TICKS / 2;
+    private int summonCooldown = RETAINER_WAVE_INTERVAL;
     private Vec3 chargeDir = Vec3.ZERO;
 
     public BarrowKingCombatGoal(BarrowKingEntity king) {
@@ -79,6 +96,26 @@ public class BarrowKingCombatGoal extends Goal {
     public void breakGuard() {
         king.setDeltaMovement(0.0, king.getDeltaMovement().y, 0.0);
         enter(State.STUNNED, GUARD_BREAK_STUN_TICKS);
+    }
+
+    // Phase 2 just started: call the first wave as soon as he is free
+    public void raiseRetainersSoon() {
+        summonCooldown = 0;
+    }
+
+    // Phase 3 just started: interrupt everything for the roar, charge soon after
+    public void onEnraged() {
+        king.setDeltaMovement(0.0, king.getDeltaMovement().y, 0.0);
+        enter(State.RECOVER, ENRAGE_ROAR_TICKS);
+        chargeCooldown = Math.min(chargeCooldown, ENRAGE_ROAR_TICKS + 20);
+    }
+
+    private boolean enraged() {
+        return king.getPhase() == BarrowKingEntity.Phase.ENRAGED;
+    }
+
+    private int followupWindupTicks() {
+        return enraged() ? ENRAGED_FOLLOWUP_WINDUP_TICKS : FOLLOWUP_WINDUP_TICKS;
     }
 
     // Combos and charges always play out, even if the target is lost mid-swing
@@ -111,12 +148,14 @@ public class BarrowKingCombatGoal extends Goal {
     public void tick() {
         if (attackCooldown > 0) attackCooldown--;
         if (chargeCooldown > 0) chargeCooldown--;
+        if (summonCooldown > 0) summonCooldown--;
         LivingEntity target = king.getTarget();
         ServerLevel level = getServerLevel(king);
         timer--;
 
         switch (state) {
-            case CHASE -> tickChase(target);
+            case CHASE -> tickChase(level, target);
+            case SUMMON -> tickSummon(level, target);
             case WINDUP -> tickWindup(level, target);
             case RECOVER, STUNNED -> {
                 if (state == State.STUNNED && timer % 10 == 0) {
@@ -129,15 +168,24 @@ public class BarrowKingCombatGoal extends Goal {
         }
     }
 
-    private void tickChase(LivingEntity target) {
+    private void tickChase(ServerLevel level, LivingEntity target) {
         if (target == null) return;
         king.getLookControl().setLookAt(target, 30.0F, 30.0F);
         double distance = king.distanceTo(target);
 
+        // Retainer count is checked twice a second rather than every tick
+        if (summonCooldown <= 0 && king.tickCount % 10 == 0 && king.canRaiseRetainers(level)) {
+            king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.4F);
+            enter(State.SUMMON, SUMMON_TICKS);
+            return;
+        }
+
         if (king.isWithinMeleeAttackRange(target) && attackCooldown <= 0) {
-            comboLeft = COMBO_MIN + king.getRandom().nextInt(COMBO_MAX - COMBO_MIN + 1);
+            int min = enraged() ? ENRAGED_COMBO_MIN : COMBO_MIN;
+            int max = enraged() ? ENRAGED_COMBO_MAX : COMBO_MAX;
+            comboLeft = min + king.getRandom().nextInt(max - min + 1);
             king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.5F);
-            enter(State.WINDUP, FIRST_WINDUP_TICKS);
+            enter(State.WINDUP, enraged() ? ENRAGED_FIRST_WINDUP_TICKS : FIRST_WINDUP_TICKS);
             return;
         }
         if (chargeCooldown <= 0 && distance >= CHARGE_MIN_RANGE && distance <= CHARGE_MAX_RANGE
@@ -163,7 +211,7 @@ public class BarrowKingCombatGoal extends Goal {
             }
         }
         // Follow-through done: raise the sword for the next swing
-        if (king.getKingPose() == Pose.STRIKE && timer <= FOLLOWUP_WINDUP_TICKS - FOLLOW_THROUGH_TICKS) {
+        if (king.getKingPose() == Pose.STRIKE && timer <= followupWindupTicks() - FOLLOW_THROUGH_TICKS) {
             king.setKingPose(Pose.WINDUP);
         }
         if (timer > 0) return;
@@ -177,12 +225,29 @@ public class BarrowKingCombatGoal extends Goal {
         }
 
         if (--comboLeft > 0) {
-            enter(State.WINDUP, FOLLOWUP_WINDUP_TICKS);
+            enter(State.WINDUP, followupWindupTicks());
             king.setKingPose(Pose.STRIKE);
         } else {
-            attackCooldown = ATTACK_COOLDOWN_TICKS;
-            enter(State.RECOVER, COMBO_RECOVER_TICKS);
+            attackCooldown = enraged() ? ENRAGED_ATTACK_COOLDOWN_TICKS : ATTACK_COOLDOWN_TICKS;
+            enter(State.RECOVER, enraged() ? ENRAGED_COMBO_RECOVER_TICKS : COMBO_RECOVER_TICKS);
         }
+    }
+
+    // Sword held high while grave-dust swirls around him, then the wave rises
+    private void tickSummon(ServerLevel level, LivingEntity target) {
+        if (target != null) king.getLookControl().setLookAt(target, 30.0F, 30.0F);
+        if (timer % 3 == 0) {
+            double angle = king.getRandom().nextDouble() * Math.PI * 2.0;
+            double dist = BarrowKingEntity.RETAINER_MIN_DISTANCE
+                + king.getRandom().nextDouble() * (BarrowKingEntity.RETAINER_MAX_DISTANCE - BarrowKingEntity.RETAINER_MIN_DISTANCE);
+            level.sendParticles(ParticleTypes.SOUL, king.getX() + Math.cos(angle) * dist, king.getY() + 0.2,
+                king.getZ() + Math.sin(angle) * dist, 2, 0.2, 0.1, 0.2, 0.02);
+        }
+        if (timer > 0) return;
+
+        king.raiseRetainers(level);
+        summonCooldown = RETAINER_WAVE_INTERVAL;
+        enter(State.RECOVER, SUMMON_RECOVER_TICKS);
     }
 
     // Plants his feet, roars and paws the ground, then commits to a straight line
@@ -196,7 +261,7 @@ public class BarrowKingCombatGoal extends Goal {
 
         Vec3 aim = target != null ? target.position() : king.position().add(king.getLookAngle());
         chargeDir = new Vec3(aim.x - king.getX(), 0.0, aim.z - king.getZ()).normalize();
-        chargeCooldown = CHARGE_COOLDOWN_TICKS;
+        chargeCooldown = enraged() ? ENRAGED_CHARGE_COOLDOWN_TICKS : CHARGE_COOLDOWN_TICKS;
         enter(State.CHARGING, CHARGE_MAX_TICKS);
     }
 
@@ -234,7 +299,7 @@ public class BarrowKingCombatGoal extends Goal {
         timer = ticks;
         king.setKingPose(switch (next) {
             case CHASE -> Pose.GUARD;
-            case WINDUP -> Pose.WINDUP;
+            case WINDUP, SUMMON -> Pose.WINDUP;
             case CHARGE_WINDUP, CHARGING -> Pose.BRACE;
             case RECOVER, STUNNED -> Pose.STUNNED;
         });

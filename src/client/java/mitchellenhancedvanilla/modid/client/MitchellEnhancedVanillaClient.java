@@ -7,6 +7,7 @@ import mitchellenhancedvanilla.modid.client.hud.QuiverHotbar;
 import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.client.render.BarrowKingRenderer;
+import mitchellenhancedvanilla.modid.client.render.BarrowRetainerRenderer;
 import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
@@ -33,6 +34,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.PRISMARINE_ARROW);
 		ModArrowRenderer.register(ModEntities.EMERALD_ARROW);
 		EntityRenderers.register(ModEntities.BARROW_KING, BarrowKingRenderer::new);
+		EntityRenderers.register(ModEntities.BARROW_RETAINER, BarrowRetainerRenderer::new);
 		BowHud.register();
 		ArmourHotbar.register();
 		QuiverHotbar.register();

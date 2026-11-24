@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
+import mitchellenhancedvanilla.modid.entity.BarrowRetainerEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
@@ -88,7 +89,17 @@ public class ModEntities {
             .clientTrackingRange(10)
             .notInPeaceful());
 
+    // Same size as a vanilla skeleton
+    public static final EntityType<BarrowRetainerEntity> BARROW_RETAINER = register("barrow_retainer",
+        EntityType.Builder.<BarrowRetainerEntity>of(BarrowRetainerEntity::new, MobCategory.MONSTER)
+            .sized(0.6F, 1.99F)
+            .eyeHeight(1.74F)
+            .ridingOffset(-0.7F)
+            .clientTrackingRange(8)
+            .notInPeaceful());
+
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(BARROW_RETAINER, BarrowRetainerEntity.createAttributes());
     }
 }

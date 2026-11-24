@@ -1,6 +1,10 @@
 package mitchellenhancedvanilla.modid.entity;
 
+import java.util.List;
+
+import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
 import mitchellenhancedvanilla.modid.ModArmour;
+import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.ModItems;
 import mitchellenhancedvanilla.modid.entity.ai.BarrowKingCombatGoal;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +35,9 @@ import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.resources.Identifier;
+import net.minecraft.world.entity.ai.attributes.AttributeInstance;
+import net.minecraft.world.entity.ai.attributes.AttributeModifier;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
@@ -46,6 +53,7 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -54,14 +62,14 @@ import org.jspecify.annotations.Nullable;
 // First boss: an armoured skeleton warlord summoned with the Tarnished Crown
 public class BarrowKingEntity extends Monster {
     // Iron bow at full draw is ~4.5 damage, so roughly 30-35 hits
-    public static final double MAX_HEALTH = 150.0;
+    public static final double MAX_HEALTH = 100.0;
     // Base melee damage; the iron sword adds its own +5 on top
-    public static final double ATTACK_DAMAGE = 3.0;
+    public static final double ATTACK_DAMAGE = 2.0;
     public static final double ARMOR = 6.0;
     public static final double MOVEMENT_SPEED = 0.25;
     public static final double KNOCKBACK_RESISTANCE = 0.8;
     public static final double FOLLOW_RANGE = 40.0;
-    public static final int XP_REWARD = 50;
+    public static final int XP_REWARD = 150;
 
     // Shield blocks arrows and melee within this many degrees of his facing
     public static final float SHIELD_HALF_ANGLE = 60.0F;
@@ -82,6 +90,26 @@ public class BarrowKingEntity extends Monster {
     // How often the dawn and challenger checks run once he is up (ticks)
     public static final int DAWN_CHECK_INTERVAL = 20;
 
+    // Phase 2 starts at this fraction of max health
+    public static final float RETAINER_PHASE_HEALTH = 0.5F;
+    // Retainers per wave, and the most he keeps up at once
+    public static final int RETAINER_WAVE_SIZE = 3;
+    public static final int MAX_RETAINERS = 6;
+    // Retainers rise this far from him (blocks)
+    public static final double RETAINER_MIN_DISTANCE = 3.0;
+    public static final double RETAINER_MAX_DISTANCE = 7.0;
+    // Retainers this close count towards his limit, and crumble when he goes (blocks)
+    public static final double RETAINER_RANGE = 48.0;
+
+    // Phase 3 starts at this fraction of max health
+    public static final float ENRAGE_HEALTH = 0.25F;
+    // Enraged movement (and charge) speed bonus, as a fraction of base speed
+    public static final double ENRAGE_SPEED_BONUS = 0.3;
+    private static final Identifier ENRAGE_SPEED_ID = MitchellEnhancedVanilla.id("barrow_king_enrage");
+
+    // Health-driven fight phases
+    public enum Phase { DUEL, RETAINERS, ENRAGED }
+
     // What the client needs to pose him
     public enum Pose { GUARD, WINDUP, STRIKE, BRACE, STUNNED }
 
@@ -94,6 +122,7 @@ public class BarrowKingEntity extends Monster {
         Mth.createInsecureUUID(random), getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
 
     private Stage stage = Stage.FIGHTING;
+    private Phase phase = Phase.DUEL;
     private int stageTicks;
     // Set in registerGoals, which runs during the super constructor (so no initializer)
     private @Nullable BarrowKingCombatGoal combatGoal;
@@ -141,14 +170,19 @@ public class BarrowKingEntity extends Monster {
         entityData.set(DATA_POSE, (byte) pose.ordinal());
     }
 
-    // Shield is up unless he is mid-swing or winded
+    // Shield is up unless he is mid-swing, winded, or has thrown it away (phase 3)
     public boolean isShieldRaised() {
         Pose pose = getKingPose();
-        return pose == Pose.GUARD || pose == Pose.BRACE;
+        // Equipment syncs to clients, so this also works for the renderer
+        return (pose == Pose.GUARD || pose == Pose.BRACE) && getOffhandItem().is(Items.SHIELD);
     }
 
     public boolean canFight() {
         return stage == Stage.FIGHTING;
+    }
+
+    public Phase getPhase() {
+        return phase;
     }
 
     // Called by the crown: starts underground at the barrow and claws his way up
@@ -211,7 +245,96 @@ public class BarrowKingEntity extends Monster {
                 return;
             }
         }
-        if (isAlive()) dealContactDamage(level);
+        if (!isAlive()) return;
+        // Enrage is checked first so a single big hit skips phase 2 rather than announcing both
+        if (phase != Phase.ENRAGED && getHealth() <= getMaxHealth() * ENRAGE_HEALTH) {
+            enterEnragedPhase(level);
+        } else if (phase == Phase.DUEL && getHealth() <= getMaxHealth() * RETAINER_PHASE_HEALTH) {
+            enterRetainerPhase(level);
+        }
+        if (phase == Phase.ENRAGED && stageTicks % 4 == 0) {
+            level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getEyeY(), getZ(), 1, 0.25, 0.15, 0.25, 0.01);
+        }
+        dealContactDamage(level);
+    }
+
+    // Phase 3: throws his shield aside and fights faster and harder
+    private void enterEnragedPhase(ServerLevel level) {
+        phase = Phase.ENRAGED;
+        bossEvent.setColor(BossEvent.BossBarColor.RED);
+        Vec3 shieldPos = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), shieldPos.x, shieldPos.y - 0.6, shieldPos.z,
+            24, 0.2, 0.2, 0.2, 0.2);
+        level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.5F, 0.6F);
+        playSound(SoundEvents.RAVAGER_ROAR, 2.5F, 0.35F);
+        setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
+        applyEnrageSpeed();
+        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.enraged")
+            .withStyle(ChatFormatting.RED));
+        if (combatGoal != null) combatGoal.onEnraged();
+    }
+
+    private void applyEnrageSpeed() {
+        AttributeInstance speed = getAttribute(Attributes.MOVEMENT_SPEED);
+        if (speed != null && !speed.hasModifier(ENRAGE_SPEED_ID)) {
+            speed.addPermanentModifier(new AttributeModifier(ENRAGE_SPEED_ID, ENRAGE_SPEED_BONUS, AttributeModifier.Operation.ADD_MULTIPLIED_BASE));
+        }
+    }
+
+    // Phase 2: he calls his retainers up out of the barrow
+    private void enterRetainerPhase(ServerLevel level) {
+        phase = Phase.RETAINERS;
+        bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
+        playSound(SoundEvents.RAVAGER_ROAR, 2.0F, 0.4F);
+        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.retainers")
+            .withStyle(ChatFormatting.YELLOW));
+        if (combatGoal != null) combatGoal.raiseRetainersSoon();
+    }
+
+    private List<BarrowRetainerEntity> nearbyRetainers(ServerLevel level) {
+        return level.getEntitiesOfClass(BarrowRetainerEntity.class, getBoundingBox().inflate(RETAINER_RANGE),
+            BarrowRetainerEntity::isAlive);
+    }
+
+    public boolean canRaiseRetainers(ServerLevel level) {
+        return phase == Phase.RETAINERS && nearbyRetainers(level).size() < MAX_RETAINERS;
+    }
+
+    // Raises a wave around him, up to his limit, aimed at his current target
+    public void raiseRetainers(ServerLevel level) {
+        int count = Math.min(RETAINER_WAVE_SIZE, MAX_RETAINERS - nearbyRetainers(level).size());
+        for (int i = 0; i < count; i++) {
+            BlockPos ground = findRetainerGround(level);
+            if (ground == null) continue;
+            BarrowRetainerEntity retainer = ModEntities.BARROW_RETAINER.create(level, EntitySpawnReason.MOB_SUMMONED);
+            if (retainer == null) continue;
+            retainer.finalizeSpawn(level, level.getCurrentDifficultyAt(ground), EntitySpawnReason.MOB_SUMMONED, null);
+            retainer.beginRising(ground);
+            retainer.setYRot(random.nextFloat() * 360.0F);
+            retainer.setTarget(getTarget());
+            level.addFreshEntity(retainer);
+        }
+        playSound(SoundEvents.EVOKER_PREPARE_SUMMON, 2.0F, 0.6F);
+    }
+
+    // Open ground near him, roughly level with his feet
+    private @Nullable BlockPos findRetainerGround(ServerLevel level) {
+        for (int attempt = 0; attempt < 10; attempt++) {
+            double angle = random.nextDouble() * Math.PI * 2.0;
+            double dist = RETAINER_MIN_DISTANCE + random.nextDouble() * (RETAINER_MAX_DISTANCE - RETAINER_MIN_DISTANCE);
+            int x = Mth.floor(getX() + Math.cos(angle) * dist);
+            int z = Mth.floor(getZ() + Math.sin(angle) * dist);
+            BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+            if (Math.abs(ground.getY() - getBlockY()) > 4) continue;
+            if (!level.getFluidState(ground).isEmpty() || !level.getBlockState(ground.above()).isAir()) continue;
+            return ground;
+        }
+        return null;
+    }
+
+    // His retainers fall apart once he is gone
+    private void dismissRetainers(ServerLevel level) {
+        for (BarrowRetainerEntity retainer : nearbyRetainers(level)) retainer.crumble(level);
     }
 
     private void dealContactDamage(ServerLevel level) {
@@ -230,6 +353,7 @@ public class BarrowKingEntity extends Monster {
     public void die(DamageSource source) {
         super.die(source);
         if (level() instanceof ServerLevel level) {
+            dismissRetainers(level);
             broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.defeated")
                 .withStyle(ChatFormatting.GOLD));
         }
@@ -271,6 +395,7 @@ public class BarrowKingEntity extends Monster {
         getNavigation().stop();
         // Sinks where he stands
         burrow = blockPosition();
+        dismissRetainers(level);
         playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.5F);
         broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king." + reason));
     }
@@ -377,12 +502,14 @@ public class BarrowKingEntity extends Monster {
     private static final String HOME_KEY = "BarrowHome";
     private static final String STAGE_KEY = "BarrowStage";
     private static final String STAGE_TICKS_KEY = "BarrowStageTicks";
+    private static final String PHASE_KEY = "BarrowPhase";
 
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
         if (burrow != null) output.store(HOME_KEY, BlockPos.CODEC, burrow);
         output.putInt(STAGE_KEY, stage.ordinal());
+        output.putInt(PHASE_KEY, phase.ordinal());
         output.putInt(STAGE_TICKS_KEY, stageTicks);
     }
 
@@ -392,6 +519,12 @@ public class BarrowKingEntity extends Monster {
         burrow = input.read(HOME_KEY, BlockPos.CODEC).orElse(null);
         stage = Stage.values()[Mth.clamp(input.getIntOr(STAGE_KEY, 1), 0, Stage.values().length - 1)];
         stageTicks = input.getIntOr(STAGE_TICKS_KEY, 0);
+        phase = Phase.values()[Mth.clamp(input.getIntOr(PHASE_KEY, 0), 0, Phase.values().length - 1)];
+        if (phase == Phase.RETAINERS) bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
+        if (phase == Phase.ENRAGED) {
+            bossEvent.setColor(BossEvent.BossBarColor.RED);
+            applyEnrageSpeed();
+        }
         if (stage != Stage.FIGHTING) {
             noPhysics = true;
             setNoGravity(true);

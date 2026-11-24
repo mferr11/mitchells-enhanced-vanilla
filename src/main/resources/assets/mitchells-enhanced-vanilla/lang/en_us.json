@@ -50,5 +50,8 @@
     "item.mitchells-enhanced-vanilla.kings_crown": "King's Crown",
     "entity.mitchells-enhanced-vanilla.barrow_king.defeated": "The Barrow King has been defeated!",
     "entity.mitchells-enhanced-vanilla.barrow_king.victorious": "With no challengers left, the Barrow King returns to his grave...",
-    "entity.mitchells-enhanced-vanilla.barrow_king.dawn":"The Barrow King sinks back into his grave as the sun rises..."
+    "entity.mitchells-enhanced-vanilla.barrow_king.dawn": "The Barrow King sinks back into his grave as the sun rises...",
+    "entity.mitchells-enhanced-vanilla.barrow_king.retainers": "The Barrow King calls his retainers from the grave!",
+    "entity.mitchells-enhanced-vanilla.barrow_retainer": "Barrow Retainer",
+    "entity.mitchells-enhanced-vanilla.barrow_king.enraged": "The Barrow King casts aside his shield in fury!"
 }
