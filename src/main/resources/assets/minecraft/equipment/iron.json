@@ -1,0 +1,37 @@
+{
+  "layers": {
+    "horse_body": [
+      {
+        "texture": "minecraft:iron"
+      }
+    ],
+    "humanoid": [
+      {
+        "texture": "mitchells-enhanced-vanilla:iron"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "minecraft:iron"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mitchells-enhanced-vanilla:iron"
+      }
+    ],
+    "nautilus_body": [
+      {
+        "texture": "minecraft:iron"
+      }
+    ]
+  },
+  "trim_overrides": [
+    {
+      "palette": "minecraft:trim/iron_darker",
+      "when": {
+        "material": "minecraft:iron"
+      }
+    }
+  ]
+}

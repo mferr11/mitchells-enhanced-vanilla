@@ -8,8 +8,10 @@ import net.minecraft.world.item.equipment.Equippable;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
+import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
 import net.minecraft.network.syncher.SynchedEntityData;
@@ -75,11 +77,10 @@ public class BarrowKingEntity extends Monster {
     // Rising out of / sinking back into the ground
     public static final int RISE_TICKS = 40;
     public static final double RISE_DEPTH = 2.6;
-    // How often a dawn check runs once he is up (ticks)
+    // With no living player this close, he returns to his grave (blocks)
+    public static final double CHALLENGER_RADIUS = 48.0;
+    // How often the dawn and challenger checks run once he is up (ticks)
     public static final int DAWN_CHECK_INTERVAL = 20;
-
-    // Pulled further than this from his barrow, he returns (and heals if the arena is empty) (blocks)
-    public static final double LEASH_RADIUS = 32.0;
 
     // What the client needs to pose him
     public enum Pose { GUARD, WINDUP, STRIKE, BRACE, STUNNED }
@@ -94,7 +95,10 @@ public class BarrowKingEntity extends Monster {
 
     private Stage stage = Stage.FIGHTING;
     private int stageTicks;
-    private @Nullable BlockPos home;
+    // Set in registerGoals, which runs during the super constructor (so no initializer)
+    private @Nullable BarrowKingCombatGoal combatGoal;
+    // Ground he is rising out of or sinking into
+    private @Nullable BlockPos burrow;
 
     public BarrowKingEntity(EntityType<? extends BarrowKingEntity> type, Level level) {
         super(type, level);
@@ -115,7 +119,8 @@ public class BarrowKingEntity extends Monster {
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
-        goalSelector.addGoal(2, new BarrowKingCombatGoal(this));
+        combatGoal = new BarrowKingCombatGoal(this);
+        goalSelector.addGoal(2, combatGoal);
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 16.0F));
         goalSelector.addGoal(7, new RandomLookAroundGoal(this));
         targetSelector.addGoal(1, new HurtByTargetGoal(this));
@@ -148,7 +153,7 @@ public class BarrowKingEntity extends Monster {
 
     // Called by the crown: starts underground at the barrow and claws his way up
     public void beginRising(BlockPos ground) {
-        home = ground;
+        burrow = ground;
         stage = Stage.RISING;
         stageTicks = 0;
         setPos(ground.getX() + 0.5, ground.getY() - RISE_DEPTH, ground.getZ() + 0.5);
@@ -196,12 +201,15 @@ public class BarrowKingEntity extends Monster {
     }
 
     private void tickFighting(ServerLevel level) {
-        if (stageTicks % DAWN_CHECK_INTERVAL == 0 && level.isBrightOutside()) {
-            startSinking(level);
-            return;
-        }
-        if (home != null && distanceToSqr(Vec3.atBottomCenterOf(home)) > LEASH_RADIUS * LEASH_RADIUS) {
-            returnHome(level);
+        if (stageTicks % DAWN_CHECK_INTERVAL == 0) {
+            if (level.isBrightOutside()) {
+                startSinking(level, "dawn");
+                return;
+            }
+            if (!hasChallenger(level)) {
+                startSinking(level, "victorious");
+                return;
+            }
         }
         if (isAlive()) dealContactDamage(level);
     }
@@ -243,38 +251,33 @@ public class BarrowKingEntity extends Monster {
         stageTicks = 0;
         noPhysics = false;
         setNoGravity(false);
-        if (home != null) setPos(getX(), home.getY(), getZ());
+        if (burrow != null) setPos(getX(), burrow.getY(), getZ());
         playSound(SoundEvents.RAVAGER_ROAR, 2.0F, 0.5F);
     }
 
-    private void startSinking(ServerLevel level) {
+    // A living player is still nearby (creative counts so he can be tested; spectators don't)
+    private boolean hasChallenger(ServerLevel level) {
+        return level.players().stream().anyMatch(p -> p.isAlive() && !p.isSpectator()
+            && p.distanceToSqr(this) < CHALLENGER_RADIUS * CHALLENGER_RADIUS);
+    }
+
+    // Burrows back down; reason picks the lang key suffix
+    private void startSinking(ServerLevel level, String reason) {
         stage = Stage.SINKING;
         stageTicks = 0;
         setTarget(null);
         noPhysics = true;
         setNoGravity(true);
         getNavigation().stop();
+        // Sinks where he stands
+        burrow = blockPosition();
         playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.5F);
-        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.dawn"));
-    }
-
-    private void returnHome(ServerLevel level) {
-        if (home == null) return;
-        Vec3 centre = Vec3.atBottomCenterOf(home);
-        level.sendParticles(ParticleTypes.SOUL, getX(), getY(1.0), getZ(), 20, 0.3, 0.6, 0.3, 0.02);
-        teleportTo(centre.x, centre.y, centre.z);
-        getNavigation().stop();
-        // Lured away with nobody left in the arena: the fight resets
-        boolean arenaEmpty = level.players().stream().noneMatch(p -> p.isAlive() && !p.isSpectator()
-            && p.distanceToSqr(centre) < LEASH_RADIUS * LEASH_RADIUS);
-        if (arenaEmpty) setHealth(getMaxHealth());
-        groundBurst(level, 30);
-        playSound(SoundEvents.SOUL_ESCAPE.value(), 2.0F, 0.6F);
+        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king." + reason));
     }
 
     // Dirt sprays from the ground he is moving through
     private void groundBurst(ServerLevel level, int count) {
-        BlockPos below = home != null ? home.below() : blockPosition().below();
+        BlockPos below = burrow != null ? burrow.below() : blockPosition().below();
         BlockState ground = level.getBlockState(below);
         if (ground.isAir()) return;
         level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground),
@@ -292,13 +295,23 @@ public class BarrowKingEntity extends Monster {
         // Untouchable while in the ground
         if (stage != Stage.FIGHTING && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
         if (blocksWithShield(source)) {
-            level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
             Vec3 spark = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
+            LivingEntity meleeAttacker = !source.is(DamageTypeTags.IS_PROJECTILE) && source.getDirectEntity() instanceof LivingEntity l ? l : null;
+            // Axes knock his guard open instead of glancing off
+            if (meleeAttacker != null && meleeAttacker.getSecondsToDisableBlocking() > 0.0F && combatGoal != null) {
+                combatGoal.breakGuard();
+                level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
+                level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), spark.x, spark.y - 0.6, spark.z, 16, 0.15, 0.15, 0.15, 0.15);
+                return false;
+            }
+            level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
             level.sendParticles(ParticleTypes.CRIT, spark.x, spark.y - 0.6, spark.z, 8, 0.1, 0.1, 0.1, 0.3);
             // Melee attackers get shoved back
-            if (source.getDirectEntity() instanceof LivingEntity attacker && !source.is(DamageTypeTags.IS_PROJECTILE)) {
+            if (meleeAttacker != null) {
+                LivingEntity attacker = meleeAttacker;
                 attacker.knockback(SHIELD_BASH_KNOCKBACK, getX() - attacker.getX(), getZ() - attacker.getZ(), source, 0.0F);
-                attacker.needsSync = true;
+                // Players move client-side, so they must be told about the shove directly
+                if (attacker instanceof ServerPlayer player) player.connection.send(new ClientboundSetEntityMotionPacket(player));
             }
             return false;
         }
@@ -368,7 +381,7 @@ public class BarrowKingEntity extends Monster {
     @Override
     protected void addAdditionalSaveData(ValueOutput output) {
         super.addAdditionalSaveData(output);
-        if (home != null) output.store(HOME_KEY, BlockPos.CODEC, home);
+        if (burrow != null) output.store(HOME_KEY, BlockPos.CODEC, burrow);
         output.putInt(STAGE_KEY, stage.ordinal());
         output.putInt(STAGE_TICKS_KEY, stageTicks);
     }
@@ -376,7 +389,7 @@ public class BarrowKingEntity extends Monster {
     @Override
     protected void readAdditionalSaveData(ValueInput input) {
         super.readAdditionalSaveData(input);
-        home = input.read(HOME_KEY, BlockPos.CODEC).orElse(null);
+        burrow = input.read(HOME_KEY, BlockPos.CODEC).orElse(null);
         stage = Stage.values()[Mth.clamp(input.getIntOr(STAGE_KEY, 1), 0, Stage.values().length - 1)];
         stageTicks = input.getIntOr(STAGE_TICKS_KEY, 0);
         if (stage != Stage.FIGHTING) {

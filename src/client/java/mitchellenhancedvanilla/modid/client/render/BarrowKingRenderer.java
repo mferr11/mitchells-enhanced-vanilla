@@ -32,6 +32,7 @@ public class BarrowKingRenderer extends HumanoidMobRenderer<BarrowKingEntity, Ba
         state.isShaking = king.isFullyFrozen();
         state.isHoldingBow = false;
         state.raisingSword = king.getKingPose() == Pose.WINDUP;
+        state.shieldRaised = king.isShieldRaised();
     }
 
     @Override

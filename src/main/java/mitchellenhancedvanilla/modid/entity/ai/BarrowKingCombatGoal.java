@@ -45,6 +45,8 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int CHARGE_HIT_RECOVER_TICKS = 25;
     public static final int CHARGE_MISS_STUN_TICKS = 40;
     public static final int CHARGE_WALL_STUN_TICKS = 70;
+    // Shield knocked aside by an axe (vanilla disables player shields for 5s)
+    public static final int GUARD_BREAK_STUN_TICKS = 60;
 
     public static final double CHASE_SPEED = 1.0;
     public static final int REPATH_INTERVAL = 10;
@@ -67,7 +69,14 @@ public class BarrowKingCombatGoal extends Goal {
     @Override
     public boolean canUse() {
         LivingEntity target = king.getTarget();
-        return king.canFight() && target != null && target.isAlive();
+        // A pending stagger runs even without a target
+        return king.canFight() && (state != State.CHASE || target != null && target.isAlive());
+    }
+
+    // An axe hit on the raised shield: staggered with his guard open, interrupting whatever he was doing
+    public void breakGuard() {
+        king.setDeltaMovement(0.0, king.getDeltaMovement().y, 0.0);
+        enter(State.STUNNED, GUARD_BREAK_STUN_TICKS);
     }
 
     // Combos and charges always play out, even if the target is lost mid-swing
@@ -83,7 +92,8 @@ public class BarrowKingCombatGoal extends Goal {
 
     @Override
     public void start() {
-        enter(State.CHASE, 0);
+        // Keep a guard break that landed while the goal was idle
+        if (state == State.CHASE) enter(State.CHASE, 0);
         king.setAggressive(true);
     }
 

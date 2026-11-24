@@ -1,0 +1,19 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mitchells-enhanced-vanilla:chainmail"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "minecraft:chainmail"
+      }
+    ],
+    "humanoid_leggings": [
+      {
+        "texture": "mitchells-enhanced-vanilla:chainmail"
+      }
+    ]
+  }
+}

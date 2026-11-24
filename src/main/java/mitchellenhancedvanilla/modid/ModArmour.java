@@ -39,9 +39,10 @@ public final class ModArmour {
 
     // King's Crown: gold's armour and enchantability, with iron's durability
     private static final ArmorMaterial VANILLA_GOLD = ArmorMaterials.GOLD;
+    private static final ArmorMaterial VANILLA_DIAMOND = ArmorMaterials.DIAMOND;
     public static final ArmorMaterial KINGS_CROWN = new ArmorMaterial(
         ArmorMaterials.IRON.durability(),
-        VANILLA_GOLD.defense(),
+        VANILLA_DIAMOND.defense(),
         VANILLA_GOLD.enchantmentValue(),
         VANILLA_GOLD.equipSound(),
         VANILLA_GOLD.toughness(),
