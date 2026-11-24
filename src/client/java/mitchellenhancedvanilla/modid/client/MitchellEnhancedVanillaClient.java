@@ -3,6 +3,7 @@ package mitchellenhancedvanilla.modid.client;
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.client.hud.ArmourHotbar;
 import mitchellenhancedvanilla.modid.client.hud.BowHud;
+import mitchellenhancedvanilla.modid.client.hud.QuiverHotbar;
 import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
@@ -10,7 +11,12 @@ import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
 import mitchellenhancedvanilla.modid.client.screen.FletchingTableScreen;
 import mitchellenhancedvanilla.modid.menu.ModMenus;
+import mitchellenhancedvanilla.modid.item.QuiverItem;
+import mitchellenhancedvanilla.modid.quiver.QuiverCapacity;
+import mitchellenhancedvanilla.modid.quiver.QuiverTooltip;
 import net.fabricmc.api.ClientModInitializer;
+import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
+import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
 
 public class MitchellEnhancedVanillaClient implements ClientModInitializer {
@@ -25,6 +31,14 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.EMERALD_ARROW);
 		BowHud.register();
 		ArmourHotbar.register();
+		QuiverHotbar.register();
+		QuiverKeys.register();
+		ClientTooltipComponentCallback.EVENT.register(data -> {
+			if (!(data instanceof QuiverTooltip quiver)) return null;
+			ClientBundleTooltip tooltip = new ClientBundleTooltip(quiver.contents());
+			((QuiverCapacity) tooltip).mev$setCapacity(QuiverItem.CAPACITY);
+			return tooltip;
+		});
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
 		FrozenParticles.register();

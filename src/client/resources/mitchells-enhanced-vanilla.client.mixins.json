@@ -10,7 +10,14 @@
 		"SlimeOuterLayerMixin",
 		"EquipmentLayerRendererMixin",
 		"FirstPersonHandsAndItemsMixin",
-		"HudMixin"
+		"HudMixin",
+		"SlotAccessor",
+		"AbstractContainerScreenAccessor",
+		"InventoryScreensMixin",
+		"CreativeModeInventoryScreenMixin",
+		"ClientBundleTooltipMixin",
+		"GuiItemRenderStateMixin",
+		"GuiRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

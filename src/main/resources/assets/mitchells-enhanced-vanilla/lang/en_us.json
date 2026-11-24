@@ -30,5 +30,8 @@
     "tooltip.mitchells-enhanced-vanilla.arrow.shrapnel": "%s Shrapnel Damage",
     "tooltip.mitchells-enhanced-vanilla.bow.drawn": "When Drawn:",
     "tooltip.mitchells-enhanced-vanilla.bow.draw_time": "%ss Draw Time",
-    "tooltip.mitchells-enhanced-vanilla.bow.arrow_speed": "%sx Arrow Speed"
+    "tooltip.mitchells-enhanced-vanilla.bow.arrow_speed": "%sx Arrow Speed",
+    "item.mitchells-enhanced-vanilla.quiver": "Quiver",
+    "key.mitchells-enhanced-vanilla.cycle_quiver": "Cycle Quiver Arrows",
+    "key.category.mitchells-enhanced-vanilla.quiver": "Quiver"
 }

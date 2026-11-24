@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.client.hud;
 
 import mitchellenhancedvanilla.modid.BowStats;
 import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
+import mitchellenhancedvanilla.modid.quiver.Quiver;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.HudElementRegistry;
 import net.fabricmc.fabric.api.client.rendering.v1.hud.VanillaHudElements;
 import net.minecraft.client.DeltaTracker;
@@ -106,7 +107,7 @@ public final class BowHud {
 
     private static int drawAmmoRow(GuiGraphicsExtractor graphics, Font font, LocalPlayer player, ItemStack ammo, int centerX, int top) {
         // 0 = free creative ammo, so no count
-        int count = countInInventory(player.getInventory(), ammo);
+        int count = countInInventory(player.getInventory(), ammo) + Quiver.count(player, ammo);
         String countText = count > 0 ? String.valueOf(count) : "";
 
         int iconSize = Math.round(16 * ICON_SCALE);

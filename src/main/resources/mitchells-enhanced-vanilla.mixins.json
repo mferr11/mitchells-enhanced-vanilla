@@ -13,7 +13,14 @@
 		"BrainDecoyMixin",
 		"CubeMobDecoyMixin",
 		"CubeMobMoveControlMixin",
-		"SmithingTemplateItemMixin"
+		"SmithingTemplateItemMixin",
+		"PlayerQuiverMixin",
+		"ProjectileWeaponItemMixin",
+		"InventoryMenuMixin",
+		"InventoryMixin",
+		"ServerGamePacketListenerImplMixin",
+		"BundleContentsMutableMixin",
+		"BundleItemMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

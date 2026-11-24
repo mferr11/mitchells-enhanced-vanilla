@@ -10,14 +10,17 @@ import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
+import mitchellenhancedvanilla.modid.item.QuiverItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.component.BundleContents;
 
 public class ModItems {
 	public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
@@ -33,6 +36,7 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.BOW,
 				ModItems.IRON_BOW, ModItems.GOLDEN_BOW, ModItems.DIAMOND_BOW, ModItems.NETHERITE_BOW);
+			creativeTab.insertBefore(Items.ARROW, ModItems.QUIVER);
 			creativeTab.insertAfter(Items.ARROW,
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
@@ -63,4 +67,7 @@ public class ModItems {
         new Item.Properties().durability(BowStats.DIAMOND_DURABILITY).enchantable(10).repairable(Items.DIAMOND));
     public static final Item NETHERITE_BOW = register(ModItemIds.NETHERITE_BOW, BowItem::new,
         new Item.Properties().durability(BowStats.NETHERITE_DURABILITY).enchantable(15).repairable(Items.NETHERITE_INGOT).fireResistant());
+
+    public static final Item QUIVER = register(ModItemIds.QUIVER, QuiverItem::new,
+        new Item.Properties().stacksTo(1).component(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY));
 }
