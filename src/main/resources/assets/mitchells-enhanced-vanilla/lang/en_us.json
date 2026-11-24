@@ -33,5 +33,9 @@
     "tooltip.mitchells-enhanced-vanilla.bow.arrow_speed": "%sx Arrow Speed",
     "item.mitchells-enhanced-vanilla.quiver": "Quiver",
     "key.mitchells-enhanced-vanilla.cycle_quiver": "Cycle Quiver Arrows",
-    "key.category.mitchells-enhanced-vanilla.quiver": "Quiver"
+    "key.category.mitchells-enhanced-vanilla.quiver": "Quiver",
+    "item.mitchells-enhanced-vanilla.copper_armour_plating": "Copper Armour Plating",
+    "item.mitchells-enhanced-vanilla.iron_armour_plating": "Iron Armour Plating",
+    "item.mitchells-enhanced-vanilla.gold_armour_plating": "Gold Armour Plating",
+    "item.mitchells-enhanced-vanilla.diamond_armour_plating": "Diamond Armour Plating"
 }

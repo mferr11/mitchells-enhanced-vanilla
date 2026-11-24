@@ -41,6 +41,14 @@ public class ModItems {
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 		});
+        // Each plating sits after the material it is made from
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
+		.register((creativeTab) -> {
+			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
+			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.IRON_ARMOUR_PLATING);
+			creativeTab.insertAfter(Items.GOLD_INGOT, ModItems.GOLD_ARMOUR_PLATING);
+			creativeTab.insertAfter(Items.DIAMOND, ModItems.DIAMOND_ARMOUR_PLATING);
+		});
     }
 
     public static final Item REINFORCED_ARROW = register(ModItemIds.REINFORCED_ARROW,
@@ -70,4 +78,10 @@ public class ModItems {
 
     public static final Item QUIVER = register(ModItemIds.QUIVER, QuiverItem::new,
         new Item.Properties().stacksTo(1).component(DataComponents.BUNDLE_CONTENTS, BundleContents.EMPTY));
+
+    // Crafted from a 2x2 of the material, used in place of it in armour recipes
+    public static final Item COPPER_ARMOUR_PLATING = register(ModItemIds.COPPER_ARMOUR_PLATING, Item::new, new Item.Properties());
+    public static final Item IRON_ARMOUR_PLATING = register(ModItemIds.IRON_ARMOUR_PLATING, Item::new, new Item.Properties());
+    public static final Item GOLD_ARMOUR_PLATING = register(ModItemIds.GOLD_ARMOUR_PLATING, Item::new, new Item.Properties());
+    public static final Item DIAMOND_ARMOUR_PLATING = register(ModItemIds.DIAMOND_ARMOUR_PLATING, Item::new, new Item.Properties());
 }
