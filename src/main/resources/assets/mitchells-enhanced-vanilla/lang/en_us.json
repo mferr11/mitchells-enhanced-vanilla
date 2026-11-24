@@ -38,5 +38,16 @@
     "item.mitchells-enhanced-vanilla.copper_armour_plating": "Copper Armour Plating",
     "item.mitchells-enhanced-vanilla.iron_armour_plating": "Iron Armour Plating",
     "item.mitchells-enhanced-vanilla.gold_armour_plating": "Gold Armour Plating",
-    "item.mitchells-enhanced-vanilla.diamond_armour_plating": "Diamond Armour Plating"
+    "item.mitchells-enhanced-vanilla.diamond_armour_plating": "Diamond Armour Plating",
+    "item.mitchells-enhanced-vanilla.tarnished_crown": "Tarnished Crown",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.peaceful": "The dead will not wake in Peaceful",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.not_night": "The crown stays cold. The barrow-dead only wake at night",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.no_sky": "The crown must be raised under the open sky",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.wrong_biome": "No barrow-ground here. Try plains, meadows or taiga",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.already_awake": "The Barrow King is already awake",
+    "entity.mitchells-enhanced-vanilla.barrow_king": "The Barrow King",
+    "entity.mitchells-enhanced-vanilla.barrow_king.awoken": "The Barrow King has awoken!",
+    "item.mitchells-enhanced-vanilla.kings_crown": "King's Crown",
+    "entity.mitchells-enhanced-vanilla.barrow_king.defeated": "The Barrow King has been defeated!",
+    "entity.mitchells-enhanced-vanilla.barrow_king.dawn":"The Barrow King sinks back into his grave as the sun rises..."
 }

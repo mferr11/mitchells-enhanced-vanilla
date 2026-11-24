@@ -11,6 +11,7 @@ import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
+import mitchellenhancedvanilla.modid.item.TarnishedCrownItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
 import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponents;
@@ -20,6 +21,8 @@ import net.minecraft.world.item.BowItem;
 import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
+import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.component.BundleContents;
 
 public class ModItems {
@@ -40,7 +43,11 @@ public class ModItems {
 			creativeTab.insertAfter(Items.ARROW,
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
+			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
 		});
+        // Boss summons sit with the spawners, ahead of the eggs
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS)
+		.register((creativeTab) -> creativeTab.insertAfter(Items.CREAKING_HEART, ModItems.TARNISHED_CROWN));
         // Each plating sits after the material it is made from
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
 		.register((creativeTab) -> {
@@ -86,4 +93,12 @@ public class ModItems {
     public static final Item IRON_ARMOUR_PLATING = register(ModItemIds.IRON_ARMOUR_PLATING, Item::new, new Item.Properties());
     public static final Item GOLD_ARMOUR_PLATING = register(ModItemIds.GOLD_ARMOUR_PLATING, Item::new, new Item.Properties());
     public static final Item DIAMOND_ARMOUR_PLATING = register(ModItemIds.DIAMOND_ARMOUR_PLATING, Item::new, new Item.Properties());
+
+    // Boss summon
+    public static final Item TARNISHED_CROWN = register(ModItemIds.TARNISHED_CROWN, TarnishedCrownItem::new,
+        new Item.Properties().stacksTo(16).rarity(Rarity.UNCOMMON));
+
+    // Barrow King drop
+    public static final Item KINGS_CROWN = register(ModItemIds.KINGS_CROWN, Item::new,
+        new Item.Properties().humanoidArmor(ModArmour.KINGS_CROWN, ArmorType.HELMET).rarity(Rarity.RARE));
 }

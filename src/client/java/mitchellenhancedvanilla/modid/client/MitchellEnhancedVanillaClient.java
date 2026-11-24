@@ -6,6 +6,7 @@ import mitchellenhancedvanilla.modid.client.hud.BowHud;
 import mitchellenhancedvanilla.modid.client.hud.QuiverHotbar;
 import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.ModParticles;
+import mitchellenhancedvanilla.modid.client.render.BarrowKingRenderer;
 import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
@@ -19,6 +20,7 @@ import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallback;
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
+import net.minecraft.client.renderer.entity.EntityRenderers;
 
 public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 	@Override
@@ -30,6 +32,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.GOLD_ARROW);
 		ModArrowRenderer.register(ModEntities.PRISMARINE_ARROW);
 		ModArrowRenderer.register(ModEntities.EMERALD_ARROW);
+		EntityRenderers.register(ModEntities.BARROW_KING, BarrowKingRenderer::new);
 		BowHud.register();
 		ArmourHotbar.register();
 		QuiverHotbar.register();

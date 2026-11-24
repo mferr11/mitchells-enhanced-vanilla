@@ -1,0 +1,22 @@
+{
+  "layers": {
+    "humanoid": [
+      {
+        "texture": "mitchells-enhanced-vanilla:kings_crown"
+      }
+    ],
+    "humanoid_baby": [
+      {
+        "texture": "mitchells-enhanced-vanilla:kings_crown"
+      }
+    ]
+  },
+  "trim_overrides": [
+    {
+      "palette": "minecraft:trim/gold_darker",
+      "when": {
+        "material": "minecraft:gold"
+      }
+    }
+  ]
+}

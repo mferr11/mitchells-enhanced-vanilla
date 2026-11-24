@@ -136,7 +136,8 @@ public class GoldArrowEntity extends ModArrowEntity {
     // Shiny decoy: nearby hostiles that can see it drop their target and go stare
     private void lureMobs(ServerLevel level) {
         for (Mob mob : level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(DECOY_RADIUS),
-                m -> m instanceof Enemy && !(m instanceof Warden) && !(m instanceof Creaking) && m.isAlive() && m.hasLineOfSight(this))) {
+                m -> m instanceof Enemy && !(m instanceof Warden) && !(m instanceof Creaking) && !(m instanceof BarrowKingEntity)
+                    && m.isAlive() && m.hasLineOfSight(this))) {
             ((DecoyTarget) mob).mev$distract(this, DECOY_HOLD_TICKS);
         }
     }

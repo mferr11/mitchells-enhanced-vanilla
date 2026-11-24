@@ -1,0 +1,388 @@
+package mitchellenhancedvanilla.modid.entity;
+
+import mitchellenhancedvanilla.modid.ModArmour;
+import mitchellenhancedvanilla.modid.ModItems;
+import mitchellenhancedvanilla.modid.entity.ai.BarrowKingCombatGoal;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.particles.BlockParticleOption;
+import net.minecraft.core.particles.ParticleTypes;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerBossEvent;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.tags.DamageTypeTags;
+import net.minecraft.util.Mth;
+import net.minecraft.world.BossEvent;
+import net.minecraft.world.DifficultyInstance;
+import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.entity.LivingEntity;
+import net.minecraft.world.entity.SpawnGroupData;
+import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
+import net.minecraft.world.entity.ai.attributes.Attributes;
+import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
+import net.minecraft.world.entity.ai.goal.RandomLookAroundGoal;
+import net.minecraft.world.entity.ai.goal.target.HurtByTargetGoal;
+import net.minecraft.world.entity.ai.goal.target.NearestAttackableTargetGoal;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.entity.projectile.arrow.AbstractArrow;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
+import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+// First boss: an armoured skeleton warlord summoned with the Tarnished Crown
+public class BarrowKingEntity extends Monster {
+    // Iron bow at full draw is ~4.5 damage, so roughly 30-35 hits
+    public static final double MAX_HEALTH = 150.0;
+    // Base melee damage; the iron sword adds its own +5 on top
+    public static final double ATTACK_DAMAGE = 3.0;
+    public static final double ARMOR = 6.0;
+    public static final double MOVEMENT_SPEED = 0.25;
+    public static final double KNOCKBACK_RESISTANCE = 0.8;
+    public static final double FOLLOW_RANGE = 40.0;
+    public static final int XP_REWARD = 50;
+
+    // Shield blocks arrows and melee within this many degrees of his facing
+    public static final float SHIELD_HALF_ANGLE = 60.0F;
+    // Melee attackers bounce off the raised shield
+    public static final double SHIELD_BASH_KNOCKBACK = 0.6;
+
+    // Sword reach past his hitbox (vanilla mobs ~0.83) (blocks)
+    public static final double SWORD_REACH = 1.6;
+
+    // Touching him hurts, like Terraria bosses; player i-frames pace it
+    public static final float CONTACT_DAMAGE = 3.0F;
+
+    // Rising out of / sinking back into the ground
+    public static final int RISE_TICKS = 40;
+    public static final double RISE_DEPTH = 2.6;
+    // How often a dawn check runs once he is up (ticks)
+    public static final int DAWN_CHECK_INTERVAL = 20;
+
+    // Pulled further than this from his barrow, he returns (and heals if the arena is empty) (blocks)
+    public static final double LEASH_RADIUS = 32.0;
+
+    // What the client needs to pose him
+    public enum Pose { GUARD, WINDUP, STRIKE, BRACE, STUNNED }
+
+    private enum Stage { RISING, FIGHTING, SINKING }
+
+    private static final EntityDataAccessor<Byte> DATA_POSE =
+        SynchedEntityData.defineId(BarrowKingEntity.class, EntityDataSerializers.BYTE);
+
+    private final ServerBossEvent bossEvent = new ServerBossEvent(
+        Mth.createInsecureUUID(random), getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
+
+    private Stage stage = Stage.FIGHTING;
+    private int stageTicks;
+    private @Nullable BlockPos home;
+
+    public BarrowKingEntity(EntityType<? extends BarrowKingEntity> type, Level level) {
+        super(type, level);
+        xpReward = XP_REWARD;
+        setPersistenceRequired();
+    }
+
+    public static AttributeSupplier.Builder createAttributes() {
+        return Monster.createMonsterAttributes()
+            .add(Attributes.MAX_HEALTH, MAX_HEALTH)
+            .add(Attributes.ATTACK_DAMAGE, ATTACK_DAMAGE)
+            .add(Attributes.ARMOR, ARMOR)
+            .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED)
+            .add(Attributes.KNOCKBACK_RESISTANCE, KNOCKBACK_RESISTANCE)
+            .add(Attributes.FOLLOW_RANGE, FOLLOW_RANGE);
+    }
+
+    @Override
+    protected void registerGoals() {
+        goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(2, new BarrowKingCombatGoal(this));
+        goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 16.0F));
+        goalSelector.addGoal(7, new RandomLookAroundGoal(this));
+        targetSelector.addGoal(1, new HurtByTargetGoal(this));
+        targetSelector.addGoal(2, new NearestAttackableTargetGoal<>(this, Player.class, false));
+    }
+
+    @Override
+    protected void defineSynchedData(SynchedEntityData.Builder builder) {
+        super.defineSynchedData(builder);
+        builder.define(DATA_POSE, (byte) Pose.GUARD.ordinal());
+    }
+
+    public Pose getKingPose() {
+        return Pose.values()[entityData.get(DATA_POSE)];
+    }
+
+    public void setKingPose(Pose pose) {
+        entityData.set(DATA_POSE, (byte) pose.ordinal());
+    }
+
+    // Shield is up unless he is mid-swing or winded
+    public boolean isShieldRaised() {
+        Pose pose = getKingPose();
+        return pose == Pose.GUARD || pose == Pose.BRACE;
+    }
+
+    public boolean canFight() {
+        return stage == Stage.FIGHTING;
+    }
+
+    // Called by the crown: starts underground at the barrow and claws his way up
+    public void beginRising(BlockPos ground) {
+        home = ground;
+        stage = Stage.RISING;
+        stageTicks = 0;
+        setPos(ground.getX() + 0.5, ground.getY() - RISE_DEPTH, ground.getZ() + 0.5);
+        noPhysics = true;
+        setNoGravity(true);
+    }
+
+    @Override
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                                  EntitySpawnReason reason, @Nullable SpawnGroupData groupData) {
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
+        // Shield must be in the off hand
+        setLeftHanded(false);
+        setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+        setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+        // His copy of the crown is wearable; the player's summon item is not
+        ItemStack crown = new ItemStack(ModItems.TARNISHED_CROWN);
+        crown.set(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setAsset(ModArmour.TARNISHED_CROWN_ASSET).build());
+        setItemSlot(EquipmentSlot.HEAD, crown);
+        setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
+        for (EquipmentSlot slot : EquipmentSlot.values()) setDropChance(slot, 0.0F);
+        return data;
+    }
+
+    @Override
+    public void tick() {
+        // Keep the rise/sink moving through the ground
+        if (stage != Stage.FIGHTING) {
+            noPhysics = true;
+            setDeltaMovement(Vec3.ZERO);
+        }
+        super.tick();
+    }
+
+    @Override
+    protected void customServerAiStep(ServerLevel level) {
+        super.customServerAiStep(level);
+        stageTicks++;
+        switch (stage) {
+            case RISING -> tickBurrow(level, 1);
+            case SINKING -> tickBurrow(level, -1);
+            case FIGHTING -> tickFighting(level);
+        }
+        bossEvent.setProgress(getHealth() / getMaxHealth());
+    }
+
+    private void tickFighting(ServerLevel level) {
+        if (stageTicks % DAWN_CHECK_INTERVAL == 0 && level.isBrightOutside()) {
+            startSinking(level);
+            return;
+        }
+        if (home != null && distanceToSqr(Vec3.atBottomCenterOf(home)) > LEASH_RADIUS * LEASH_RADIUS) {
+            returnHome(level);
+        }
+        if (isAlive()) dealContactDamage(level);
+    }
+
+    private void dealContactDamage(ServerLevel level) {
+        for (Player player : level.getEntitiesOfClass(Player.class, getBoundingBox().inflate(0.15),
+                p -> p.isAlive() && !p.isSpectator())) {
+            player.hurtServer(level, damageSources().mobAttack(this), CONTACT_DAMAGE);
+        }
+    }
+
+    @Override
+    public boolean isWithinMeleeAttackRange(LivingEntity target) {
+        return getAttackBoundingBox(SWORD_REACH).intersects(target.getBoundingBox());
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        super.die(source);
+        if (level() instanceof ServerLevel level) {
+            broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.defeated")
+                .withStyle(ChatFormatting.GOLD));
+        }
+    }
+
+    // Moves up (dir 1) or down (dir -1) through the ground, then finishes the stage
+    private void tickBurrow(ServerLevel level, int dir) {
+        setPos(getX(), getY() + dir * RISE_DEPTH / RISE_TICKS, getZ());
+        groundBurst(level, 6);
+        if (stageTicks % 8 == 0) playSound(SoundEvents.ROOTED_DIRT_BREAK, 1.5F, 0.6F);
+        if (stageTicks < RISE_TICKS) return;
+
+        if (dir < 0) {
+            discard();
+            return;
+        }
+        // Fully risen: snap onto the ground and start fighting
+        stage = Stage.FIGHTING;
+        stageTicks = 0;
+        noPhysics = false;
+        setNoGravity(false);
+        if (home != null) setPos(getX(), home.getY(), getZ());
+        playSound(SoundEvents.RAVAGER_ROAR, 2.0F, 0.5F);
+    }
+
+    private void startSinking(ServerLevel level) {
+        stage = Stage.SINKING;
+        stageTicks = 0;
+        setTarget(null);
+        noPhysics = true;
+        setNoGravity(true);
+        getNavigation().stop();
+        playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.5F);
+        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.dawn"));
+    }
+
+    private void returnHome(ServerLevel level) {
+        if (home == null) return;
+        Vec3 centre = Vec3.atBottomCenterOf(home);
+        level.sendParticles(ParticleTypes.SOUL, getX(), getY(1.0), getZ(), 20, 0.3, 0.6, 0.3, 0.02);
+        teleportTo(centre.x, centre.y, centre.z);
+        getNavigation().stop();
+        // Lured away with nobody left in the arena: the fight resets
+        boolean arenaEmpty = level.players().stream().noneMatch(p -> p.isAlive() && !p.isSpectator()
+            && p.distanceToSqr(centre) < LEASH_RADIUS * LEASH_RADIUS);
+        if (arenaEmpty) setHealth(getMaxHealth());
+        groundBurst(level, 30);
+        playSound(SoundEvents.SOUL_ESCAPE.value(), 2.0F, 0.6F);
+    }
+
+    // Dirt sprays from the ground he is moving through
+    private void groundBurst(ServerLevel level, int count) {
+        BlockPos below = home != null ? home.below() : blockPosition().below();
+        BlockState ground = level.getBlockState(below);
+        if (ground.isAir()) return;
+        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground),
+            getX(), below.getY() + 1.0, getZ(), count, 0.6, 0.1, 0.6, 0.15);
+    }
+
+    private void broadcast(ServerLevel level, Component message) {
+        for (ServerPlayer player : level.players()) {
+            if (player.distanceToSqr(this) < 96 * 96) player.sendSystemMessage(message);
+        }
+    }
+
+    @Override
+    public boolean hurtServer(ServerLevel level, DamageSource source, float damage) {
+        // Untouchable while in the ground
+        if (stage != Stage.FIGHTING && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
+        if (blocksWithShield(source)) {
+            level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
+            Vec3 spark = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
+            level.sendParticles(ParticleTypes.CRIT, spark.x, spark.y - 0.6, spark.z, 8, 0.1, 0.1, 0.1, 0.3);
+            // Melee attackers get shoved back
+            if (source.getDirectEntity() instanceof LivingEntity attacker && !source.is(DamageTypeTags.IS_PROJECTILE)) {
+                attacker.knockback(SHIELD_BASH_KNOCKBACK, getX() - attacker.getX(), getZ() - attacker.getZ(), source, 0.0F);
+                attacker.needsSync = true;
+            }
+            return false;
+        }
+        return super.hurtServer(level, source, damage);
+    }
+
+    // Arrows and melee from the front hit the shield; piercing arrows punch through like vanilla
+    private boolean blocksWithShield(DamageSource source) {
+        if (!isShieldRaised()) return false;
+        boolean melee = source.getDirectEntity() instanceof LivingEntity;
+        if (!melee && !source.is(DamageTypeTags.IS_PROJECTILE)) return false;
+        if (source.getDirectEntity() instanceof AbstractArrow arrow && arrow.getPierceLevel() > 0) return false;
+        Vec3 from = source.getSourcePosition();
+        if (from == null) return false;
+        Vec3 facing = calculateViewVector(0.0F, getYHeadRot());
+        Vec3 toSource = new Vec3(from.x - getX(), 0.0, from.z - getZ()).normalize();
+        return toSource.dot(facing) > Math.cos(Math.toRadians(SHIELD_HALF_ANGLE));
+    }
+
+    @Override
+    public void startSeenByPlayer(ServerPlayer player) {
+        super.startSeenByPlayer(player);
+        bossEvent.addPlayer(player);
+    }
+
+    @Override
+    public void stopSeenByPlayer(ServerPlayer player) {
+        super.stopSeenByPlayer(player);
+        bossEvent.removePlayer(player);
+    }
+
+    @Override
+    public void setCustomName(@Nullable Component name) {
+        super.setCustomName(name);
+        bossEvent.setName(getDisplayName());
+    }
+
+    @Override
+    public boolean removeWhenFarAway(double distSqr) {
+        return false;
+    }
+
+    @Override
+    protected SoundEvent getAmbientSound() {
+        return SoundEvents.WITHER_SKELETON_AMBIENT;
+    }
+
+    @Override
+    protected SoundEvent getHurtSound(DamageSource source) {
+        return SoundEvents.WITHER_SKELETON_HURT;
+    }
+
+    @Override
+    protected SoundEvent getDeathSound() {
+        return SoundEvents.WITHER_SKELETON_DEATH;
+    }
+
+    @Override
+    public float getVoicePitch() {
+        return 0.7F;
+    }
+
+    private static final String HOME_KEY = "BarrowHome";
+    private static final String STAGE_KEY = "BarrowStage";
+    private static final String STAGE_TICKS_KEY = "BarrowStageTicks";
+
+    @Override
+    protected void addAdditionalSaveData(ValueOutput output) {
+        super.addAdditionalSaveData(output);
+        if (home != null) output.store(HOME_KEY, BlockPos.CODEC, home);
+        output.putInt(STAGE_KEY, stage.ordinal());
+        output.putInt(STAGE_TICKS_KEY, stageTicks);
+    }
+
+    @Override
+    protected void readAdditionalSaveData(ValueInput input) {
+        super.readAdditionalSaveData(input);
+        home = input.read(HOME_KEY, BlockPos.CODEC).orElse(null);
+        stage = Stage.values()[Mth.clamp(input.getIntOr(STAGE_KEY, 1), 0, Stage.values().length - 1)];
+        stageTicks = input.getIntOr(STAGE_TICKS_KEY, 0);
+        if (stage != Stage.FIGHTING) {
+            noPhysics = true;
+            setNoGravity(true);
+        }
+        if (hasCustomName()) bossEvent.setName(getDisplayName());
+    }
+}

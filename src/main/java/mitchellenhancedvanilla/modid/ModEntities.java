@@ -1,12 +1,14 @@
 package mitchellenhancedvanilla.modid;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
+import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
+import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
@@ -78,7 +80,15 @@ public class ModEntities {
             .clientTrackingRange(4)
             .updateInterval(20));
 
+    // Wither skeleton's size and model, 150 HP boss
+    public static final EntityType<BarrowKingEntity> BARROW_KING = register("barrow_king",
+        EntityType.Builder.<BarrowKingEntity>of(BarrowKingEntity::new, MobCategory.MONSTER)
+            .sized(0.7F, 2.4F)
+            .eyeHeight(2.1F)
+            .clientTrackingRange(10)
+            .notInPeaceful());
+
     public static void initialize() {
-        // Loads the class so the fields above register
+        FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
     }
 }

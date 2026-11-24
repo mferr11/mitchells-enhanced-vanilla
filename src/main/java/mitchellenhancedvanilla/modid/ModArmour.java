@@ -9,6 +9,9 @@ import net.minecraft.world.item.Items;
 import net.minecraft.world.item.equipment.ArmorMaterial;
 import net.minecraft.world.item.equipment.ArmorMaterials;
 import net.minecraft.world.item.equipment.ArmorType;
+import net.minecraft.world.item.equipment.EquipmentAsset;
+import net.minecraft.world.item.equipment.EquipmentAssets;
+import net.minecraft.resources.ResourceKey;
 
 public final class ModArmour {
     // Starter armour, between leather (7 armour, x5 durability) and copper (10, x11)
@@ -27,6 +30,24 @@ public final class ModArmour {
         VANILLA_CHAINMAIL.knockbackResistance(),
         VANILLA_CHAINMAIL.repairIngredient(),
         VANILLA_CHAINMAIL.assetId());
+
+    // Worn textures: assets/<modid>/equipment/<name>.json
+    public static final ResourceKey<EquipmentAsset> KINGS_CROWN_ASSET =
+        ResourceKey.create(EquipmentAssets.ROOT_ID, MitchellEnhancedVanilla.id("kings_crown"));
+    public static final ResourceKey<EquipmentAsset> TARNISHED_CROWN_ASSET =
+        ResourceKey.create(EquipmentAssets.ROOT_ID, MitchellEnhancedVanilla.id("tarnished_crown"));
+
+    // King's Crown: gold's armour and enchantability, with iron's durability
+    private static final ArmorMaterial VANILLA_GOLD = ArmorMaterials.GOLD;
+    public static final ArmorMaterial KINGS_CROWN = new ArmorMaterial(
+        ArmorMaterials.IRON.durability(),
+        VANILLA_GOLD.defense(),
+        VANILLA_GOLD.enchantmentValue(),
+        VANILLA_GOLD.equipSound(),
+        VANILLA_GOLD.toughness(),
+        VANILLA_GOLD.knockbackResistance(),
+        VANILLA_GOLD.repairIngredient(),
+        KINGS_CROWN_ASSET);
 
     private ModArmour() {}
 
