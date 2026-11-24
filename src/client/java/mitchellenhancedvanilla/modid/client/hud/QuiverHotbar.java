@@ -12,31 +12,45 @@ import net.minecraft.client.gui.GuiGraphicsExtractor;
 import net.minecraft.client.renderer.RenderPipelines;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.ARGB;
+import net.minecraft.util.Mth;
 import net.minecraft.util.Util;
 import net.minecraft.world.entity.HumanoidArm;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
 import org.joml.Matrix3x2fStack;
 
-// Current and next quiver arrow, beyond the offhand slot
+// Previous, current and next quiver arrow, beyond the offhand slot
 public final class QuiverHotbar {
     private static final Identifier HOTBAR_SPRITE = Identifier.withDefaultNamespace("hud/hotbar");
     private static final int HOTBAR_WIDTH = 182;
     private static final int HOTBAR_HEIGHT = 22;
     private static final int HOTBAR_HALF = 91;
     private static final int OFFHAND_WIDTH = 29; // vanilla offhand sprite, gap included
-    private static final int SLOT_SIZE = 20;
-    private static final int SLOTS = 2;
-    private static final int STRIP_WIDTH = SLOTS * SLOT_SIZE + 2;
+    private static final int BOX = 22; // one slot with its border
     private static final int GAP = 7;
-    private static final float NEXT_ALPHA = 0.5F;
-    private static final int POP_TICKS = 5; // vanilla pickup pop length
-    private static final int MS_PER_TICK = 50;
+    private static final float SIDE_SCALE = 0.8F;
+    private static final float SIDE_ALPHA = 0.5F;
+    private static final float SIDE_BOX = BOX * SIDE_SCALE;
+    private static final float STRIP_WIDTH = BOX + 2 * SIDE_BOX;
+    private static final long SLIDE_MS = 150;
 
-    // Arrows shown last frame, to spot changes
-    private static final ItemStack[] lastShown = {ItemStack.EMPTY, ItemStack.EMPTY};
-    private static boolean initialised = false; // no pop for the first frame after joining
-    private static long popStartMs = Long.MIN_VALUE / 2;
+    // Strip order: previous, current, next
+    private static final int SLOTS = 3;
+    private static final int CURRENT = 1;
+
+    // Per strip position, from just off the left (-1) to just off the right (3)
+    private static final float[] POSITION_SCALE = {SIDE_SCALE, SIDE_SCALE, 1.0F, SIDE_SCALE, SIDE_SCALE};
+    private static final float[] POSITION_ALPHA = {0.0F, SIDE_ALPHA, 1.0F, SIDE_ALPHA, 0.0F};
+    private static final float[] POSITION_CENTER = {
+        -SIDE_BOX / 2, SIDE_BOX / 2, SIDE_BOX + BOX / 2F, SIDE_BOX + BOX + SIDE_BOX / 2, SIDE_BOX + BOX + SIDE_BOX * 1.5F};
+
+    // Arrows shown last frame, to spot rotations
+    private static ItemStack[] lastShown = {ItemStack.EMPTY, ItemStack.EMPTY, ItemStack.EMPTY};
+    private static boolean initialised = false; // no slide for the first frame after joining
+    private static long slideStartMs = Long.MIN_VALUE / 2;
+    // Arrows leaving on the left during a slide: the old previous and the old current
+    private static ItemStack leavingPrevious = ItemStack.EMPTY;
+    private static ItemStack leavingCurrent = ItemStack.EMPTY;
 
     private QuiverHotbar() {}
 
@@ -56,82 +70,99 @@ public final class QuiverHotbar {
         boolean onLeft = player.getMainArm() == HumanoidArm.RIGHT;
         int center = graphics.guiWidth() / 2;
         int offset = HOTBAR_HALF + OFFHAND_WIDTH + GAP;
-        int left = onLeft ? center - offset - STRIP_WIDTH : center + offset;
+        float left = onLeft ? center - offset - STRIP_WIDTH : center + offset;
         int top = graphics.guiHeight() - HOTBAR_HEIGHT;
 
-        ItemStack[] shown = new ItemStack[SLOTS];
-        for (int i = 0; i < SLOTS; i++) shown[i] = Quiver.peek(player, i);
-        float pop = popTime(shown);
+        for (int i = 0; i < SLOTS; i++) drawFrame(graphics, i, left, top);
 
-        // Current arrow sits nearest the hotbar; the next one is faded
+        ItemStack[] shown = shownArrows(player);
+        float slide = slideOffset(shown);
+        // Arrows sliding in or out are cut off at the strip's outer borders
+        graphics.enableScissor(Mth.floor(left) + 1, top, Mth.ceil(left + STRIP_WIDTH) - 1, top + BOX);
         for (int i = 0; i < SLOTS; i++) {
-            float alpha = i == 0 ? 1.0F : NEXT_ALPHA;
-            int slot = slotFor(i, onLeft);
-            drawFrame(graphics, left, top, slot, alpha);
-
-            ItemStack stack = shown[i];
-            if (stack.isEmpty()) continue;
-            int x = left + 3 + slot * SLOT_SIZE;
-            int y = top + 3;
-            int seed = 200 + i; // past the hotbar's
-
-            Matrix3x2fStack pose = graphics.pose();
-            pose.pushMatrix();
-            applyPop(pose, pop, x, y);
-            if (alpha < 1.0F) {
-                FadedItems.item(graphics, player, stack, x, y, seed, alpha);
-            } else {
-                graphics.item(player, stack, x, y, seed);
-            }
-            pose.popMatrix();
-
-            if (alpha < 1.0F) {
-                FadedItems.count(graphics, mc.font, stack, x, y, alpha);
-            } else {
-                graphics.itemDecorations(mc.font, stack, x, y);
-            }
+            drawArrow(graphics, mc, player, shown[i], i + slide, 1.0F, left, top, 200 + i); // seeds past the hotbar's
         }
+        if (slide > 0) {
+            drawArrow(graphics, mc, player, leavingPrevious, slide - 1, 1.0F, left, top, 203);
+            // With no previous arrow to take its place, the old current fades as it slides left
+            if (shown[0].isEmpty()) drawArrow(graphics, mc, player, leavingCurrent, slide, slide, left, top, 204);
+        }
+        graphics.disableScissor();
     }
 
-    // Restarts the pop when the shown arrows change (rotating, adding a new type, running out)
-    private static float popTime(ItemStack[] shown) {
+    // Previous wraps round to the last stack; with only two stacks it would just repeat the next one
+    private static ItemStack[] shownArrows(Player player) {
+        int size = Quiver.contents(player).size();
+        ItemStack previous = size > 2 ? Quiver.peek(player, size - 1) : ItemStack.EMPTY;
+        return new ItemStack[] {previous, Quiver.peek(player, 0), Quiver.peek(player, 1)};
+    }
+
+    // 1 right after a rotation, easing to 0; other changes (new arrows, running out) just snap
+    private static float slideOffset(ItemStack[] shown) {
         boolean changed = false;
         for (int i = 0; i < SLOTS; i++) {
             if (!ItemStack.isSameItemSameComponents(shown[i], lastShown[i])) changed = true;
         }
         if (changed) {
-            if (initialised) popStartMs = Util.getMillis();
-            for (int i = 0; i < SLOTS; i++) lastShown[i] = shown[i].copy();
+            boolean rotated = !shown[CURRENT].isEmpty()
+                && ItemStack.isSameItemSameComponents(shown[CURRENT], lastShown[CURRENT + 1])
+                && !ItemStack.isSameItemSameComponents(shown[CURRENT], lastShown[CURRENT]);
+            if (initialised && rotated) {
+                slideStartMs = Util.getMillis();
+                leavingPrevious = lastShown[0];
+                leavingCurrent = lastShown[CURRENT];
+            }
+            lastShown = new ItemStack[] {shown[0].copy(), shown[1].copy(), shown[2].copy()};
             initialised = true;
         }
         // Real time, so respawns and dimension changes (tick count resets) can't break it
-        return POP_TICKS - (Util.getMillis() - popStartMs) / (float) MS_PER_TICK;
+        float progress = Mth.clamp((Util.getMillis() - slideStartMs) / (float) SLIDE_MS, 0.0F, 1.0F);
+        float remaining = 1.0F - progress;
+        return remaining * remaining * remaining; // ease out
     }
 
-    // Vanilla's hotbar pickup squash (Hud.extractSlot)
-    private static void applyPop(Matrix3x2fStack pose, float pop, int x, int y) {
-        if (pop <= 0) return;
-        float scale = 1.0F + pop / POP_TICKS;
-        pose.translate(x + 8, y + 12);
-        pose.scale(1.0F / scale, (scale + 1.0F) / 2.0F);
-        pose.translate(-(x + 8), -(y + 12));
-    }
+    // An arrow at a fractional strip position, sized and faded between the slots either side
+    private static void drawArrow(GuiGraphicsExtractor graphics, Minecraft mc, Player player, ItemStack stack,
+                                  float position, float fade, float left, int top, int seed) {
+        if (stack.isEmpty() || position <= -1 || position >= SLOTS) return;
+        float index = position + 1;
+        int low = Mth.floor(index);
+        float t = index - low;
+        float scale = Mth.lerp(t, POSITION_SCALE[low], POSITION_SCALE[low + 1]);
+        float alpha = Mth.lerp(t, POSITION_ALPHA[low], POSITION_ALPHA[low + 1]) * fade;
+        float x = left + Mth.lerp(t, POSITION_CENTER[low], POSITION_CENTER[low + 1]);
+        if (alpha <= 0.01F) return;
 
-    // One slot's share of the vanilla hotbar sprite; the last slot also takes its right border
-    private static void drawFrame(GuiGraphicsExtractor graphics, int left, int top, int slot, float alpha) {
-        int color = ARGB.white(alpha);
-        int u = slot == 0 ? 0 : 1 + slot * SLOT_SIZE;
-        int width = slot == 0 ? SLOT_SIZE + 1 : SLOT_SIZE;
-        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, HOTBAR_WIDTH, HOTBAR_HEIGHT,
-            u, 0, left + u, top, width, HOTBAR_HEIGHT, color);
-        if (slot == SLOTS - 1) {
-            graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, HOTBAR_WIDTH, HOTBAR_HEIGHT,
-                HOTBAR_WIDTH - 1, 0, left + STRIP_WIDTH - 1, top, 1, HOTBAR_HEIGHT, color);
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x, top + BOX / 2F);
+        pose.scale(scale);
+        if (alpha < 1.0F) {
+            FadedItems.item(graphics, player, stack, -8, -8, seed, alpha);
+            FadedItems.count(graphics, mc.font, stack, -8, -8, alpha);
+        } else {
+            graphics.item(player, stack, -8, -8, seed);
+            graphics.itemDecorations(mc.font, stack, -8, -8);
         }
+        pose.popMatrix();
     }
 
-    // Strip slot for a quiver position, counting outward from the hotbar
-    private static int slotFor(int index, boolean onLeft) {
-        return onLeft ? SLOTS - 1 - index : index;
+    // A single bordered slot (the hotbar's first slot plus its right edge); side slots shrunk and faded
+    private static void drawFrame(GuiGraphicsExtractor graphics, int slot, float left, int top) {
+        boolean current = slot == CURRENT;
+        float scale = current ? 1.0F : SIDE_SCALE;
+        int color = ARGB.white(current ? 1.0F : SIDE_ALPHA);
+        float x = left + POSITION_CENTER[slot + 1] - BOX * scale / 2;
+        float y = top + (BOX - BOX * scale) / 2; // side slots centred on the current one
+
+        Matrix3x2fStack pose = graphics.pose();
+        pose.pushMatrix();
+        pose.translate(x, y);
+        pose.scale(scale);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, HOTBAR_WIDTH, HOTBAR_HEIGHT,
+            0, 0, 0, 0, BOX - 1, HOTBAR_HEIGHT, color);
+        graphics.blitSprite(RenderPipelines.GUI_TEXTURED, HOTBAR_SPRITE, HOTBAR_WIDTH, HOTBAR_HEIGHT,
+            HOTBAR_WIDTH - 1, 0, BOX - 1, 0, 1, HOTBAR_HEIGHT, color);
+        pose.popMatrix();
     }
 }
