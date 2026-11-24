@@ -27,9 +27,9 @@ import org.jspecify.annotations.Nullable;
 
 public class AmethystArrowEntity extends ModArrowEntity {
     // Shrapnel radius in blocks
-    public static final double SHRAPNEL_RADIUS = 6.0;
+    public static final double SHRAPNEL_RADIUS = 8.0;
     // Shrapnel damage at the centre, falling off to 0 at the edge
-    public static final float SHRAPNEL_DAMAGE = 6.0F;
+    public static final float SHRAPNEL_DAMAGE = 8.0F;
 
     // Shard particles per block of radius
     public static final int PARTICLES_PER_BLOCK = 30;
