@@ -26,10 +26,10 @@ public class BarrowKingCombatGoal extends Goal {
     // Arm stays forward while the swing animation plays (vanilla swing is 6 ticks)
     public static final int FOLLOW_THROUGH_TICKS = 6;
     // Small step forward on each swing
-    public static final double LUNGE_SPEED = 0.25;
+    public static final double LUNGE_SPEED = 0.5;
     // Shield down after a combo: the melee punish window
     public static final int COMBO_RECOVER_TICKS = 20;
-    public static final int ATTACK_COOLDOWN_TICKS = 20;
+    public static final int ATTACK_COOLDOWN_TICKS = 60;
 
     // Charge: used when the target keeps its distance
     public static final double CHARGE_MIN_RANGE = 6.0;
@@ -49,6 +49,8 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int GUARD_BREAK_STUN_TICKS = 60;
 
     public static final double CHASE_SPEED = 1.0;
+    // Keeps pressing forward through a combo, a little slower than his chase
+    public static final double COMBO_MOVE_SPEED = 0.8;
     public static final int REPATH_INTERVAL = 10;
 
     private enum State { CHASE, WINDUP, RECOVER, CHARGE_WINDUP, CHARGING, STUNNED }
@@ -151,7 +153,15 @@ public class BarrowKingCombatGoal extends Goal {
 
     // Sword raised overhead, then the swing lands
     private void tickWindup(ServerLevel level, LivingEntity target) {
-        if (target != null) king.getLookControl().setLookAt(target, 30.0F, 30.0F);
+        if (target != null) {
+            king.getLookControl().setLookAt(target, 30.0F, 30.0F);
+            // Walk after a backpedalling target, but don't shove into one already in reach
+            if (king.isWithinMeleeAttackRange(target)) {
+                king.getNavigation().stop();
+            } else if (king.getNavigation().isDone() || timer % REPATH_INTERVAL == 0) {
+                king.getNavigation().moveTo(target, COMBO_MOVE_SPEED);
+            }
+        }
         // Follow-through done: raise the sword for the next swing
         if (king.getKingPose() == Pose.STRIKE && timer <= FOLLOWUP_WINDUP_TICKS - FOLLOW_THROUGH_TICKS) {
             king.setKingPose(Pose.WINDUP);
@@ -228,7 +238,8 @@ public class BarrowKingCombatGoal extends Goal {
             case CHARGE_WINDUP, CHARGING -> Pose.BRACE;
             case RECOVER, STUNNED -> Pose.STUNNED;
         });
-        if (next != State.CHASE) king.getNavigation().stop();
+        // Only the chase and sword combo move under their own power
+        if (next != State.CHASE && next != State.WINDUP) king.getNavigation().stop();
     }
 
     private void faceTowards(Vec3 point) {
