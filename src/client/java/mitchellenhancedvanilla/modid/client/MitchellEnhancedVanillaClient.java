@@ -1,6 +1,7 @@
 package mitchellenhancedvanilla.modid.client;
 
 import mitchellenhancedvanilla.modid.ModEntities;
+import mitchellenhancedvanilla.modid.client.hud.ArmourHotbar;
 import mitchellenhancedvanilla.modid.client.hud.BowHud;
 import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.ModParticles;
@@ -23,6 +24,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.PRISMARINE_ARROW);
 		ModArrowRenderer.register(ModEntities.EMERALD_ARROW);
 		BowHud.register();
+		ArmourHotbar.register();
 		BowAmmoProperty.register();
 		MenuScreens.register(ModMenus.FLETCHING_TABLE, FletchingTableScreen::new);
 		FrozenParticles.register();

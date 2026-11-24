@@ -9,7 +9,8 @@
 		"RenderLayerMixin",
 		"SlimeOuterLayerMixin",
 		"EquipmentLayerRendererMixin",
-		"FirstPersonHandsAndItemsMixin"
+		"FirstPersonHandsAndItemsMixin",
+		"HudMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1
