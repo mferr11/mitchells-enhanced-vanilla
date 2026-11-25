@@ -6,12 +6,15 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
+import mitchellenhancedvanilla.modid.block.BroodCobwebBlock;
 import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.SoundType;
 import net.minecraft.world.level.block.SkullBlock;
 import net.minecraft.world.level.block.WallSkullBlock;
 import net.minecraft.world.level.block.entity.BlockEntityTypes;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
 
 public final class ModBlocks {
@@ -46,6 +49,11 @@ public final class ModBlocks {
         p -> new WallSkullBlock(BARROW_KING_SKULL_TYPE, p),
         BlockBehaviour.Properties.of().overrideLootTable(BARROW_KING_SKULL.getLootTable())
             .overrideDescription(BARROW_KING_SKULL.getDescriptionId()).strength(1.0F).pushReaction(PushReaction.POPPED));
+
+    // Vanilla cobweb's settings, but soft enough to cut free with anything, and no drops or item
+    public static final Block BROOD_COBWEB = register("brood_cobweb", BroodCobwebBlock::new,
+        BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).sound(SoundType.COBWEB).forceSolidOn().noCollision()
+            .strength(0.5F).noLootTable().pushReaction(PushReaction.POPPED));
 
     private ModBlocks() {}
 

@@ -9,6 +9,8 @@ import mitchellenhancedvanilla.modid.client.model.BowAmmoProperty;
 import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.client.render.BarrowKingRenderer;
 import mitchellenhancedvanilla.modid.client.render.BarrowServantRenderer;
+import mitchellenhancedvanilla.modid.client.render.BroodLarvaRenderer;
+import mitchellenhancedvanilla.modid.client.render.BroodSpiderRenderer;
 import mitchellenhancedvanilla.modid.client.render.ScreenShake;
 import mitchellenhancedvanilla.modid.client.render.ColoredParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
@@ -25,6 +27,7 @@ import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
 import net.minecraft.client.renderer.entity.NoopRenderer;
+import net.minecraft.client.renderer.entity.ThrownItemRenderer;
 
 public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 	@Override
@@ -39,6 +42,9 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		EntityRenderers.register(ModEntities.BARROW_KING, BarrowKingRenderer::new);
 		EntityRenderers.register(ModEntities.BARROW_SERVANT, BarrowServantRenderer::new);
 		EntityRenderers.register(ModEntities.SOUL_FLAME, NoopRenderer::new);
+		EntityRenderers.register(ModEntities.BROOD_SPIDER, BroodSpiderRenderer::new);
+		EntityRenderers.register(ModEntities.BROOD_LARVA, BroodLarvaRenderer::new);
+		EntityRenderers.register(ModEntities.WEB_SPIT, ThrownItemRenderer::new);
 		ScreenShake.register();
 		BarrowKingSkullModel.register();
 		BowHud.register();

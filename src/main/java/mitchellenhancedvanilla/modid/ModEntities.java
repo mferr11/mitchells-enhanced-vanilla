@@ -3,6 +3,8 @@ package mitchellenhancedvanilla.modid;
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowServantEntity;
+import mitchellenhancedvanilla.modid.entity.BroodLarvaEntity;
+import mitchellenhancedvanilla.modid.entity.BroodSpiderEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
@@ -10,6 +12,9 @@ import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.entity.SoulFlameEntity;
+import mitchellenhancedvanilla.modid.entity.WebSpitEntity;
+import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
+import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -17,6 +22,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -111,11 +117,46 @@ public class ModEntities {
             .clientTrackingRange(4)
             .updateInterval(10));
 
+    // Vanilla spider's size, scaled up (no rider seat: it never carries a jockey)
+    public static final EntityType<BroodSpiderEntity> BROOD_SPIDER = register("brood_spider",
+        EntityType.Builder.<BroodSpiderEntity>of(BroodSpiderEntity::new, MobCategory.MONSTER)
+            .sized(1.4F * BroodSpiderEntity.SCALE, 0.9F * BroodSpiderEntity.SCALE)
+            .eyeHeight(0.65F * BroodSpiderEntity.SCALE)
+            .clientTrackingRange(8)
+            .notInPeaceful());
+
+    // Same size as an endermite
+    public static final EntityType<BroodLarvaEntity> BROOD_LARVA = register("brood_larva",
+        EntityType.Builder.<BroodLarvaEntity>of(BroodLarvaEntity::new, MobCategory.MONSTER)
+            .noLootTable()
+            .sized(0.4F, 0.3F)
+            .eyeHeight(0.13F)
+            .clientTrackingRange(8)
+            .notInPeaceful());
+
+    // Same settings as a snowball
+    public static final EntityType<WebSpitEntity> WEB_SPIT = register("web_spit",
+        EntityType.Builder.<WebSpitEntity>of(WebSpitEntity::new, MobCategory.MISC)
+            .noLootTable()
+            .sized(0.25F, 0.25F)
+            .clientTrackingRange(4)
+            .updateInterval(10));
+
+    // Brood Spiders spawn alongside spiders, at a tenth of their weight and alone rather than in groups of 4
+    public static final int BROOD_SPIDER_SPAWN_WEIGHT = 10;
+
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(BARROW_SERVANT, BarrowServantEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(BROOD_SPIDER, BroodSpiderEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(BROOD_LARVA, BroodLarvaEntity.createAttributes());
         // Natural spawns (barrow graveyards at night) follow vanilla skeleton rules: dark, on solid ground
         SpawnPlacements.register(BARROW_SERVANT, SpawnPlacementTypes.ON_GROUND,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
+        // Same rules as vanilla spiders
+        SpawnPlacements.register(BROOD_SPIDER, SpawnPlacementTypes.ON_GROUND,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
+        BiomeModifications.addSpawn(BiomeSelectors.spawnsOneOf(EntityTypes.SPIDER), MobCategory.MONSTER, BROOD_SPIDER,
+            BROOD_SPIDER_SPAWN_WEIGHT, 1, 1);
     }
 }

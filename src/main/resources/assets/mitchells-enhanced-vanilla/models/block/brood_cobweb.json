@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/cross",
+  "textures": {
+    "cross": "mitchells-enhanced-vanilla:block/brood_cobweb"
+  }
+}

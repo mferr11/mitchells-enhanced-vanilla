@@ -3,12 +3,13 @@
   "category": "equipment",
   "key": {
     "#": "minecraft:gold_ingot",
-    "X": "minecraft:bow"
+    "X": "minecraft:bow",
+    "S": "mitchells-enhanced-vanilla:brood_silk"
   },
   "pattern": [
-    "###",
+    "#S#",
     "#X#",
-    "###"
+    "#S#"
   ],
   "result": {
     "id": "mitchells-enhanced-vanilla:golden_bow"

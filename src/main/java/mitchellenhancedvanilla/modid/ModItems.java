@@ -23,6 +23,7 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.SpawnEggItem;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.StandingAndWallBlockItem;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -60,11 +61,15 @@ public class ModItems {
 		});
         // Boss summons sit with the spawners, ahead of the eggs
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS)
-		.register((creativeTab) -> creativeTab.insertAfter(Items.CREAKING_HEART, ModItems.TARNISHED_CROWN));
+		.register((creativeTab) -> {
+			creativeTab.insertAfter(Items.CREAKING_HEART, ModItems.TARNISHED_CROWN);
+			creativeTab.insertAfter(Items.SPIDER_SPAWN_EGG, ModItems.BROOD_SPIDER_SPAWN_EGG, ModItems.BROOD_LARVA_SPAWN_EGG);
+		});
         // Each plating sits after the material it is made from
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
+			creativeTab.insertAfter(Items.STRING, ModItems.BROOD_SILK);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.CHAINMAIL_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.IRON_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.GOLD_INGOT, ModItems.GOLD_ARMOUR_PLATING);
@@ -120,6 +125,12 @@ public class ModItems {
         KingsShieldItem.properties());
 
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
+    // Brood Spider drop; the string for bows stronger than iron
+    public static final Item BROOD_SILK = register(ModItemIds.BROOD_SILK, Item::new, new Item.Properties());
+    public static final Item BROOD_SPIDER_SPAWN_EGG = register(ModItemIds.BROOD_SPIDER_SPAWN_EGG, SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.BROOD_SPIDER));
+    public static final Item BROOD_LARVA_SPAWN_EGG = register(ModItemIds.BROOD_LARVA_SPAWN_EGG, SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.BROOD_LARVA));
     public static final Item BARROW_KING_SKULL = register(ModItemIds.BARROW_KING_SKULL,
         p -> new StandingAndWallBlockItem(ModBlocks.BARROW_KING_SKULL, ModBlocks.BARROW_KING_WALL_SKULL, Direction.DOWN, Waypoint.addHideAttribute(p)),
         new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix());
