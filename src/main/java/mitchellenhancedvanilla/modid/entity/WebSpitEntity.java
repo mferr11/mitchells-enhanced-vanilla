@@ -77,9 +77,9 @@ public class WebSpitEntity extends ThrowableItemProjectile {
         return blockPosition();
     }
 
-    // Same rule as the Weaving effect: only into air or other replaceable blocks (grass, snow layers)
+    // Same rule as the Weaving effect: only into air or other replaceable blocks (grass, snow layers), never into water or lava
     private static void placeWeb(ServerLevel level, BlockPos pos) {
-        if (!level.getBlockState(pos).canBeReplaced()) return;
+        if (!level.getBlockState(pos).canBeReplaced() || !level.getFluidState(pos).isEmpty()) return;
         level.setBlockAndUpdate(pos, ModBlocks.BROOD_COBWEB.defaultBlockState());
         level.playSound(null, pos, SoundEvents.COBWEB_PLACE, SoundSource.HOSTILE, 1.0F, 0.8F);
     }

@@ -4,7 +4,11 @@ import com.mojang.serialization.Codec;
 
 import net.fabricmc.fabric.api.attachment.v1.AttachmentRegistry;
 import net.fabricmc.fabric.api.attachment.v1.AttachmentType;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
+import net.fabricmc.fabric.api.event.lifecycle.v1.ServerTickEvents;
+import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
@@ -20,13 +24,31 @@ public final class BroodSpawning {
     private static final AttachmentType<Boolean> KING_DEFEATED =
         AttachmentRegistry.createPersistent(MitchellEnhancedVanilla.id("barrow_king_defeated"), Codec.BOOL);
 
+    // Pause after the King's defeat message before the unlock is announced
+    public static final int ANNOUNCE_DELAY_TICKS = 3 * 20;
+
+    // Ticks left until the announcement; 0 when none is pending
+    private static int announceIn;
+
     private BroodSpawning() {}
 
-    // Loads the class so the attachment is registered before any world loads
-    public static void initialize() {}
+    // Registers the attachment before any world loads, and the announcement countdown
+    public static void initialize() {
+        ServerTickEvents.END_SERVER_TICK.register(server -> {
+            if (announceIn > 0 && --announceIn == 0) {
+                server.getPlayerList().broadcastSystemMessage(
+                    Component.translatable("message.mitchells-enhanced-vanilla.brood_unleashed")
+                        .withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC), false);
+            }
+        });
+        ServerLifecycleEvents.SERVER_STOPPED.register(server -> announceIn = 0);
+    }
 
+    // The first time only, tells every player on the server (shortly after) that something has changed
     public static void markKingDefeated(ServerLevel level) {
+        if (isKingDefeated(level)) return;
         level.getServer().overworld().setAttached(KING_DEFEATED, true);
+        announceIn = ANNOUNCE_DELAY_TICKS;
     }
 
     public static boolean isKingDefeated(ServerLevel level) {
