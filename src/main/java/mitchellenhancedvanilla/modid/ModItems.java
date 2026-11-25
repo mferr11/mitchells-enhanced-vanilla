@@ -59,6 +59,7 @@ public class ModItems {
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.WITHER_SKELETON_SKULL, ModItems.BARROW_KING_SKULL);
+			creativeTab.insertAfter(Items.TRAPPED_CHEST, ModItems.BARROW_CHEST, ModItems.BROOD_CHEST);
 		});
         // Boss summons sit with the spawners, ahead of the eggs
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS)
@@ -145,4 +146,8 @@ public class ModItems {
     public static final Item BARROW_KING_SKULL = register(ModItemIds.BARROW_KING_SKULL,
         p -> new StandingAndWallBlockItem(ModBlocks.BARROW_KING_SKULL, ModBlocks.BARROW_KING_WALL_SKULL, Direction.DOWN, Waypoint.addHideAttribute(p)),
         new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix());
+    public static final Item BARROW_CHEST = register(ModItemIds.BARROW_CHEST,
+        p -> new BlockItem(ModBlocks.BARROW_CHEST, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_CHEST = register(ModItemIds.BROOD_CHEST,
+        p -> new BlockItem(ModBlocks.BROOD_CHEST, p), new Item.Properties().useBlockDescriptionPrefix());
 }

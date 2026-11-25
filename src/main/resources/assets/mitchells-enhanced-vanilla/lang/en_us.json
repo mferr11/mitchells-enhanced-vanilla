@@ -49,7 +49,7 @@
     "entity.mitchells-enhanced-vanilla.barrow_king.awoken": "The Barrow King has awoken!",
     "item.mitchells-enhanced-vanilla.kings_crown": "King's Crown",
     "entity.mitchells-enhanced-vanilla.barrow_king.defeated": "The Barrow King has been defeated!",
-    "message.mitchells-enhanced-vanilla.brood_unleashed": "The brood stirs beneath the earth...",
+    "message.mitchells-enhanced-vanilla.brood_unleashed": "The Barrow King's Curse is lifted, and the brood stirs beneath the earth...",
     "entity.mitchells-enhanced-vanilla.barrow_king.victorious": "The Barrow King returns to his grave...",
     "entity.mitchells-enhanced-vanilla.barrow_king.dawn": "The Barrow King sinks back into his grave as the sun rises...",
     "entity.mitchells-enhanced-vanilla.barrow_king.servants": "The Barrow King calls his servants from the grave!",
@@ -73,5 +73,8 @@
     "item.mitchells-enhanced-vanilla.tarnished_crown.desc": "Faint whispers are coming from this crown",
     "item.mitchells-enhanced-vanilla.tarnished_crown.hint": "Raise it beneath the night sky",
     "item.mitchells-enhanced-vanilla.barrow_tome": "Barrow Tome",
-    "item.mitchells-enhanced-vanilla.barrow_tome.desc": "Hurls a soul flame"
+    "item.mitchells-enhanced-vanilla.barrow_tome.desc": "Hurls a soul flame",
+    "block.mitchells-enhanced-vanilla.barrow_chest": "Barrow Chest",
+    "block.mitchells-enhanced-vanilla.brood_chest": "Brood Chest",
+    "block.mitchells-enhanced-vanilla.brood_chest.locked": "A King's Curse prevents this chest from being opened"
 }
