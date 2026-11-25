@@ -75,11 +75,10 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int ENRAGE_ROAR_TICKS = 25;
 
     public static final double CHASE_SPEED = 1.0;
-    // Keeps pressing forward through a combo, a little slower than his chase
-    public static final double COMBO_MOVE_SPEED = 0.8;
     public static final int REPATH_INTERVAL = 10;
 
-    private enum State { CHASE, WINDUP, RECOVER, CHARGE_WINDUP, CHARGING, STUNNED, SUMMON }
+    // COMBO_RECOVER is the shield-down pause after a sword combo; RECOVER is the planted one (charge hit, summon, enrage roar)
+    private enum State { CHASE, WINDUP, RECOVER, COMBO_RECOVER, CHARGE_WINDUP, CHARGING, STUNNED, SUMMON }
 
     private final BarrowKingEntity king;
     private State state = State.CHASE;
@@ -167,6 +166,11 @@ public class BarrowKingCombatGoal extends Goal {
             case CHASE -> tickChase(level, target);
             case SUMMON -> tickSummon(level, target);
             case WINDUP -> tickWindup(level, target);
+            case COMBO_RECOVER -> {
+                // Shield still down, but he keeps walking after the target
+                followTarget(target);
+                if (timer <= 0) enter(State.CHASE, 0);
+            }
             case RECOVER, STUNNED -> {
                 if (state == State.STUNNED && timer % 10 == 0) {
                     level.sendParticles(ParticleTypes.CRIT, king.getX(), king.getY(1.05), king.getZ(), 4, 0.3, 0.1, 0.3, 0.0);
@@ -213,12 +217,8 @@ public class BarrowKingCombatGoal extends Goal {
     private void tickWindup(ServerLevel level, LivingEntity target) {
         if (target != null) {
             king.getLookControl().setLookAt(target, 30.0F, 30.0F);
-            // Walk after a backpedalling target, but don't shove into one already in reach
-            if (king.isWithinMeleeAttackRange(target)) {
-                king.getNavigation().stop();
-            } else if (king.getNavigation().isDone() || timer % REPATH_INTERVAL == 0) {
-                king.getNavigation().moveTo(target, COMBO_MOVE_SPEED);
-            }
+            // Keeps pressing in at full chase speed while swinging, like vanilla melee mobs
+            followTarget(target);
         }
         // Follow-through done: raise the sword for the next swing
         if (king.getKingPose() == Pose.STRIKE && timer <= followupWindupTicks() - FOLLOW_THROUGH_TICKS) {
@@ -241,7 +241,7 @@ public class BarrowKingCombatGoal extends Goal {
             king.setKingPose(Pose.STRIKE);
         } else {
             attackCooldown = enraged() ? ENRAGED_ATTACK_COOLDOWN_TICKS : ATTACK_COOLDOWN_TICKS;
-            enter(State.RECOVER, enraged() ? ENRAGED_COMBO_RECOVER_TICKS : COMBO_RECOVER_TICKS);
+            enter(State.COMBO_RECOVER, enraged() ? ENRAGED_COMBO_RECOVER_TICKS : COMBO_RECOVER_TICKS);
         }
     }
 
@@ -260,6 +260,15 @@ public class BarrowKingCombatGoal extends Goal {
         king.raiseServants(level);
         summonCooldown = SERVANT_WAVE_INTERVAL;
         enter(State.RECOVER, SUMMON_RECOVER_TICKS);
+    }
+
+    // Walks after the target at chase speed, repathing every so often
+    private void followTarget(LivingEntity target) {
+        if (target == null) return;
+        king.getLookControl().setLookAt(target, 30.0F, 30.0F);
+        if (king.getNavigation().isDone() || timer % REPATH_INTERVAL == 0) {
+            king.getNavigation().moveTo(target, CHASE_SPEED);
+        }
     }
 
     // Plants his feet, roars and paws the ground, then commits to a straight line
@@ -328,11 +337,11 @@ public class BarrowKingCombatGoal extends Goal {
             case WINDUP -> Pose.WINDUP;
             case SUMMON -> Pose.SUMMON;
             case CHARGE_WINDUP, CHARGING -> Pose.BRACE;
-            case RECOVER -> Pose.STUNNED;
+            case RECOVER, COMBO_RECOVER -> Pose.STUNNED;
             case STUNNED -> Pose.DAZED;
         });
-        // Only the chase and sword combo move under their own power
-        if (next != State.CHASE && next != State.WINDUP) king.getNavigation().stop();
+        // Only the chase, the sword combo and its recovery move under their own power
+        if (next != State.CHASE && next != State.WINDUP && next != State.COMBO_RECOVER) king.getNavigation().stop();
     }
 
     private void faceTowards(Vec3 point) {

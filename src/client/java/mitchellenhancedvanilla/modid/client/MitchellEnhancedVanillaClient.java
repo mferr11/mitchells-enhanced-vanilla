@@ -54,6 +54,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		FletchingRecipePanel.register();
 		FrozenParticles.register();
 		ArrowTooltip.register();
+		BarrowTooltip.register();
 		BowTooltip.register();
 		// Arrow crit trail colours
 		ColoredCritParticle.register(ModParticles.FROZEN_CRIT, 0x66B2FF);

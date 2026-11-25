@@ -20,7 +20,8 @@
 		"InventoryMixin",
 		"ServerGamePacketListenerImplMixin",
 		"BundleContentsMutableMixin",
-		"BundleItemMixin"
+		"BundleItemMixin",
+		"LivingEntityShieldBashMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

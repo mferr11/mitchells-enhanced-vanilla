@@ -56,5 +56,9 @@
     "entity.mitchells-enhanced-vanilla.barrow_king.enraged": "The Barrow King casts aside his shield in fury!",
     "block.mitchells-enhanced-vanilla.barrow_king_skull": "Barrow King's Skull",
     "advancements.mitchells-enhanced-vanilla.adventure.defeat_barrow_king.title": "Long Live the King",
-    "advancements.mitchells-enhanced-vanilla.adventure.defeat_barrow_king.description": "Defeat the Barrow King"
+    "advancements.mitchells-enhanced-vanilla.adventure.defeat_barrow_king.description": "Defeat the Barrow King",
+    "item.mitchells-enhanced-vanilla.kings_shield": "King's Shield",
+    "item.mitchells-enhanced-vanilla.kings_shield.desc": "Knocks back attackers",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.desc": "Faint whispers are coming from this crown",
+    "item.mitchells-enhanced-vanilla.tarnished_crown.hint": "Raise it beneath the night sky"
 }

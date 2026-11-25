@@ -76,6 +76,8 @@ public class BarrowKingEntity extends Monster {
 
     // Shield blocks arrows and melee within this many degrees of his facing
     public static final float SHIELD_HALF_ANGLE = 60.0F;
+    // He holds the real Barrow King's Shield, but with his own model id so it shows his texture, not the player one
+    public static final Identifier SHIELD_MODEL = MitchellEnhancedVanilla.id("kings_shield_king");
     // Melee attackers bounce off the raised shield
     public static final double SHIELD_BASH_KNOCKBACK = 0.5;
 
@@ -203,7 +205,7 @@ public class BarrowKingEntity extends Monster {
     public boolean isShieldRaised() {
         Pose pose = getKingPose();
         // Equipment syncs to clients, so this also works for the renderer
-        return (pose == Pose.GUARD || pose == Pose.BRACE) && getOffhandItem().is(Items.SHIELD);
+        return (pose == Pose.GUARD || pose == Pose.BRACE) && getOffhandItem().has(DataComponents.BLOCKS_ATTACKS);
     }
 
     public boolean canFight() {
@@ -231,7 +233,7 @@ public class BarrowKingEntity extends Monster {
         // Shield must be in the off hand
         setLeftHanded(false);
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
-        setItemSlot(EquipmentSlot.OFFHAND, new ItemStack(Items.SHIELD));
+        setItemSlot(EquipmentSlot.OFFHAND, kingsShield());
         // His copy of the crown is wearable; the player's summon item is not
         ItemStack crown = new ItemStack(ModItems.TARNISHED_CROWN);
         crown.set(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setAsset(ModArmour.TARNISHED_CROWN_ASSET).build());
@@ -239,6 +241,13 @@ public class BarrowKingEntity extends Monster {
         setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
         for (EquipmentSlot slot : EquipmentSlot.values()) setDropChance(slot, 0.0F);
         return data;
+    }
+
+    // The Barrow King's Shield, shown with his weathered texture rather than the clean player one
+    private static ItemStack kingsShield() {
+        ItemStack shield = new ItemStack(ModItems.KINGS_SHIELD);
+        shield.set(DataComponents.ITEM_MODEL, SHIELD_MODEL);
+        return shield;
     }
 
     @Override
@@ -630,5 +639,10 @@ public class BarrowKingEntity extends Monster {
             setNoGravity(true);
         }
         if (hasCustomName()) bossEvent.setName(getDisplayName());
+        // Kings saved by older versions carry a shield with an outdated look; swap in the current one
+        ItemStack offhand = getOffhandItem();
+        if (offhand.has(DataComponents.BLOCKS_ATTACKS) && !SHIELD_MODEL.equals(offhand.get(DataComponents.ITEM_MODEL))) {
+            setItemSlot(EquipmentSlot.OFFHAND, kingsShield());
+        }
     }
 }

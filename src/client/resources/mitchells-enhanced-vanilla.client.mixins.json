@@ -19,7 +19,8 @@
 		"GuiItemRenderStateMixin",
 		"GuiRendererMixin",
 		"GameRendererShakeMixin",
-		"SkullBlockRendererMixin"
+		"SkullBlockRendererMixin",
+		"ShieldSpecialRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

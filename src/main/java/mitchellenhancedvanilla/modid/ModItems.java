@@ -10,6 +10,7 @@ import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
+import mitchellenhancedvanilla.modid.item.KingsShieldItem;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
 import mitchellenhancedvanilla.modid.item.TarnishedCrownItem;
 import net.fabricmc.fabric.api.creativetab.v1.CreativeModeTabEvents;
@@ -49,6 +50,7 @@ public class ModItems {
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
+			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD);
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
@@ -110,6 +112,10 @@ public class ModItems {
     // Barrow King drop
     public static final Item KINGS_CROWN = register(ModItemIds.KINGS_CROWN, Item::new,
         new Item.Properties().humanoidArmor(ModArmour.KINGS_CROWN, ArmorType.HELMET).rarity(Rarity.RARE));
+
+    // Barrow King drop: a tougher shield that bashes back melee attackers
+    public static final Item KINGS_SHIELD = register(ModItemIds.KINGS_SHIELD, KingsShieldItem::new,
+        KingsShieldItem.properties());
 
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
     public static final Item BARROW_KING_SKULL = registerBlockItem(register(ModItemIds.BARROW_KING_SKULL,

@@ -56,6 +56,15 @@
         }
       ],
       "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mitchells-enhanced-vanilla:kings_shield"
+        }
+      ],
+      "rolls": 1
     }
   ],
   "random_sequence": "mitchells-enhanced-vanilla:entities/barrow_king"
