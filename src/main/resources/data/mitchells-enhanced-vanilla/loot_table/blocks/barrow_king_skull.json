@@ -1,0 +1,22 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": {
+            "type": "minecraft:copy_components",
+            "include": [
+              "minecraft:custom_name"
+            ],
+            "source": "block_entity"
+          },
+          "name": "mitchells-enhanced-vanilla:barrow_king_skull"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mitchells-enhanced-vanilla:blocks/barrow_king_skull"
+}

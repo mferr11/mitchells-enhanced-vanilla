@@ -30,23 +30,28 @@ import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
 // Skeleton guard raised by the Barrow King in phase 2: weaker than a vanilla skeleton
-public class BarrowRetainerEntity extends AbstractSkeleton {
+public class BarrowServantEntity extends AbstractSkeleton {
     // Vanilla skeletons have 20 health
     public static final double MAX_HEALTH = 10.0;
     // Fists; a wooden sword adds its own +3
     public static final double ATTACK_DAMAGE = 1.0;
     public static final float WOODEN_SWORD_CHANCE = 0.5F;
+    // Shambling: vanilla skeletons are 0.25, zombies 0.23
+    public static final double MOVEMENT_SPEED = 0.18;
     public static final int XP_REWARD = 1;
 
+    // Soul wisps released when killed or crumbled
+    public static final int DEATH_SOULS = 3;
+
     // Claws up out of the ground over this long
-    public static final int RISE_TICKS = 20;
-    public static final double RISE_DEPTH = 1.9;
+    public static final int RISE_TICKS = 60;
+    public static final double RISE_DEPTH = 2.1;
 
     // Ticks left rising; 0 once up
     private int riseTicks;
     private int groundY;
 
-    public BarrowRetainerEntity(EntityType<? extends BarrowRetainerEntity> type, Level level) {
+    public BarrowServantEntity(EntityType<? extends BarrowServantEntity> type, Level level) {
         super(type, level);
         xpReward = XP_REWARD;
     }
@@ -54,7 +59,8 @@ public class BarrowRetainerEntity extends AbstractSkeleton {
     public static AttributeSupplier.Builder createAttributes() {
         return AbstractSkeleton.createAttributes()
             .add(Attributes.MAX_HEALTH, MAX_HEALTH)
-            .add(Attributes.ATTACK_DAMAGE, ATTACK_DAMAGE);
+            .add(Attributes.ATTACK_DAMAGE, ATTACK_DAMAGE)
+            .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
     }
 
     @Override
@@ -126,8 +132,20 @@ public class BarrowRetainerEntity extends AbstractSkeleton {
     public void crumble(ServerLevel level) {
         level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.BONE),
             getX(), getY(0.5), getZ(), 12, 0.2, 0.4, 0.2, 0.08);
+        releaseSoul(level);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.SKELETON_DEATH, SoundSource.HOSTILE, 0.8F, 0.8F);
         discard();
+    }
+
+    @Override
+    public void die(DamageSource source) {
+        super.die(source);
+        if (level() instanceof ServerLevel level) releaseSoul(level);
+    }
+
+    // The bound spirit slips free
+    private void releaseSoul(ServerLevel level) {
+        level.sendParticles(ParticleTypes.SOUL, getX(), getY(0.6), getZ(), DEATH_SOULS, 0.15, 0.3, 0.15, 0.03);
     }
 
     @Override

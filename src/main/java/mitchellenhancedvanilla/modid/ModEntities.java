@@ -2,7 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
-import mitchellenhancedvanilla.modid.entity.BarrowRetainerEntity;
+import mitchellenhancedvanilla.modid.entity.BarrowServantEntity;
 import mitchellenhancedvanilla.modid.entity.CopperArrowEntity;
 import mitchellenhancedvanilla.modid.entity.EmeraldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
@@ -90,8 +90,8 @@ public class ModEntities {
             .notInPeaceful());
 
     // Same size as a vanilla skeleton
-    public static final EntityType<BarrowRetainerEntity> BARROW_RETAINER = register("barrow_retainer",
-        EntityType.Builder.<BarrowRetainerEntity>of(BarrowRetainerEntity::new, MobCategory.MONSTER)
+    public static final EntityType<BarrowServantEntity> BARROW_SERVANT = register("barrow_servant",
+        EntityType.Builder.<BarrowServantEntity>of(BarrowServantEntity::new, MobCategory.MONSTER)
             .sized(0.6F, 1.99F)
             .eyeHeight(1.74F)
             .ridingOffset(-0.7F)
@@ -100,6 +100,6 @@ public class ModEntities {
 
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
-        FabricDefaultAttributeRegistry.register(BARROW_RETAINER, BarrowRetainerEntity.createAttributes());
+        FabricDefaultAttributeRegistry.register(BARROW_SERVANT, BarrowServantEntity.createAttributes());
     }
 }

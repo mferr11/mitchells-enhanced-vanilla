@@ -47,6 +47,15 @@
         }
       ],
       "rolls": 1
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mitchells-enhanced-vanilla:barrow_king_skull"
+        }
+      ],
+      "rolls": 1
     }
   ],
   "random_sequence": "mitchells-enhanced-vanilla:entities/barrow_king"

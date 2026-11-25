@@ -17,7 +17,9 @@
 		"CreativeModeInventoryScreenMixin",
 		"ClientBundleTooltipMixin",
 		"GuiItemRenderStateMixin",
-		"GuiRendererMixin"
+		"GuiRendererMixin",
+		"GameRendererShakeMixin",
+		"SkullBlockRendererMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

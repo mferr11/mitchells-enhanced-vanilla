@@ -22,6 +22,11 @@ import net.minecraft.world.item.CreativeModeTabs;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.Rarity;
+import net.minecraft.world.item.BlockItem;
+import net.minecraft.world.item.StandingAndWallBlockItem;
+import net.minecraft.world.entity.EquipmentSlot;
+import net.minecraft.world.waypoints.Waypoint;
+import net.minecraft.core.Direction;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.component.BundleContents;
 
@@ -44,6 +49,10 @@ public class ModItems {
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
+		});
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
+		.register((creativeTab) -> {
+			creativeTab.insertAfter(Items.WITHER_SKELETON_SKULL, ModItems.BARROW_KING_SKULL);
 		});
         // Boss summons sit with the spawners, ahead of the eggs
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.SPAWN_EGGS)
@@ -101,4 +110,15 @@ public class ModItems {
     // Barrow King drop
     public static final Item KINGS_CROWN = register(ModItemIds.KINGS_CROWN, Item::new,
         new Item.Properties().humanoidArmor(ModArmour.KINGS_CROWN, ArmorType.HELMET).rarity(Rarity.RARE));
+
+    // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
+    public static final Item BARROW_KING_SKULL = registerBlockItem(register(ModItemIds.BARROW_KING_SKULL,
+        p -> new StandingAndWallBlockItem(ModBlocks.BARROW_KING_SKULL, ModBlocks.BARROW_KING_WALL_SKULL, Direction.DOWN, Waypoint.addHideAttribute(p)),
+        new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix()));
+
+    // Links the item's blocks back to it (pick block, block drops); vanilla's Items.registerItem does this
+    private static Item registerBlockItem(Item item) {
+        if (item instanceof BlockItem blockItem) blockItem.registerBlocks(Item.BY_BLOCK, item);
+        return item;
+    }
 }

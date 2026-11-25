@@ -29,4 +29,5 @@ public class ModItemIds {
     public static final ResourceKey<Item> DIAMOND_ARMOUR_PLATING = create("diamond_armour_plating");
     public static final ResourceKey<Item> TARNISHED_CROWN = create("tarnished_crown");
     public static final ResourceKey<Item> KINGS_CROWN = create("kings_crown");
+    public static final ResourceKey<Item> BARROW_KING_SKULL = create("barrow_king_skull");
 }

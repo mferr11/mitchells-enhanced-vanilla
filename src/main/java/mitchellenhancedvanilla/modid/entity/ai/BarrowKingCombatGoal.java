@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.entity.ai;
 
 import java.util.EnumSet;
 
+import mitchellenhancedvanilla.modid.ScreenShakePayload;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity.Pose;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -16,7 +17,7 @@ import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
-// The King's fight: sword combos and a telegraphed charge, retainer waves in phase 2, faster and harder in phase 3
+// The King's fight: sword combos and a telegraphed charge, servant waves in phase 2, faster and harder in phase 3
 public class BarrowKingCombatGoal extends Goal {
     // Sword combo
     public static final int COMBO_MIN = 2;
@@ -26,7 +27,7 @@ public class BarrowKingCombatGoal extends Goal {
     // Arm stays forward while the swing animation plays (vanilla swing is 6 ticks)
     public static final int FOLLOW_THROUGH_TICKS = 6;
     // Small step forward on each swing
-    public static final double LUNGE_SPEED = 0.5;
+    public static final double LUNGE_SPEED = 1.0;
     // Shield down after a combo: the melee punish window
     public static final int COMBO_RECOVER_TICKS = 20;
     public static final int ATTACK_COOLDOWN_TICKS = 60;
@@ -45,13 +46,22 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int CHARGE_HIT_RECOVER_TICKS = 25;
     public static final int CHARGE_MISS_STUN_TICKS = 40;
     public static final int CHARGE_WALL_STUN_TICKS = 70;
+    // Short, hard thump when he hits a wall: strength (degrees), length, reach (blocks)
+    public static final float WALL_SHAKE_STRENGTH = 1.5F;
+    public static final int WALL_SHAKE_TICKS = 8;
+    public static final double WALL_SHAKE_RADIUS = 24.0;
+    // Soul and smoke puffs left behind him each tick while charging
+    public static final int CHARGE_TRAIL_POINTS = 3;
+    // Wisp streak behind each sword lunge: length (blocks) and puffs
+    public static final double LUNGE_TRAIL_LENGTH = 0.8;
+    public static final int LUNGE_TRAIL_POINTS = 3;
     // Shield knocked aside by an axe (vanilla disables player shields for 5s)
     public static final int GUARD_BREAK_STUN_TICKS = 40;
 
     // Phase 2: sword raised, shield down while the ground stirs, then a wave rises
     public static final int SUMMON_TICKS = 30;
     public static final int SUMMON_RECOVER_TICKS = 10;
-    public static final int RETAINER_WAVE_INTERVAL = 15 * 20;
+    public static final int SERVANT_WAVE_INTERVAL = 15 * 20;
 
     // Phase 3: quicker wind-ups, longer combos and shorter cooldowns (stuns stay the same)
     public static final int ENRAGED_COMBO_MIN = 3;
@@ -77,7 +87,7 @@ public class BarrowKingCombatGoal extends Goal {
     private int comboLeft;
     private int attackCooldown;
     private int chargeCooldown = CHARGE_COOLDOWN_TICKS / 2;
-    private int summonCooldown = RETAINER_WAVE_INTERVAL;
+    private int summonCooldown = SERVANT_WAVE_INTERVAL;
     private Vec3 chargeDir = Vec3.ZERO;
 
     public BarrowKingCombatGoal(BarrowKingEntity king) {
@@ -99,7 +109,7 @@ public class BarrowKingCombatGoal extends Goal {
     }
 
     // Phase 2 just started: call the first wave as soon as he is free
-    public void raiseRetainersSoon() {
+    public void raiseServantsSoon() {
         summonCooldown = 0;
     }
 
@@ -173,8 +183,8 @@ public class BarrowKingCombatGoal extends Goal {
         king.getLookControl().setLookAt(target, 30.0F, 30.0F);
         double distance = king.distanceTo(target);
 
-        // Retainer count is checked twice a second rather than every tick
-        if (summonCooldown <= 0 && king.tickCount % 10 == 0 && king.canRaiseRetainers(level)) {
+        // Servant count is checked twice a second rather than every tick
+        if (summonCooldown <= 0 && king.tickCount % 10 == 0 && king.canRaiseServants(level)) {
             king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.4F);
             enter(State.SUMMON, SUMMON_TICKS);
             return;
@@ -190,7 +200,7 @@ public class BarrowKingCombatGoal extends Goal {
         }
         if (chargeCooldown <= 0 && distance >= CHARGE_MIN_RANGE && distance <= CHARGE_MAX_RANGE
             && king.getSensing().hasLineOfSight(target)) {
-            king.playSound(SoundEvents.RAVAGER_ROAR, 2.0F, 0.6F);
+            king.roar(level, 2.0F, 0.6F);
             enter(State.CHARGE_WINDUP, CHARGE_WINDUP_TICKS);
             return;
         }
@@ -218,6 +228,8 @@ public class BarrowKingCombatGoal extends Goal {
 
         Vec3 forward = king.getLookAngle().multiply(1.0, 0.0, 1.0).normalize();
         king.setDeltaMovement(king.getDeltaMovement().add(forward.scale(LUNGE_SPEED)));
+        // Short wisp streak behind the step
+        BarrowKingEntity.soulStreak(level, king.position(), forward.scale(-1.0), LUNGE_TRAIL_LENGTH, LUNGE_TRAIL_POINTS, king.getY(0.55));
         king.swingForAttack(InteractionHand.MAIN_HAND);
         king.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.6F);
         if (target != null && target.isAlive() && king.isWithinMeleeAttackRange(target)) {
@@ -238,15 +250,15 @@ public class BarrowKingCombatGoal extends Goal {
         if (target != null) king.getLookControl().setLookAt(target, 30.0F, 30.0F);
         if (timer % 3 == 0) {
             double angle = king.getRandom().nextDouble() * Math.PI * 2.0;
-            double dist = BarrowKingEntity.RETAINER_MIN_DISTANCE
-                + king.getRandom().nextDouble() * (BarrowKingEntity.RETAINER_MAX_DISTANCE - BarrowKingEntity.RETAINER_MIN_DISTANCE);
+            double dist = BarrowKingEntity.SERVANT_MIN_DISTANCE
+                + king.getRandom().nextDouble() * (BarrowKingEntity.SERVANT_MAX_DISTANCE - BarrowKingEntity.SERVANT_MIN_DISTANCE);
             level.sendParticles(ParticleTypes.SOUL, king.getX() + Math.cos(angle) * dist, king.getY() + 0.2,
                 king.getZ() + Math.sin(angle) * dist, 2, 0.2, 0.1, 0.2, 0.02);
         }
         if (timer > 0) return;
 
-        king.raiseRetainers(level);
-        summonCooldown = RETAINER_WAVE_INTERVAL;
+        king.raiseServants(level);
+        summonCooldown = SERVANT_WAVE_INTERVAL;
         enter(State.RECOVER, SUMMON_RECOVER_TICKS);
     }
 
@@ -271,21 +283,35 @@ public class BarrowKingCombatGoal extends Goal {
         king.setDeltaMovement(velocity.x, king.getDeltaMovement().y, velocity.z);
         faceTowards(king.position().add(chargeDir));
         dustAtFeet(level, 3);
+        chargeTrail(level, velocity.length());
 
         if (target != null && target.isAlive() && king.getBoundingBox().inflate(0.4).intersects(target.getBoundingBox())) {
             if (target.hurtServer(level, king.damageSources().mobAttack(king), CHARGE_DAMAGE)) {
                 target.knockback(CHARGE_KNOCKBACK, -chargeDir.x, -chargeDir.z, king.damageSources().mobAttack(king), CHARGE_DAMAGE);
                 target.needsSync = true;
             }
+            // The raised sword comes down as he connects
+            king.swingForAttack(InteractionHand.MAIN_HAND);
             king.playSound(SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, 1.0F, 0.7F);
             endCharge(State.RECOVER, CHARGE_HIT_RECOVER_TICKS);
         } else if (king.horizontalCollision) {
             // Slammed into a wall: dazed
             king.playSound(SoundEvents.ANVIL_LAND, 1.0F, 0.6F);
+            ScreenShakePayload.shakeNearby(level, king.position(), WALL_SHAKE_RADIUS, WALL_SHAKE_STRENGTH, WALL_SHAKE_TICKS);
             dustAtFeet(level, 30);
             endCharge(State.STUNNED, CHARGE_WALL_STUN_TICKS);
         } else if (timer <= 0) {
             endCharge(State.STUNNED, CHARGE_MISS_STUN_TICKS);
+        }
+    }
+
+    // Ghostly streak behind him: points spread over this tick's travel so the trail is continuous
+    private void chargeTrail(ServerLevel level, double distanceThisTick) {
+        for (int i = 0; i < CHARGE_TRAIL_POINTS; i++) {
+            double back = 0.4 + distanceThisTick * i / CHARGE_TRAIL_POINTS;
+            Vec3 at = king.position().subtract(chargeDir.scale(back));
+            level.sendParticles(ParticleTypes.SOUL, at.x, king.getY(0.55), at.z, 1, 0.15, 0.35, 0.15, 0.01);
+            level.sendParticles(ParticleTypes.SMOKE, at.x, king.getY(0.3), at.z, 1, 0.2, 0.25, 0.2, 0.01);
         }
     }
 
@@ -299,9 +325,11 @@ public class BarrowKingCombatGoal extends Goal {
         timer = ticks;
         king.setKingPose(switch (next) {
             case CHASE -> Pose.GUARD;
-            case WINDUP, SUMMON -> Pose.WINDUP;
+            case WINDUP -> Pose.WINDUP;
+            case SUMMON -> Pose.SUMMON;
             case CHARGE_WINDUP, CHARGING -> Pose.BRACE;
-            case RECOVER, STUNNED -> Pose.STUNNED;
+            case RECOVER -> Pose.STUNNED;
+            case STUNNED -> Pose.DAZED;
         });
         // Only the chase and sword combo move under their own power
         if (next != State.CHASE && next != State.WINDUP) king.getNavigation().stop();

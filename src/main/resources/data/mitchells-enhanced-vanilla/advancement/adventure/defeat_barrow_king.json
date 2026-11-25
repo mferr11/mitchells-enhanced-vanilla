@@ -1,0 +1,25 @@
+{
+  "parent": "minecraft:adventure/kill_a_mob",
+  "criteria": {
+    "defeated": {
+      "trigger": "minecraft:impossible"
+    }
+  },
+  "display": {
+    "description": {
+      "translate": "advancements.mitchells-enhanced-vanilla.adventure.defeat_barrow_king.description"
+    },
+    "frame": "challenge",
+    "icon": {
+      "id": "mitchells-enhanced-vanilla:barrow_king_skull"
+    },
+    "title": {
+      "translate": "advancements.mitchells-enhanced-vanilla.adventure.defeat_barrow_king.title"
+    }
+  },
+  "requirements": [
+    [
+      "defeated"
+    ]
+  ]
+}

@@ -30,6 +30,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		// Proceed with mild caution.
 
 		LOGGER.info("Hello Fabric world!");
+		ModBlocks.initialize();
 		ModItems.initialize();
 		ModEntities.initialize();
 		ModRecipes.initialize();
@@ -41,6 +42,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		CycleQuiverPayload.register();
 		ModArmour.register();
 		FletchingRecipesPayload.register();
+		ScreenShakePayload.register();
 		DefaultItemComponentEvents.MODIFY.register(ctx -> ctx.modify
 			(Items.BOW, builder -> builder.set(DataComponents.MAX_DAMAGE, BowStats.WOODEN_DURABILITY)));
 	}
