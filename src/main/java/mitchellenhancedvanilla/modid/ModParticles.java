@@ -14,6 +14,9 @@ public class ModParticles {
     public static final SimpleParticleType PRISMARINE_CRIT = register("prismarine_crit");
     public static final SimpleParticleType EMERALD_CRIT = register("emerald_crit");
 
+    // The Barrow King's sword arc, in soul-fire blue
+    public static final SimpleParticleType SOUL_SWEEP = register("soul_sweep");
+
     private static SimpleParticleType register(String name) {
         return Registry.register(BuiltInRegistries.PARTICLE_TYPE, MitchellEnhancedVanilla.id(name), FabricParticleTypes.simple());
     }

@@ -67,7 +67,7 @@ public class BarrowKingEntity extends Monster {
     // Iron bow at full draw is ~4.5 damage, so roughly 30-35 hits
     public static final double MAX_HEALTH = 150.0;
     // Base melee damage; the iron sword adds its own +5 on top
-    public static final double ATTACK_DAMAGE = 2.0;
+    public static final double ATTACK_DAMAGE = 1.0;
     public static final double ARMOR = 6.0;
     public static final double MOVEMENT_SPEED = 0.25;
     public static final double KNOCKBACK_RESISTANCE = 0.8;
@@ -120,6 +120,9 @@ public class BarrowKingEntity extends Monster {
     // How often the dawn and challenger checks run once he is up (ticks)
     public static final int DAWN_CHECK_INTERVAL = 20;
 
+    // Chat colour for his phase changes and departures; matches the crown's "has awoken" message
+    public static final ChatFormatting MESSAGE_COLOUR = ChatFormatting.DARK_PURPLE;
+
     // Phase 2 starts at this fraction of max health
     public static final float SERVANT_PHASE_HEALTH = 0.5F;
     // Servants per wave, and the most he keeps up at once
@@ -134,7 +137,7 @@ public class BarrowKingEntity extends Monster {
     // Phase 3 starts at this fraction of max health
     public static final float ENRAGE_HEALTH = 0.25F;
     // Enraged movement (and charge) speed bonus, as a fraction of base speed
-    public static final double ENRAGE_SPEED_BONUS = 0.3;
+    public static final double ENRAGE_SPEED_BONUS = 0.2;
     private static final Identifier ENRAGE_SPEED_ID = MitchellEnhancedVanilla.id("barrow_king_enrage");
 
     // Health-driven fight phases
@@ -150,7 +153,7 @@ public class BarrowKingEntity extends Monster {
         SynchedEntityData.defineId(BarrowKingEntity.class, EntityDataSerializers.BYTE);
 
     private final ServerBossEvent bossEvent = new ServerBossEvent(
-        Mth.createInsecureUUID(random), getDisplayName(), BossEvent.BossBarColor.WHITE, BossEvent.BossBarOverlay.NOTCHED_10);
+        Mth.createInsecureUUID(random), getDisplayName(), BossEvent.BossBarColor.BLUE, BossEvent.BossBarOverlay.NOTCHED_10);
 
     private Stage stage = Stage.FIGHTING;
     private Phase phase = Phase.DUEL;
@@ -316,7 +319,6 @@ public class BarrowKingEntity extends Monster {
     // Phase 3: throws his shield aside and fights faster and harder
     private void enterEnragedPhase(ServerLevel level) {
         phase = Phase.ENRAGED;
-        bossEvent.setColor(BossEvent.BossBarColor.RED);
         Vec3 shieldPos = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
         level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), shieldPos.x, shieldPos.y - 0.6, shieldPos.z,
             24, 0.2, 0.2, 0.2, 0.2);
@@ -325,7 +327,7 @@ public class BarrowKingEntity extends Monster {
         setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
         applyEnrageSpeed();
         broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.enraged")
-            .withStyle(ChatFormatting.RED));
+            .withStyle(MESSAGE_COLOUR));
         if (combatGoal != null) combatGoal.onEnraged();
     }
 
@@ -339,10 +341,9 @@ public class BarrowKingEntity extends Monster {
     // Phase 2: he calls his servants up out of the barrow
     private void enterServantPhase(ServerLevel level) {
         phase = Phase.SERVANTS;
-        bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
         roar(level, 2.0F, 0.4F);
         broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.servants")
-            .withStyle(ChatFormatting.YELLOW));
+            .withStyle(MESSAGE_COLOUR));
         if (combatGoal != null) combatGoal.raiseServantsSoon();
     }
 
@@ -494,7 +495,7 @@ public class BarrowKingEntity extends Monster {
         burrow = blockPosition();
         dismissServants(level);
         playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 2.0F, 0.5F);
-        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king." + reason));
+        broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king." + reason).withStyle(MESSAGE_COLOUR));
     }
 
     // Dirt sprays from the ground he is moving through
@@ -629,11 +630,7 @@ public class BarrowKingEntity extends Monster {
         stage = Stage.values()[Mth.clamp(input.getIntOr(STAGE_KEY, 1), 0, Stage.values().length - 1)];
         stageTicks = input.getIntOr(STAGE_TICKS_KEY, 0);
         phase = Phase.values()[Mth.clamp(input.getIntOr(PHASE_KEY, 0), 0, Phase.values().length - 1)];
-        if (phase == Phase.SERVANTS) bossEvent.setColor(BossEvent.BossBarColor.YELLOW);
-        if (phase == Phase.ENRAGED) {
-            bossEvent.setColor(BossEvent.BossBarColor.RED);
-            applyEnrageSpeed();
-        }
+        if (phase == Phase.ENRAGED) applyEnrageSpeed();
         if (stage != Stage.FIGHTING) {
             noPhysics = true;
             setNoGravity(true);

@@ -61,7 +61,7 @@ public class TarnishedCrownItem extends Item {
 
         server.playSound(null, ground, SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 2.0F, 0.7F);
         Component awoken = Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.awoken")
-            .withStyle(ChatFormatting.DARK_PURPLE);
+            .withStyle(BarrowKingEntity.MESSAGE_COLOUR);
         for (ServerPlayer nearby : server.players()) {
             if (nearby.distanceToSqr(Vec3.atCenterOf(ground)) < ANNOUNCE_RADIUS * ANNOUNCE_RADIUS) nearby.sendSystemMessage(awoken);
         }

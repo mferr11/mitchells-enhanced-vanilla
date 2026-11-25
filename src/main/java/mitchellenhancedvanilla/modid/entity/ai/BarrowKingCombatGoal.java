@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.entity.ai;
 
 import java.util.EnumSet;
 
+import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.ScreenShakePayload;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity.Pose;
@@ -55,6 +56,8 @@ public class BarrowKingCombatGoal extends Goal {
     // Wisp streak behind each sword lunge: length (blocks) and puffs
     public static final double LUNGE_TRAIL_LENGTH = 0.8;
     public static final int LUNGE_TRAIL_POINTS = 3;
+    // Sweep-attack particle distance in front of him (players use 1 block; he is bigger and reaches further)
+    public static final double SWEEP_DISTANCE = 1.4;
     // Shield knocked aside by an axe (vanilla disables player shields for 5s)
     public static final int GUARD_BREAK_STUN_TICKS = 40;
 
@@ -230,7 +233,7 @@ public class BarrowKingCombatGoal extends Goal {
         king.setDeltaMovement(king.getDeltaMovement().add(forward.scale(LUNGE_SPEED)));
         // Short wisp streak behind the step
         BarrowKingEntity.soulStreak(level, king.position(), forward.scale(-1.0), LUNGE_TRAIL_LENGTH, LUNGE_TRAIL_POINTS, king.getY(0.55));
-        king.swingForAttack(InteractionHand.MAIN_HAND);
+        swingSword(level);
         king.playSound(SoundEvents.PLAYER_ATTACK_SWEEP, 1.0F, 0.6F);
         if (target != null && target.isAlive() && king.isWithinMeleeAttackRange(target)) {
             king.doHurtTarget(level, target);
@@ -260,6 +263,16 @@ public class BarrowKingCombatGoal extends Goal {
         king.raiseServants(level);
         summonCooldown = SERVANT_WAVE_INTERVAL;
         enter(State.RECOVER, SUMMON_RECOVER_TICKS);
+    }
+
+    // Swing animation plus a soul-blue version of the player's sweep-attack arc in front of him
+    private void swingSword(ServerLevel level) {
+        king.swingForAttack(InteractionHand.MAIN_HAND);
+        float yaw = king.getYRot() * Mth.DEG_TO_RAD;
+        double dx = -Mth.sin(yaw);
+        double dz = Mth.cos(yaw);
+        level.sendParticles(ModParticles.SOUL_SWEEP, king.getX() + dx * SWEEP_DISTANCE, king.getY(0.5), king.getZ() + dz * SWEEP_DISTANCE,
+            0, dx, 0.0, dz, 0.0);
     }
 
     // Walks after the target at chase speed, repathing every so often
@@ -300,7 +313,7 @@ public class BarrowKingCombatGoal extends Goal {
                 target.needsSync = true;
             }
             // The raised sword comes down as he connects
-            king.swingForAttack(InteractionHand.MAIN_HAND);
+            swingSword(level);
             king.playSound(SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, 1.0F, 0.7F);
             endCharge(State.RECOVER, CHARGE_HIT_RECOVER_TICKS);
         } else if (king.horizontalCollision) {

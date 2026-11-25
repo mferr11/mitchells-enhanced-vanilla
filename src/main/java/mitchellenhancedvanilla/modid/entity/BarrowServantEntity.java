@@ -81,7 +81,6 @@ public class BarrowServantEntity extends AbstractSkeleton {
         // Undo vanilla's extras (loot pickup, Halloween pumpkins)
         setCanPickUpLoot(false);
         setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
-        setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
         for (EquipmentSlot slot : EquipmentSlot.values()) setDropChance(slot, 0.0F);
         // Graveyard spawns claw their way up too; the King's summons start rising separately
         if (reason == EntitySpawnReason.NATURAL) beginRising(blockPosition());

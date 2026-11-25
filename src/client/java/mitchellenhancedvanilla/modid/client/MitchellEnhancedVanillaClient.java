@@ -11,6 +11,7 @@ import mitchellenhancedvanilla.modid.client.render.BarrowKingRenderer;
 import mitchellenhancedvanilla.modid.client.render.BarrowServantRenderer;
 import mitchellenhancedvanilla.modid.client.render.ScreenShake;
 import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
+import mitchellenhancedvanilla.modid.client.render.ColoredSweepParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
 import mitchellenhancedvanilla.modid.client.screen.FletchingRecipePanel;
@@ -63,5 +64,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ColoredCritParticle.register(ModParticles.GOLD_CRIT, 0xF9D93B);
 		ColoredCritParticle.register(ModParticles.PRISMARINE_CRIT, 0x72D8C4);
 		ColoredCritParticle.register(ModParticles.EMERALD_CRIT, 0x17DD62);
+		// Barrow King sword arc, soul-fire blue
+		ColoredSweepParticle.register(ModParticles.SOUL_SWEEP, 0x4FD8EB);
 	}
 }
