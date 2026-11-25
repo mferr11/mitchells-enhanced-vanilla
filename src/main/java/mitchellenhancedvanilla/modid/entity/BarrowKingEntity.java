@@ -6,6 +6,10 @@ import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
 import mitchellenhancedvanilla.modid.ModArmour;
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.ScreenShakePayload;
+import mitchellenhancedvanilla.modid.item.KingsShieldItem;
+import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
+import net.minecraft.core.particles.ParticleOptions;
+import net.minecraft.world.phys.AABB;
 import mitchellenhancedvanilla.modid.ModItems;
 import mitchellenhancedvanilla.modid.entity.ai.BarrowKingCombatGoal;
 import net.minecraft.core.component.DataComponents;
@@ -17,7 +21,6 @@ import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.chat.Component;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.network.protocol.game.ClientboundStopSoundPacket;
 import net.minecraft.network.syncher.EntityDataAccessor;
 import net.minecraft.network.syncher.EntityDataSerializers;
@@ -76,7 +79,7 @@ public class BarrowKingEntity extends Monster {
 
     // Shield blocks arrows and melee within this many degrees of his facing
     public static final float SHIELD_HALF_ANGLE = 60.0F;
-    // He holds the real Barrow King's Shield, but with his own model id so it shows his texture, not the player one
+    // He holds the real King's Shield, but with his own model id so it shows his texture, not the player one
     public static final Identifier SHIELD_MODEL = MitchellEnhancedVanilla.id("kings_shield_king");
     // Melee attackers bounce off the raised shield
     public static final double SHIELD_BASH_KNOCKBACK = 0.5;
@@ -104,13 +107,13 @@ public class BarrowKingEntity extends Monster {
     // Short camera shake with each roar: strength at volume 2.0 (degrees, scales with volume), length, reach (blocks)
     public static final float ROAR_SHAKE_STRENGTH = 0.8F;
     public static final int ROAR_SHAKE_TICKS = 12;
+    public static final double ROAR_SHAKE_RADIUS = 32.0;
 
     // Soul wisps: burst on death, seeping from the ground every other tick while rising or sinking,
     // and trailing behind him when enraged and moving at least this fast (blocks per tick)
     public static final int DEATH_SOULS = 45;
     public static final int BURROW_SOULS = 3;
     public static final double ENRAGED_TRAIL_MIN_SPEED = 0.08;
-    public static final double ROAR_SHAKE_RADIUS = 32.0;
     // Granted to every player within his follow range when he dies
     private static final Identifier DEFEAT_ADVANCEMENT = MitchellEnhancedVanilla.id("adventure/defeat_barrow_king");
     private static final String DEFEAT_CRITERION = "defeated";
@@ -122,6 +125,8 @@ public class BarrowKingEntity extends Monster {
 
     // Chat colour for his phase changes and departures; matches the crown's "has awoken" message
     public static final ChatFormatting MESSAGE_COLOUR = ChatFormatting.DARK_PURPLE;
+    // Players this close see his chat messages (blocks)
+    public static final double ANNOUNCE_RADIUS = 96.0;
 
     // Phase 2 starts at this fraction of max health
     public static final float SERVANT_PHASE_HEALTH = 0.5F;
@@ -143,9 +148,16 @@ public class BarrowKingEntity extends Monster {
     // Health-driven fight phases
     public enum Phase { DUEL, SERVANTS, ENRAGED }
 
-    // What the client needs to pose him
-    // STUNNED is the brief shield-down recovery; DAZED is a real stun (wall, missed charge, guard break)
-    public enum Pose { GUARD, WINDUP, STRIKE, BRACE, STUNNED, SUMMON, DAZED }
+    // What the client needs to pose him: RECOVER is the brief shield-down beat, DAZED a real stun
+    public enum Pose {
+        GUARD, WINDUP, STRIKE, BRACE, RECOVER, SUMMON, DAZED;
+
+        // Sword held overhead: wind-ups, charges and summoning
+        public boolean swordRaised() {
+            return this == WINDUP || this == BRACE || this == SUMMON;
+        }
+    }
+    private static final Pose[] POSES = Pose.values();
 
     private enum Stage { RISING, FIGHTING, SINKING }
 
@@ -197,7 +209,7 @@ public class BarrowKingEntity extends Monster {
     }
 
     public Pose getKingPose() {
-        return Pose.values()[entityData.get(DATA_POSE)];
+        return POSES[entityData.get(DATA_POSE)];
     }
 
     public void setKingPose(Pose pose) {
@@ -236,7 +248,10 @@ public class BarrowKingEntity extends Monster {
         // Shield must be in the off hand
         setLeftHanded(false);
         setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
-        setItemSlot(EquipmentSlot.OFFHAND, kingsShield());
+        // The King's Shield, shown with his weathered texture rather than the clean player one
+        ItemStack shield = new ItemStack(ModItems.KINGS_SHIELD);
+        shield.set(DataComponents.ITEM_MODEL, SHIELD_MODEL);
+        setItemSlot(EquipmentSlot.OFFHAND, shield);
         // His copy of the crown is wearable; the player's summon item is not
         ItemStack crown = new ItemStack(ModItems.TARNISHED_CROWN);
         crown.set(DataComponents.EQUIPPABLE, Equippable.builder(EquipmentSlot.HEAD).setAsset(ModArmour.TARNISHED_CROWN_ASSET).build());
@@ -244,13 +259,6 @@ public class BarrowKingEntity extends Monster {
         setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
         for (EquipmentSlot slot : EquipmentSlot.values()) setDropChance(slot, 0.0F);
         return data;
-    }
-
-    // The Barrow King's Shield, shown with his weathered texture rather than the clean player one
-    private static ItemStack kingsShield() {
-        ItemStack shield = new ItemStack(ModItems.KINGS_SHIELD);
-        shield.set(DataComponents.ITEM_MODEL, SHIELD_MODEL);
-        return shield;
     }
 
     @Override
@@ -293,13 +301,15 @@ public class BarrowKingEntity extends Monster {
         } else if (phase == Phase.DUEL && getHealth() <= getMaxHealth() * SERVANT_PHASE_HEALTH) {
             enterServantPhase(level);
         }
-        if (phase == Phase.ENRAGED && stageTicks % 4 == 0) {
-            level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getEyeY(), getZ(), 1, 0.25, 0.15, 0.25, 0.01);
+        if (phase == Phase.ENRAGED) {
+            if (stageTicks % 4 == 0) {
+                level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getEyeY(), getZ(), 1, 0.25, 0.15, 0.25, 0.01);
+            }
+            enragedTrail(level);
         }
-        if (phase == Phase.ENRAGED) enragedTrail(level);
         // No contact damage while he's reeling, so melee players can punish the opening
         Pose pose = getKingPose();
-        if (pose != Pose.DAZED && pose != Pose.STUNNED) dealContactDamage(level);
+        if (pose != Pose.DAZED && pose != Pose.RECOVER) dealContactDamage(level);
     }
 
     // Faint wisps behind him whenever he moves while enraged
@@ -310,20 +320,42 @@ public class BarrowKingEntity extends Monster {
         soulStreak(level, position(), motion.scale(-1.0 / speed), speed, 1, getY(0.55));
     }
 
-    // Soul wisps laid along a line starting at `from` and running `length` blocks in `dir` (flat, normalised)
+    // Soul wisps along a line starting just past `from`, running `length` blocks in `dir` (flat, normalised)
     public static void soulStreak(ServerLevel level, Vec3 from, Vec3 dir, double length, int points, double y) {
-        for (int i = 0; i < points; i++) {
-            Vec3 at = from.add(dir.scale(0.4 + length * i / points));
-            level.sendParticles(ParticleTypes.SOUL, at.x, y, at.z, 1, 0.12, 0.3, 0.12, 0.01);
-        }
+        streak(level, ParticleTypes.SOUL, from, dir, length, points, y, 0.3);
+    }
+
+    // Particles spread along a line in a single call (one packet per player rather than one per puff)
+    public static void streak(ServerLevel level, ParticleOptions particle, Vec3 from, Vec3 dir, double length, int points,
+                              double y, double ySpread) {
+        Vec3 mid = from.add(dir.scale(0.4 + length / 2.0));
+        level.sendParticles(particle, mid.x, y, mid.z, points,
+            Math.abs(dir.x) * length / 2.0 + 0.12, ySpread, Math.abs(dir.z) * length / 2.0 + 0.12, 0.01);
+    }
+
+    // Dirt kicked up from the block below a position; nothing for air
+    public static void groundDust(ServerLevel level, BlockPos below, double x, double z, int count, double spread, double speed) {
+        BlockState ground = level.getBlockState(below);
+        if (ground.isAir()) return;
+        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground), x, below.getY() + 1.05, z, count, spread, 0.05, spread, speed);
+    }
+
+    // Where his shield sits in front of him
+    private Vec3 shieldPoint() {
+        return getEyePosition().add(calculateViewVector(0.0F, yBodyRot).scale(0.6)).subtract(0.0, 0.6, 0.0);
+    }
+
+    // Splinters of the shield he's holding
+    private void shieldShards(ServerLevel level, int count, double spread, double speed) {
+        Vec3 at = shieldPoint();
+        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, getOffhandItem().getItem()), at.x, at.y, at.z,
+            count, spread, spread, spread, speed);
     }
 
     // Phase 3: throws his shield aside and fights faster and harder
     private void enterEnragedPhase(ServerLevel level) {
         phase = Phase.ENRAGED;
-        Vec3 shieldPos = getEyePosition().add(calculateViewVector(0.0F, yBodyRot).scale(0.6));
-        level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), shieldPos.x, shieldPos.y - 0.6, shieldPos.z,
-            24, 0.2, 0.2, 0.2, 0.2);
+        shieldShards(level, 24, 0.2, 0.2);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.5F, 0.6F);
         roar(level, 2.5F, 0.35F);
         setItemSlot(EquipmentSlot.OFFHAND, ItemStack.EMPTY);
@@ -397,9 +429,11 @@ public class BarrowKingEntity extends Monster {
     }
 
     private void dealContactDamage(ServerLevel level) {
-        for (Player player : level.getEntitiesOfClass(Player.class, getBoundingBox().inflate(0.15),
-                p -> p.isAlive() && !p.isSpectator())) {
-            player.hurtServer(level, damageSources().mobAttack(this), CONTACT_DAMAGE);
+        AABB touch = getBoundingBox().inflate(0.15);
+        for (ServerPlayer player : level.players()) {
+            if (player.isAlive() && !player.isSpectator() && player.getBoundingBox().intersects(touch)) {
+                player.hurtServer(level, damageSources().mobAttack(this), CONTACT_DAMAGE);
+            }
         }
     }
 
@@ -441,10 +475,10 @@ public class BarrowKingEntity extends Monster {
             ScreenShakePayload.shakeNearby(level, position(), RISE_SHAKE_RADIUS, RISE_SHAKE_STRENGTH, RISE_TICKS);
         }
         setPos(getX(), getY() + dir * RISE_DEPTH / RISE_TICKS, getZ());
-        groundBurst(level, 6);
-        // Souls seep up out of the grave around him
-        BlockPos grave = burrow;
-        if (stageTicks % 2 == 0 && grave != null) {
+        // Dirt and souls seep up out of the grave around him
+        BlockPos grave = burrow != null ? burrow : blockPosition();
+        if (stageTicks % 2 == 0) {
+            groundDust(level, grave.below(), getX(), getZ(), 12, 0.6, 0.15);
             level.sendParticles(ParticleTypes.SOUL, grave.getX() + 0.5, grave.getY() + 0.2, grave.getZ() + 0.5,
                 BURROW_SOULS, 0.8, 0.1, 0.8, 0.02);
         }
@@ -465,18 +499,16 @@ public class BarrowKingEntity extends Monster {
         roar(level, 2.0F, 0.5F);
     }
 
-    // The crown's emerge sound runs ~12s; cut it as he finishes rising (the roar covers the cut)
     // Ravager roar plus a short shake; louder roars shake harder
     public void roar(ServerLevel level, float volume, float pitch) {
         playSound(SoundEvents.RAVAGER_ROAR, volume, pitch);
         ScreenShakePayload.shakeNearby(level, position(), ROAR_SHAKE_RADIUS, ROAR_SHAKE_STRENGTH * volume / 2.0F, ROAR_SHAKE_TICKS);
     }
 
+    // The crown's emerge sound runs ~12s; cut it as he finishes rising (the roar covers the cut)
     private void stopEmergeSound(ServerLevel level) {
         ClientboundStopSoundPacket stop = new ClientboundStopSoundPacket(SoundEvents.WARDEN_EMERGE.location(), SoundSource.HOSTILE);
-        for (ServerPlayer player : level.players()) {
-            if (player.distanceToSqr(this) < EMERGE_SOUND_RANGE * EMERGE_SOUND_RANGE) player.connection.send(stop);
-        }
+        for (ServerPlayer player : PlayerLookup.around(level, position(), EMERGE_SOUND_RANGE)) player.connection.send(stop);
     }
 
     // A living player is still nearby (creative counts so he can be tested; spectators don't)
@@ -500,19 +532,13 @@ public class BarrowKingEntity extends Monster {
         broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king." + reason).withStyle(MESSAGE_COLOUR));
     }
 
-    // Dirt sprays from the ground he is moving through
-    private void groundBurst(ServerLevel level, int count) {
-        BlockPos below = burrow != null ? burrow.below() : blockPosition().below();
-        BlockState ground = level.getBlockState(below);
-        if (ground.isAir()) return;
-        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground),
-            getX(), below.getY() + 1.0, getZ(), count, 0.6, 0.1, 0.6, 0.15);
+    private void broadcast(ServerLevel level, Component message) {
+        broadcast(level, position(), message);
     }
 
-    private void broadcast(ServerLevel level, Component message) {
-        for (ServerPlayer player : level.players()) {
-            if (player.distanceToSqr(this) < 96 * 96) player.sendSystemMessage(message);
-        }
+    // His chat messages reach everyone within ANNOUNCE_RADIUS of a point (also used by the crown)
+    public static void broadcast(ServerLevel level, Vec3 at, Component message) {
+        for (ServerPlayer player : PlayerLookup.around(level, at, ANNOUNCE_RADIUS)) player.sendSystemMessage(message);
     }
 
     @Override
@@ -520,24 +546,19 @@ public class BarrowKingEntity extends Monster {
         // Untouchable while in the ground
         if (stage != Stage.FIGHTING && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
         if (blocksWithShield(source)) {
-            Vec3 spark = getEyePosition().add(calculateViewVector(0.0F, yBodyRot).scale(0.6));
             LivingEntity meleeAttacker = !source.is(DamageTypeTags.IS_PROJECTILE) && source.getDirectEntity() instanceof LivingEntity l ? l : null;
             // Axes knock his guard open instead of glancing off
             if (meleeAttacker != null && meleeAttacker.getSecondsToDisableBlocking() > 0.0F && combatGoal != null) {
                 combatGoal.breakGuard();
                 level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
-                level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), spark.x, spark.y - 0.6, spark.z, 16, 0.15, 0.15, 0.15, 0.15);
+                shieldShards(level, 16, 0.15, 0.15);
                 return false;
             }
             level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BLOCK.value(), SoundSource.HOSTILE, 1.0F, 0.8F + random.nextFloat() * 0.4F);
-            level.sendParticles(ParticleTypes.CRIT, spark.x, spark.y - 0.6, spark.z, 8, 0.1, 0.1, 0.1, 0.3);
+            Vec3 spark = shieldPoint();
+            level.sendParticles(ParticleTypes.CRIT, spark.x, spark.y, spark.z, 8, 0.1, 0.1, 0.1, 0.3);
             // Melee attackers get shoved back
-            if (meleeAttacker != null) {
-                LivingEntity attacker = meleeAttacker;
-                attacker.knockback(SHIELD_BASH_KNOCKBACK, getX() - attacker.getX(), getZ() - attacker.getZ(), source, 0.0F);
-                // Players move client-side, so they must be told about the shove directly
-                if (attacker instanceof ServerPlayer player) player.connection.send(new ClientboundSetEntityMotionPacket(player));
-            }
+            if (meleeAttacker != null) KingsShieldItem.shove(meleeAttacker, this, SHIELD_BASH_KNOCKBACK, source);
             return false;
         }
         boolean hurt = super.hurtServer(level, source, damage);
@@ -638,10 +659,5 @@ public class BarrowKingEntity extends Monster {
             setNoGravity(true);
         }
         if (hasCustomName()) bossEvent.setName(getDisplayName());
-        // Kings saved by older versions carry a shield with an outdated look; swap in the current one
-        ItemStack offhand = getOffhandItem();
-        if (offhand.has(DataComponents.BLOCKS_ATTACKS) && !SHIELD_MODEL.equals(offhand.get(DataComponents.ITEM_MODEL))) {
-            setItemSlot(EquipmentSlot.OFFHAND, kingsShield());
-        }
     }
 }

@@ -1,5 +1,6 @@
 package mitchellenhancedvanilla.modid.client.render;
 
+import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.model.monster.skeleton.SkeletonModel;
 import net.minecraft.util.Mth;
@@ -11,10 +12,10 @@ public class BarrowKingModel extends SkeletonModel<BarrowKingRenderState> {
     public static final float RAISED_ARM_TILT = 0.4F;
     // Summoning wave: radians per tick, then side-to-side and forward/back swing (radians)
     public static final float SUMMON_WAVE_SPEED = 0.45F;
-    // Extra outward tilt while waving, so the swing never comes back over his head
-    public static final float SUMMON_WAVE_TILT = 0.4F;
     public static final float SUMMON_WAVE_SIDE = 0.35F;
     public static final float SUMMON_WAVE_FORWARD = 0.25F;
+    // Extra outward tilt while waving, so the swing never comes back over his head
+    public static final float SUMMON_WAVE_TILT = 0.4F;
 
     // Shield arm: raised forward (~70 degrees) and turned across the body (~55 degrees)
     public static final float SHIELD_ARM_PITCH = -1.22F;
@@ -39,28 +40,25 @@ public class BarrowKingModel extends SkeletonModel<BarrowKingRenderState> {
     public void setupAnim(BarrowKingRenderState state) {
         super.setupAnim(state);
         boolean rightHanded = state.mainArm == HumanoidArm.RIGHT;
+        BarrowKingEntity.Pose pose = state.kingPose;
 
-        if (state.raisingSword) {
+        if (pose.swordRaised()) {
             float tilt = RAISED_ARM_TILT;
             float sweep = 0.0F;
-            if (state.summoning) {
+            if (pose == BarrowKingEntity.Pose.SUMMON) {
                 // Waves the sword side to side and forward/back over his head
                 float t = state.ageInTicks * SUMMON_WAVE_SPEED;
                 tilt += SUMMON_WAVE_TILT + Mth.sin(t) * SUMMON_WAVE_SIDE;
                 sweep = Mth.cos(t) * SUMMON_WAVE_FORWARD;
             }
             // Raised arm points up, so outward is -z for the right arm and +z for the left
-            if (rightHanded) {
-                rightArm.zRot -= tilt;
-                rightArm.xRot += sweep;
-            } else {
-                leftArm.zRot += tilt;
-                leftArm.xRot += sweep;
-            }
+            ModelPart swordArm = getArm(state.mainArm);
+            swordArm.zRot += rightHanded ? -tilt : tilt;
+            swordArm.xRot += sweep;
         }
 
         if (state.shieldRaised) {
-            ModelPart shieldArm = rightHanded ? leftArm : rightArm;
+            ModelPart shieldArm = getArm(state.mainArm.getOpposite());
             // Inward is +y for the left arm and -y for the right
             float inward = rightHanded ? SHIELD_ARM_INWARD : -SHIELD_ARM_INWARD;
             shieldArm.xRot = SHIELD_ARM_PITCH + Mth.clamp(head.xRot, -0.6F, 0.4F) * SHIELD_HEAD_FOLLOW;
@@ -68,7 +66,7 @@ public class BarrowKingModel extends SkeletonModel<BarrowKingRenderState> {
             shieldArm.zRot = 0.0F;
         }
 
-        if (state.dazed) poseDazed(state.ageInTicks);
+        if (pose == BarrowKingEntity.Pose.DAZED) poseDazed(state.ageInTicks);
     }
 
     // Woozy: head lolls in a slow circle, arms hang limp and swing a little out of step
@@ -77,13 +75,14 @@ public class BarrowKingModel extends SkeletonModel<BarrowKingRenderState> {
         head.xRot = DAZED_HEAD_DROOP + Mth.sin(t * 1.3F) * 0.12F;
         head.zRot = Mth.sin(t) * DAZED_HEAD_ROLL;
         head.yRot += Mth.cos(t * 0.7F) * 0.15F;
-        for (ModelPart arm : new ModelPart[] { rightArm, leftArm }) {
-            float side = arm == rightArm ? 1.0F : -1.0F;
-            float phase = arm == rightArm ? 0.0F : 1.7F;
-            arm.xRot = DAZED_ARM_HANG + Mth.sin(t + phase) * DAZED_ARM_SWING;
-            arm.yRot = 0.0F;
-            // Arms hang splayed out from his sides
-            arm.zRot = side * (DAZED_ARM_SPLAY + Mth.cos(t * 1.1F + phase) * 0.06F);
-        }
+        poseLimpArm(rightArm, t, 1.0F, 0.0F);
+        poseLimpArm(leftArm, t, -1.0F, 1.7F);
+    }
+
+    // Hangs splayed out from his side (side: 1 right, -1 left), swinging slightly out of step with the other
+    private static void poseLimpArm(ModelPart arm, float t, float side, float phase) {
+        arm.xRot = DAZED_ARM_HANG + Mth.sin(t + phase) * DAZED_ARM_SWING;
+        arm.yRot = 0.0F;
+        arm.zRot = side * (DAZED_ARM_SPLAY + Mth.cos(t * 1.1F + phase) * 0.06F);
     }
 }

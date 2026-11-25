@@ -37,6 +37,8 @@ public class ModItems {
 		Item item = itemFactory.apply(settings.setId(itemKey));
 		// Register the item.
 		Registry.register(BuiltInRegistries.ITEM, itemKey, item);
+		// Block items link their blocks back to them (pick block, block drops), as vanilla's Items.registerItem does
+		if (item instanceof BlockItem blockItem) blockItem.registerBlocks(Item.BY_BLOCK, item);
 		return item;
 	}
     
@@ -118,13 +120,7 @@ public class ModItems {
         KingsShieldItem.properties());
 
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
-    public static final Item BARROW_KING_SKULL = registerBlockItem(register(ModItemIds.BARROW_KING_SKULL,
+    public static final Item BARROW_KING_SKULL = register(ModItemIds.BARROW_KING_SKULL,
         p -> new StandingAndWallBlockItem(ModBlocks.BARROW_KING_SKULL, ModBlocks.BARROW_KING_WALL_SKULL, Direction.DOWN, Waypoint.addHideAttribute(p)),
-        new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix()));
-
-    // Links the item's blocks back to it (pick block, block drops); vanilla's Items.registerItem does this
-    private static Item registerBlockItem(Item item) {
-        if (item instanceof BlockItem blockItem) blockItem.registerBlocks(Item.BY_BLOCK, item);
-        return item;
-    }
+        new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix());
 }

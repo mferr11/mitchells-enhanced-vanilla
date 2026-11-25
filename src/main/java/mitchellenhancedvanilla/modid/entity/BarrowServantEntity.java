@@ -1,7 +1,6 @@
 package mitchellenhancedvanilla.modid.entity;
 
 import net.minecraft.core.BlockPos;
-import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
@@ -23,7 +22,6 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.ServerLevelAccessor;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.storage.ValueInput;
 import net.minecraft.world.level.storage.ValueOutput;
 import net.minecraft.world.phys.Vec3;
@@ -119,10 +117,9 @@ public class BarrowServantEntity extends AbstractSkeleton {
 
     private void tickRise(ServerLevel level) {
         setPos(getX(), getY() + RISE_DEPTH / RISE_TICKS, getZ());
-        BlockState ground = level.getBlockState(BlockPos.containing(getX(), groundY - 1, getZ()));
-        if (!ground.isAir()) {
-            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground),
-                getX(), groundY + 0.05, getZ(), 4, 0.3, 0.05, 0.3, 0.1);
+        // Dirt every other tick (same look, half the packets)
+        if (riseTicks % 2 == 0) {
+            BarrowKingEntity.groundDust(level, BlockPos.containing(getX(), groundY - 1, getZ()), getX(), getZ(), 8, 0.3, 0.1);
         }
         if (--riseTicks > 0) return;
         noPhysics = false;

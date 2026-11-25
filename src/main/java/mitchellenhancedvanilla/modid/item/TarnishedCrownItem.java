@@ -7,7 +7,6 @@ import net.minecraft.ChatFormatting;
 import net.minecraft.core.BlockPos;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.world.Difficulty;
@@ -16,7 +15,6 @@ import net.minecraft.world.InteractionResult;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.Item;
-import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
 import net.minecraft.util.Mth;
@@ -31,8 +29,6 @@ public class TarnishedCrownItem extends Item {
     public static final int MAX_SPAWN_HEIGHT_DIFFERENCE = 4;
     // Only one King awake within this range (blocks)
     public static final double ONE_KING_RADIUS = 128.0;
-    // Players this close hear that he has woken (blocks)
-    public static final double ANNOUNCE_RADIUS = 96.0;
 
     private static final String LANG = "item.mitchells-enhanced-vanilla.tarnished_crown.";
 
@@ -65,9 +61,7 @@ public class TarnishedCrownItem extends Item {
         server.playSound(null, ground, SoundEvents.WARDEN_EMERGE, SoundSource.HOSTILE, 2.0F, 0.7F);
         Component awoken = Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.awoken")
             .withStyle(BarrowKingEntity.MESSAGE_COLOUR);
-        for (ServerPlayer nearby : server.players()) {
-            if (nearby.distanceToSqr(Vec3.atCenterOf(ground)) < ANNOUNCE_RADIUS * ANNOUNCE_RADIUS) nearby.sendSystemMessage(awoken);
-        }
+        BarrowKingEntity.broadcast(server, Vec3.atCenterOf(ground), awoken);
 
         player.getItemInHand(hand).consume(1, player);
         return InteractionResult.SUCCESS_SERVER;

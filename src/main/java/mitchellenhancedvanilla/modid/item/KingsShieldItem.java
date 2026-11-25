@@ -4,9 +4,7 @@ import java.util.List;
 import java.util.Optional;
 
 import net.minecraft.core.component.DataComponents;
-import net.minecraft.network.protocol.game.ClientboundSetEntityMotionPacket;
 import net.minecraft.server.level.ServerLevel;
-import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.sounds.SoundSource;
 import net.minecraft.tags.DamageTypeTags;
@@ -50,10 +48,15 @@ public class KingsShieldItem extends ShieldItem {
 
     // Called (via LivingEntityShieldBashMixin) when a melee hit lands on a raised King's Shield
     public static void bash(ServerLevel level, LivingEntity defender, LivingEntity attacker, DamageSource source) {
-        // knockback pushes away from the given direction, so point it from the attacker to the defender
-        attacker.knockback(BASH_KNOCKBACK, defender.getX() - attacker.getX(), defender.getZ() - attacker.getZ(), source, 0.0F);
-        // Players move client-side, so they must be told about the shove directly
-        if (attacker instanceof ServerPlayer player) player.connection.send(new ClientboundSetEntityMotionPacket(player));
+        shove(attacker, defender, BASH_KNOCKBACK, source);
         level.playSound(null, defender.getX(), defender.getY(), defender.getZ(), SoundEvents.ZOMBIE_ATTACK_WOODEN_DOOR, SoundSource.PLAYERS, 0.6F, 1.2F);
+    }
+
+    // Knocks `target` away from `from` (also used by the Barrow King's own shield)
+    public static void shove(LivingEntity target, LivingEntity from, double strength, DamageSource source) {
+        // knockback pushes away from the given direction, so point it from the target to the shover
+        target.knockback(strength, from.getX() - target.getX(), from.getZ() - target.getZ(), source, 0.0F);
+        // Players move client-side; this sends them their own motion too
+        target.syncVelocity = true;
     }
 }

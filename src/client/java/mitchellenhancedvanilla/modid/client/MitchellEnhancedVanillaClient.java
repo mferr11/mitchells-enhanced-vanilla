@@ -10,8 +10,7 @@ import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.client.render.BarrowKingRenderer;
 import mitchellenhancedvanilla.modid.client.render.BarrowServantRenderer;
 import mitchellenhancedvanilla.modid.client.render.ScreenShake;
-import mitchellenhancedvanilla.modid.client.render.ColoredCritParticle;
-import mitchellenhancedvanilla.modid.client.render.ColoredSweepParticle;
+import mitchellenhancedvanilla.modid.client.render.ColoredParticle;
 import mitchellenhancedvanilla.modid.client.render.FrozenParticles;
 import mitchellenhancedvanilla.modid.client.render.ModArrowRenderer;
 import mitchellenhancedvanilla.modid.client.screen.FletchingRecipePanel;
@@ -58,13 +57,13 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		BarrowTooltip.register();
 		BowTooltip.register();
 		// Arrow crit trail colours
-		ColoredCritParticle.register(ModParticles.FROZEN_CRIT, 0x66B2FF);
-		ColoredCritParticle.register(ModParticles.COPPER_CRIT, 0xFF8A2E);
-		ColoredCritParticle.register(ModParticles.AMETHYST_CRIT, 0xB38EF3);
-		ColoredCritParticle.register(ModParticles.GOLD_CRIT, 0xF9D93B);
-		ColoredCritParticle.register(ModParticles.PRISMARINE_CRIT, 0x72D8C4);
-		ColoredCritParticle.register(ModParticles.EMERALD_CRIT, 0x17DD62);
+		ColoredParticle.crit(ModParticles.FROZEN_CRIT, 0x66B2FF);
+		ColoredParticle.crit(ModParticles.COPPER_CRIT, 0xFF8A2E);
+		ColoredParticle.crit(ModParticles.AMETHYST_CRIT, 0xB38EF3);
+		ColoredParticle.crit(ModParticles.GOLD_CRIT, 0xF9D93B);
+		ColoredParticle.crit(ModParticles.PRISMARINE_CRIT, 0x72D8C4);
+		ColoredParticle.crit(ModParticles.EMERALD_CRIT, 0x17DD62);
 		// Barrow King sword arc, soul-fire blue
-		ColoredSweepParticle.register(ModParticles.SOUL_SWEEP, 0x4FD8EB);
+		ColoredParticle.sweep(ModParticles.SOUL_SWEEP, 0x4FD8EB);
 	}
 }

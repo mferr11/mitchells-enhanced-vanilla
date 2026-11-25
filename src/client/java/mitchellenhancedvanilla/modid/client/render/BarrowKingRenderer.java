@@ -2,7 +2,6 @@ package mitchellenhancedvanilla.modid.client.render;
 
 import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
-import mitchellenhancedvanilla.modid.entity.BarrowKingEntity.Pose;
 import net.minecraft.client.model.HumanoidModel;
 import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
@@ -27,23 +26,14 @@ public class BarrowKingRenderer extends HumanoidMobRenderer<BarrowKingEntity, Ba
     @Override
     public void extractRenderState(BarrowKingEntity king, BarrowKingRenderState state, float partialTicks) {
         super.extractRenderState(king, state, partialTicks);
-        // Skeleton's zombie-arms pose would override the shield and wind-up poses
-        state.isAggressive = false;
-        state.isShaking = king.isFullyFrozen();
-        state.isHoldingBow = false;
-        state.summoning = king.getKingPose() == Pose.SUMMON;
-        // Charges are made with the sword held overhead, ready to strike
-        state.raisingSword = king.getKingPose() == Pose.WINDUP || king.getKingPose() == Pose.BRACE || state.summoning;
+        state.kingPose = king.getKingPose();
         state.shieldRaised = king.isShieldRaised();
-        state.dazed = king.getKingPose() == Pose.DAZED;
     }
 
     @Override
     protected HumanoidModel.ArmPose getArmPose(BarrowKingEntity king, HumanoidArm arm) {
-        Pose pose = king.getKingPose();
         if (arm == king.getMainArm()) {
-            // Sword raised overhead for wind-ups, summons and charges
-            return pose == Pose.WINDUP || pose == Pose.SUMMON || pose == Pose.BRACE ? HumanoidModel.ArmPose.THROW_TRIDENT : HumanoidModel.ArmPose.ITEM;
+            return king.getKingPose().swordRaised() ? HumanoidModel.ArmPose.THROW_TRIDENT : HumanoidModel.ArmPose.ITEM;
         }
         return king.isShieldRaised() ? HumanoidModel.ArmPose.BLOCK : HumanoidModel.ArmPose.ITEM;
     }

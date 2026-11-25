@@ -12,13 +12,15 @@ public final class BarrowTooltip {
     public static void register() {
         ItemTooltipCallback.EVENT.register((stack, context, flag, lines) -> {
             if (lines.isEmpty()) return;
-            String descKey = stack.getItem().getDescriptionId() + ".desc";
+            // Keys built only for these two items, since this runs for every tooltip
             if (stack.is(ModItems.KINGS_SHIELD)) {
-                lines.add(1, Component.translatable(descKey).withStyle(ChatFormatting.GRAY));
+                String key = stack.getItem().getDescriptionId();
+                lines.add(1, Component.translatable(key + ".desc").withStyle(ChatFormatting.GRAY));
             } else if (stack.is(ModItems.TARNISHED_CROWN)) {
-                lines.add(1, Component.translatable(descKey).withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
+                String key = stack.getItem().getDescriptionId();
+                lines.add(1, Component.translatable(key + ".desc").withStyle(ChatFormatting.DARK_PURPLE, ChatFormatting.ITALIC));
                 // How to use it, quieter than the lore
-                lines.add(2, Component.translatable(stack.getItem().getDescriptionId() + ".hint").withStyle(ChatFormatting.GRAY));
+                lines.add(2, Component.translatable(key + ".hint").withStyle(ChatFormatting.GRAY));
             }
         });
     }

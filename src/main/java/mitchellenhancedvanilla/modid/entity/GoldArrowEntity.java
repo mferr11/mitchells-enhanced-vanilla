@@ -4,6 +4,7 @@ import mitchellenhancedvanilla.modid.DecoyTarget;
 import mitchellenhancedvanilla.modid.ModEntities;
 import mitchellenhancedvanilla.modid.ModItems;
 import mitchellenhancedvanilla.modid.ModParticles;
+import mitchellenhancedvanilla.modid.ModTags;
 import net.minecraft.core.particles.ItemParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -17,8 +18,6 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.Mob;
 import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.monster.Enemy;
-import net.minecraft.world.entity.monster.creaking.Creaking;
-import net.minecraft.world.entity.monster.warden.Warden;
 import net.minecraft.world.entity.monster.piglin.Piglin;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
@@ -136,7 +135,7 @@ public class GoldArrowEntity extends ModArrowEntity {
     // Shiny decoy: nearby hostiles that can see it drop their target and go stare
     private void lureMobs(ServerLevel level) {
         for (Mob mob : level.getEntitiesOfClass(Mob.class, getBoundingBox().inflate(DECOY_RADIUS),
-                m -> m instanceof Enemy && !(m instanceof Warden) && !(m instanceof Creaking) && !(m instanceof BarrowKingEntity)
+                m -> m instanceof Enemy && !m.is(ModTags.IGNORES_GOLD_LURE)
                     && m.isAlive() && m.hasLineOfSight(this))) {
             ((DecoyTarget) mob).mev$distract(this, DECOY_HOLD_TICKS);
         }

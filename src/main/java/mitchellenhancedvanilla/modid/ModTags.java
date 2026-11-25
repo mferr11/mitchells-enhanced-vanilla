@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid;
 
 import net.minecraft.core.registries.Registries;
 import net.minecraft.tags.TagKey;
+import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.level.biome.Biome;
 
@@ -13,4 +14,7 @@ public class ModTags {
 
     // Biomes where the Tarnished Crown can summon the Barrow King
     public static final TagKey<Biome> BARROW_KING_BIOMES = TagKey.create(Registries.BIOME, MitchellEnhancedVanilla.id("barrow_king_summonable"));
+
+    // Hostile mobs that ignore Gold Arrow decoys
+    public static final TagKey<EntityType<?>> IGNORES_GOLD_LURE = TagKey.create(Registries.ENTITY_TYPE, MitchellEnhancedVanilla.id("ignores_gold_lure"));
 }

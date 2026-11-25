@@ -6,7 +6,6 @@ import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.ScreenShakePayload;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity.Pose;
-import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -15,7 +14,6 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
-import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.Vec3;
 
 // The King's fight: sword combos and a telegraphed charge, servant waves in phase 2, faster and harder in phase 3
@@ -78,10 +76,32 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int ENRAGE_ROAR_TICKS = 25;
 
     public static final double CHASE_SPEED = 1.0;
+    // Repath countdown, like vanilla melee mobs: normal, once he's reached the target, and after a failed search
     public static final int REPATH_INTERVAL = 10;
+    public static final int REPATH_WHEN_ARRIVED = 4;
+    public static final int REPATH_FAIL_DELAY = 15;
 
-    // COMBO_RECOVER is the shield-down pause after a sword combo; RECOVER is the planted one (charge hit, summon, enrage roar)
-    private enum State { CHASE, WINDUP, RECOVER, COMBO_RECOVER, CHARGE_WINDUP, CHARGING, STUNNED, SUMMON }
+    // COMBO_RECOVER is the shield-down pause after a combo; RECOVER the planted one (charge hit, summon, enrage roar);
+    // DAZED a real stun (wall, missed charge, guard break)
+    private enum State {
+        CHASE(Pose.GUARD, true),
+        WINDUP(Pose.WINDUP, true),
+        COMBO_RECOVER(Pose.RECOVER, true),
+        RECOVER(Pose.RECOVER, false),
+        CHARGE_WINDUP(Pose.BRACE, false),
+        CHARGING(Pose.BRACE, false),
+        DAZED(Pose.DAZED, false),
+        SUMMON(Pose.SUMMON, false);
+
+        final Pose pose;
+        // Walks under his own power in this state
+        final boolean moves;
+
+        State(Pose pose, boolean moves) {
+            this.pose = pose;
+            this.moves = moves;
+        }
+    }
 
     private final BarrowKingEntity king;
     private State state = State.CHASE;
@@ -91,6 +111,8 @@ public class BarrowKingCombatGoal extends Goal {
     private int chargeCooldown = CHARGE_COOLDOWN_TICKS / 2;
     private int summonCooldown = SERVANT_WAVE_INTERVAL;
     private Vec3 chargeDir = Vec3.ZERO;
+    private int repathCooldown;
+    private boolean lastPathFound = true;
 
     public BarrowKingCombatGoal(BarrowKingEntity king) {
         this.king = king;
@@ -107,7 +129,7 @@ public class BarrowKingCombatGoal extends Goal {
     // An axe hit on the raised shield: staggered with his guard open, interrupting whatever he was doing
     public void breakGuard() {
         king.setDeltaMovement(0.0, king.getDeltaMovement().y, 0.0);
-        enter(State.STUNNED, GUARD_BREAK_STUN_TICKS);
+        enter(State.DAZED, GUARD_BREAK_STUN_TICKS);
     }
 
     // Phase 2 just started: call the first wave as soon as he is free
@@ -174,8 +196,8 @@ public class BarrowKingCombatGoal extends Goal {
                 followTarget(target);
                 if (timer <= 0) enter(State.CHASE, 0);
             }
-            case RECOVER, STUNNED -> {
-                if (state == State.STUNNED && timer % 10 == 0) {
+            case RECOVER, DAZED -> {
+                if (state == State.DAZED && timer % 10 == 0) {
                     level.sendParticles(ParticleTypes.CRIT, king.getX(), king.getY(1.05), king.getZ(), 4, 0.3, 0.1, 0.3, 0.0);
                 }
                 if (timer <= 0) enter(State.CHASE, 0);
@@ -211,18 +233,13 @@ public class BarrowKingCombatGoal extends Goal {
             enter(State.CHARGE_WINDUP, CHARGE_WINDUP_TICKS);
             return;
         }
-        if (king.getNavigation().isDone() || timer % REPATH_INTERVAL == 0) {
-            king.getNavigation().moveTo(target, CHASE_SPEED);
-        }
+        followTarget(target);
     }
 
     // Sword raised overhead, then the swing lands
     private void tickWindup(ServerLevel level, LivingEntity target) {
-        if (target != null) {
-            king.getLookControl().setLookAt(target, 30.0F, 30.0F);
-            // Keeps pressing in at full chase speed while swinging, like vanilla melee mobs
-            followTarget(target);
-        }
+        // Keeps pressing in at full chase speed while swinging, like vanilla melee mobs
+        followTarget(target);
         // Follow-through done: raise the sword for the next swing
         if (king.getKingPose() == Pose.STRIKE && timer <= followupWindupTicks() - FOLLOW_THROUGH_TICKS) {
             king.setKingPose(Pose.WINDUP);
@@ -275,13 +292,16 @@ public class BarrowKingCombatGoal extends Goal {
             0, dx, 0.0, dz, 0.0);
     }
 
-    // Walks after the target at chase speed, repathing every so often
+    // Walks after the target at chase speed. Repaths on a countdown rather than whenever the path is done:
+    // an unreachable target would otherwise cost a full path search every tick
     private void followTarget(LivingEntity target) {
         if (target == null) return;
         king.getLookControl().setLookAt(target, 30.0F, 30.0F);
-        if (king.getNavigation().isDone() || timer % REPATH_INTERVAL == 0) {
-            king.getNavigation().moveTo(target, CHASE_SPEED);
-        }
+        if (repathCooldown > 0) repathCooldown--;
+        if (lastPathFound && king.getNavigation().isDone()) repathCooldown = Math.min(repathCooldown, REPATH_WHEN_ARRIVED);
+        if (repathCooldown > 0) return;
+        lastPathFound = king.getNavigation().moveTo(target, CHASE_SPEED);
+        repathCooldown = lastPathFound ? REPATH_INTERVAL : REPATH_INTERVAL + REPATH_FAIL_DELAY;
     }
 
     // Plants his feet, roars and paws the ground, then commits to a straight line
@@ -310,7 +330,7 @@ public class BarrowKingCombatGoal extends Goal {
         if (target != null && target.isAlive() && king.getBoundingBox().inflate(0.4).intersects(target.getBoundingBox())) {
             if (target.hurtServer(level, king.damageSources().mobAttack(king), CHARGE_DAMAGE)) {
                 target.knockback(CHARGE_KNOCKBACK, -chargeDir.x, -chargeDir.z, king.damageSources().mobAttack(king), CHARGE_DAMAGE);
-                target.needsSync = true;
+                target.syncVelocity = true;
             }
             // The raised sword comes down as he connects
             swingSword(level);
@@ -321,20 +341,17 @@ public class BarrowKingCombatGoal extends Goal {
             king.playSound(SoundEvents.ANVIL_LAND, 1.0F, 0.6F);
             ScreenShakePayload.shakeNearby(level, king.position(), WALL_SHAKE_RADIUS, WALL_SHAKE_STRENGTH, WALL_SHAKE_TICKS);
             dustAtFeet(level, 30);
-            endCharge(State.STUNNED, CHARGE_WALL_STUN_TICKS);
+            endCharge(State.DAZED, CHARGE_WALL_STUN_TICKS);
         } else if (timer <= 0) {
-            endCharge(State.STUNNED, CHARGE_MISS_STUN_TICKS);
+            endCharge(State.DAZED, CHARGE_MISS_STUN_TICKS);
         }
     }
 
-    // Ghostly streak behind him: points spread over this tick's travel so the trail is continuous
+    // Ghostly streak behind him, spread over this tick's travel so the trail is continuous
     private void chargeTrail(ServerLevel level, double distanceThisTick) {
-        for (int i = 0; i < CHARGE_TRAIL_POINTS; i++) {
-            double back = 0.4 + distanceThisTick * i / CHARGE_TRAIL_POINTS;
-            Vec3 at = king.position().subtract(chargeDir.scale(back));
-            level.sendParticles(ParticleTypes.SOUL, at.x, king.getY(0.55), at.z, 1, 0.15, 0.35, 0.15, 0.01);
-            level.sendParticles(ParticleTypes.SMOKE, at.x, king.getY(0.3), at.z, 1, 0.2, 0.25, 0.2, 0.01);
-        }
+        Vec3 back = chargeDir.scale(-1.0);
+        BarrowKingEntity.streak(level, ParticleTypes.SOUL, king.position(), back, distanceThisTick, CHARGE_TRAIL_POINTS, king.getY(0.55), 0.35);
+        BarrowKingEntity.streak(level, ParticleTypes.SMOKE, king.position(), back, distanceThisTick, CHARGE_TRAIL_POINTS, king.getY(0.3), 0.25);
     }
 
     private void endCharge(State next, int ticks) {
@@ -345,16 +362,8 @@ public class BarrowKingCombatGoal extends Goal {
     private void enter(State next, int ticks) {
         state = next;
         timer = ticks;
-        king.setKingPose(switch (next) {
-            case CHASE -> Pose.GUARD;
-            case WINDUP -> Pose.WINDUP;
-            case SUMMON -> Pose.SUMMON;
-            case CHARGE_WINDUP, CHARGING -> Pose.BRACE;
-            case RECOVER, COMBO_RECOVER -> Pose.STUNNED;
-            case STUNNED -> Pose.DAZED;
-        });
-        // Only the chase, the sword combo and its recovery move under their own power
-        if (next != State.CHASE && next != State.WINDUP && next != State.COMBO_RECOVER) king.getNavigation().stop();
+        king.setKingPose(next.pose);
+        if (!next.moves) king.getNavigation().stop();
     }
 
     private void faceTowards(Vec3 point) {
@@ -365,9 +374,6 @@ public class BarrowKingCombatGoal extends Goal {
     }
 
     private void dustAtFeet(ServerLevel level, int count) {
-        BlockState ground = level.getBlockState(king.blockPosition().below());
-        if (ground.isAir()) return;
-        level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ground),
-            king.getX(), king.getY() + 0.1, king.getZ(), count, 0.4, 0.05, 0.4, 0.1);
+        BarrowKingEntity.groundDust(level, king.blockPosition().below(), king.getX(), king.getZ(), count, 0.4, 0.1);
     }
 }
