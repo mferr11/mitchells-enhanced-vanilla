@@ -71,5 +71,7 @@
     "item.mitchells-enhanced-vanilla.kings_shield": "King's Shield",
     "item.mitchells-enhanced-vanilla.kings_shield.desc": "Knocks back attackers",
     "item.mitchells-enhanced-vanilla.tarnished_crown.desc": "Faint whispers are coming from this crown",
-    "item.mitchells-enhanced-vanilla.tarnished_crown.hint": "Raise it beneath the night sky"
+    "item.mitchells-enhanced-vanilla.tarnished_crown.hint": "Raise it beneath the night sky",
+    "item.mitchells-enhanced-vanilla.barrow_tome": "Barrow Tome",
+    "item.mitchells-enhanced-vanilla.barrow_tome.desc": "Hurls a soul flame"
 }

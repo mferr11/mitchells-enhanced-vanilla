@@ -111,6 +111,13 @@ public class BarrowKingCombatGoal extends Goal {
     public static final float THROW_SPEED = 1.6F;
     public static final float THROW_INACCURACY = 2.0F;
     public static final int THROW_RECOVER_TICKS = 15;
+    // Mid-fight soul flame: range (blocks), odds rolled once a second, cooldown (shorter in phase 3)
+    public static final double THROW_MIN_RANGE = 4.0;
+    public static final double THROW_MAX_RANGE = 20.0;
+    public static final int THROW_CHECK_INTERVAL = 20;
+    public static final float THROW_CHANCE = 0.2F;
+    public static final int THROW_COOLDOWN_TICKS = 10 * 20;
+    public static final int ENRAGED_THROW_COOLDOWN_TICKS = 6 * 20;
 
     public static final double CHASE_SPEED = 1.0;
     // Repath countdown, like vanilla melee mobs: normal, once he's reached the target, and after a failed search
@@ -150,6 +157,7 @@ public class BarrowKingCombatGoal extends Goal {
     private int attackCooldown;
     private int chargeCooldown = CHARGE_COOLDOWN_TICKS / 2;
     private int summonCooldown = SERVANT_WAVE_INTERVAL;
+    private int throwCooldown = THROW_COOLDOWN_TICKS / 2;
     private Vec3 chargeDir = Vec3.ZERO;
     private int repathCooldown;
     private boolean lastPathFound = true;
@@ -229,6 +237,7 @@ public class BarrowKingCombatGoal extends Goal {
         if (attackCooldown > 0) attackCooldown--;
         if (chargeCooldown > 0) chargeCooldown--;
         if (summonCooldown > 0) summonCooldown--;
+        if (throwCooldown > 0) throwCooldown--;
         LivingEntity target = king.getTarget();
         ServerLevel level = getServerLevel(king);
         timer--;
@@ -283,6 +292,12 @@ public class BarrowKingCombatGoal extends Goal {
             enter(State.CHARGE_WINDUP, CHARGE_WINDUP_TICKS);
             return;
         }
+        if (throwCooldown <= 0 && king.tickCount % THROW_CHECK_INTERVAL == 0
+            && distance >= THROW_MIN_RANGE && distance <= THROW_MAX_RANGE
+            && king.getRandom().nextFloat() < THROW_CHANCE && king.getSensing().hasLineOfSight(target)) {
+            startThrow();
+            return;
+        }
         followTarget(target);
 
         // Stuck in a pit or the target is pillared up: he finds another way to them
@@ -295,10 +310,15 @@ public class BarrowKingCombatGoal extends Goal {
                 enter(State.LEAP_WINDUP, LEAP_WINDUP_TICKS);
             } else if (king.getSensing().hasLineOfSight(target)) {
                 unreachableTicks = 0;
-                king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.5F);
-                enter(State.THROW_WINDUP, THROW_WINDUP_TICKS);
+                startThrow();
             }
         }
+    }
+
+    private void startThrow() {
+        throwCooldown = enraged() ? ENRAGED_THROW_COOLDOWN_TICKS : THROW_COOLDOWN_TICKS;
+        king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.5F);
+        enter(State.THROW_WINDUP, THROW_WINDUP_TICKS);
     }
 
     // Crouches with dust at his feet, then springs towards the target

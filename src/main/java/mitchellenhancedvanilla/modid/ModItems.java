@@ -9,6 +9,7 @@ import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
+import mitchellenhancedvanilla.modid.item.BarrowTomeItem;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import mitchellenhancedvanilla.modid.item.KingsShieldItem;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
@@ -53,7 +54,7 @@ public class ModItems {
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
-			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD);
+			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD, ModItems.BARROW_TOME);
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
@@ -125,6 +126,10 @@ public class ModItems {
     // Barrow King drop: a tougher shield that bashes back melee attackers
     public static final Item KINGS_SHIELD = register(ModItemIds.KINGS_SHIELD, KingsShieldItem::new,
         KingsShieldItem.properties());
+
+    // Casts the Barrow King's soul flame
+    public static final Item BARROW_TOME = register(ModItemIds.BARROW_TOME, BarrowTomeItem::new,
+        new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
 
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
     // Brood Spider drop; the string for bows stronger than iron

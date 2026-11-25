@@ -24,28 +24,6 @@
       "entries": [
         {
           "type": "minecraft:item",
-          "modifier": [
-            {
-              "type": "minecraft:set_count",
-              "count": {
-                "type": "minecraft:uniform",
-                "max": 6,
-                "min": 3
-              }
-            }
-          ],
-          "name": "minecraft:gold_ingot"
-        }
-      ],
-      "rolls": 1,
-      "condition": {
-        "type": "minecraft:killed_by_player"
-      }
-    },
-    {
-      "entries": [
-        {
-          "type": "minecraft:item",
           "name": "mitchells-enhanced-vanilla:kings_crown"
         }
       ],
@@ -121,6 +99,43 @@
         {
           "type": "minecraft:item",
           "name": "mitchells-enhanced-vanilla:kings_shield"
+        }
+      ],
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:killed_by_player"
+          },
+          {
+            "type": "minecraft:any_of",
+            "terms": [
+              {
+                "type": "minecraft:entity_properties",
+                "entity": "attacking_player",
+                "predicate": {
+                  "minecraft:type_specific/player": {
+                    "advancements": {
+                      "mitchells-enhanced-vanilla:adventure/defeat_barrow_king": false
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:random_chance",
+                "chance": 0.25
+              }
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mitchells-enhanced-vanilla:barrow_tome"
         }
       ],
       "rolls": 1,

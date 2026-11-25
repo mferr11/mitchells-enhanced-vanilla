@@ -12,7 +12,7 @@ import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
 
-// A ball of soul fire the King hurls at players he can't reach; it has no model, only particles
+// A ball of soul fire hurled by the King or cast from a Barrow Tome; it has no model, only particles
 public class SoulFlameEntity extends ThrowableProjectile {
     public static final float DAMAGE = 5.0F;
     // Fizzles out if it hits nothing (ticks)
