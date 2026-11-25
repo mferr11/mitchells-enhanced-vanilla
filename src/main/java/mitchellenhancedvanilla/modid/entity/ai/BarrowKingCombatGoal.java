@@ -27,9 +27,9 @@ public class BarrowKingCombatGoal extends Goal {
     // Arm stays forward while the swing animation plays (vanilla swing is 6 ticks)
     public static final int FOLLOW_THROUGH_TICKS = 6;
     // Small step forward on each swing
-    public static final double LUNGE_SPEED = 1.0;
+    public static final double LUNGE_SPEED = 0.3;
     // Shield down after a combo: the melee punish window
-    public static final int COMBO_RECOVER_TICKS = 20;
+    public static final int COMBO_RECOVER_TICKS = 30;
     public static final int ATTACK_COOLDOWN_TICKS = 60;
 
     // Charge: used when the target keeps its distance

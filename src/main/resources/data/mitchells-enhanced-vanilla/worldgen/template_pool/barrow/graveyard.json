@@ -1,0 +1,32 @@
+{
+  "elements": [
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "mitchells-enhanced-vanilla:barrow/graveyard_a",
+        "processors": "mitchells-enhanced-vanilla:barrow_graveyard",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "mitchells-enhanced-vanilla:barrow/graveyard_b",
+        "processors": "mitchells-enhanced-vanilla:barrow_graveyard",
+        "projection": "rigid"
+      },
+      "weight": 1
+    },
+    {
+      "element": {
+        "element_type": "minecraft:single_pool_element",
+        "location": "mitchells-enhanced-vanilla:barrow/graveyard_c",
+        "processors": "mitchells-enhanced-vanilla:barrow_graveyard",
+        "projection": "rigid"
+      },
+      "weight": 1
+    }
+  ],
+  "fallback": "minecraft:empty"
+}

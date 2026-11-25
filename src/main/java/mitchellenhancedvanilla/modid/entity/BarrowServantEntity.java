@@ -32,12 +32,12 @@ import org.jspecify.annotations.Nullable;
 // Skeleton guard raised by the Barrow King in phase 2: weaker than a vanilla skeleton
 public class BarrowServantEntity extends AbstractSkeleton {
     // Vanilla skeletons have 20 health
-    public static final double MAX_HEALTH = 10.0;
+    public static final double MAX_HEALTH = 5.0;
     // Fists; a wooden sword adds its own +3
     public static final double ATTACK_DAMAGE = 1.0;
     public static final float WOODEN_SWORD_CHANCE = 0.5F;
     // Shambling: vanilla skeletons are 0.25, zombies 0.23
-    public static final double MOVEMENT_SPEED = 0.18;
+    public static final double MOVEMENT_SPEED = 0.23;
     public static final int XP_REWARD = 1;
 
     // Soul wisps released when killed or crumbled
@@ -66,7 +66,7 @@ public class BarrowServantEntity extends AbstractSkeleton {
     @Override
     protected void populateDefaultEquipmentSlots(RandomSource random, DifficultyInstance difficulty) {
         setItemSlot(EquipmentSlot.MAINHAND, random.nextFloat() < WOODEN_SWORD_CHANCE ? new ItemStack(Items.WOODEN_SWORD) : ItemStack.EMPTY);
-        setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
+        setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
     }
 
     // No enchanted gear
@@ -81,7 +81,10 @@ public class BarrowServantEntity extends AbstractSkeleton {
         // Undo vanilla's extras (loot pickup, Halloween pumpkins)
         setCanPickUpLoot(false);
         setItemSlot(EquipmentSlot.HEAD, new ItemStack(Items.CHAINMAIL_HELMET));
+        setItemSlot(EquipmentSlot.CHEST, new ItemStack(Items.CHAINMAIL_CHESTPLATE));
         for (EquipmentSlot slot : EquipmentSlot.values()) setDropChance(slot, 0.0F);
+        // Graveyard spawns claw their way up too; the King's summons start rising separately
+        if (reason == EntitySpawnReason.NATURAL) beginRising(blockPosition());
         return data;
     }
 

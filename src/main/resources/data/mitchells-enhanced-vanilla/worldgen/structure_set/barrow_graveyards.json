@@ -1,0 +1,14 @@
+{
+  "placement": {
+    "type": "minecraft:random_spread",
+    "salt": 48213907,
+    "separation": 16,
+    "spacing": 40
+  },
+  "structures": [
+    {
+      "structure": "mitchells-enhanced-vanilla:barrow_graveyard",
+      "weight": 1
+    }
+  ]
+}

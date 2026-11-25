@@ -17,6 +17,10 @@ import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.MobCategory;
+import net.minecraft.world.entity.SpawnPlacementTypes;
+import net.minecraft.world.entity.SpawnPlacements;
+import net.minecraft.world.entity.monster.Monster;
+import net.minecraft.world.level.levelgen.Heightmap;
 
 public class ModEntities {
     private static <T extends Entity> EntityType<T> register(String name, EntityType.Builder<T> builder) {
@@ -101,5 +105,8 @@ public class ModEntities {
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(BARROW_SERVANT, BarrowServantEntity.createAttributes());
+        // Natural spawns (barrow graveyards at night) follow vanilla skeleton rules: dark, on solid ground
+        SpawnPlacements.register(BARROW_SERVANT, SpawnPlacementTypes.ON_GROUND,
+            Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
     }
 }
