@@ -19,6 +19,7 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.levelgen.Heightmap;
+import net.minecraft.util.Mth;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
@@ -26,6 +27,8 @@ import org.jspecify.annotations.Nullable;
 public class TarnishedCrownItem extends Item {
     // He claws out of the ground this far in front of the player (blocks)
     public static final double SPAWN_DISTANCE = 6.0;
+    // Spots further above or below the player than this are skipped (blocks)
+    public static final int MAX_SPAWN_HEIGHT_DIFFERENCE = 4;
     // Only one King awake within this range (blocks)
     public static final double ONE_KING_RADIUS = 128.0;
     // Players this close hear that he has woken (blocks)
@@ -83,11 +86,16 @@ public class TarnishedCrownItem extends Item {
         return null;
     }
 
-    // Surface block a few steps in front of the player
+    // Surface a few steps in front of the player, stepping closer if that spot is a roof, tree or ravine
     private static BlockPos findGround(ServerLevel level, Player player) {
-        Vec3 forward = Vec3.directionFromRotation(0.0F, player.getYRot()).scale(SPAWN_DISTANCE);
-        int x = (int) Math.floor(player.getX() + forward.x);
-        int z = (int) Math.floor(player.getZ() + forward.z);
-        return new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+        Vec3 forward = Vec3.directionFromRotation(0.0F, player.getYRot());
+        for (double distance = SPAWN_DISTANCE; distance > 0.0; distance -= 2.0) {
+            int x = Mth.floor(player.getX() + forward.x * distance);
+            int z = Mth.floor(player.getZ() + forward.z * distance);
+            BlockPos ground = new BlockPos(x, level.getHeight(Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, x, z), z);
+            if (Math.abs(ground.getY() - player.getBlockY()) <= MAX_SPAWN_HEIGHT_DIFFERENCE) return ground;
+        }
+        // Nothing level ahead: rise right at the player's feet
+        return player.blockPosition();
     }
 }

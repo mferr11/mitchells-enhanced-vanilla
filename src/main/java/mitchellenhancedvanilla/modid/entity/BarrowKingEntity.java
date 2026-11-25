@@ -72,7 +72,7 @@ public class BarrowKingEntity extends Monster {
     public static final double MOVEMENT_SPEED = 0.25;
     public static final double KNOCKBACK_RESISTANCE = 0.8;
     public static final double FOLLOW_RANGE = 40.0;
-    public static final int XP_REWARD = 300;
+    public static final int XP_REWARD = 50;
 
     // Shield blocks arrows and melee within this many degrees of his facing
     public static final float SHIELD_HALF_ANGLE = 60.0F;
@@ -297,7 +297,9 @@ public class BarrowKingEntity extends Monster {
             level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getEyeY(), getZ(), 1, 0.25, 0.15, 0.25, 0.01);
         }
         if (phase == Phase.ENRAGED) enragedTrail(level);
-        dealContactDamage(level);
+        // No contact damage while he's reeling, so melee players can punish the opening
+        Pose pose = getKingPose();
+        if (pose != Pose.DAZED && pose != Pose.STUNNED) dealContactDamage(level);
     }
 
     // Faint wisps behind him whenever he moves while enraged
@@ -319,7 +321,7 @@ public class BarrowKingEntity extends Monster {
     // Phase 3: throws his shield aside and fights faster and harder
     private void enterEnragedPhase(ServerLevel level) {
         phase = Phase.ENRAGED;
-        Vec3 shieldPos = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
+        Vec3 shieldPos = getEyePosition().add(calculateViewVector(0.0F, yBodyRot).scale(0.6));
         level.sendParticles(new ItemParticleOption(ParticleTypes.ITEM, Items.SHIELD), shieldPos.x, shieldPos.y - 0.6, shieldPos.z,
             24, 0.2, 0.2, 0.2, 0.2);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.5F, 0.6F);
@@ -518,7 +520,7 @@ public class BarrowKingEntity extends Monster {
         // Untouchable while in the ground
         if (stage != Stage.FIGHTING && !source.is(DamageTypeTags.BYPASSES_INVULNERABILITY)) return false;
         if (blocksWithShield(source)) {
-            Vec3 spark = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(0.6));
+            Vec3 spark = getEyePosition().add(calculateViewVector(0.0F, yBodyRot).scale(0.6));
             LivingEntity meleeAttacker = !source.is(DamageTypeTags.IS_PROJECTILE) && source.getDirectEntity() instanceof LivingEntity l ? l : null;
             // Axes knock his guard open instead of glancing off
             if (meleeAttacker != null && meleeAttacker.getSecondsToDisableBlocking() > 0.0F && combatGoal != null) {
@@ -561,7 +563,7 @@ public class BarrowKingEntity extends Monster {
         if (source.getDirectEntity() instanceof AbstractArrow arrow && arrow.getPierceLevel() > 0) return false;
         Vec3 from = source.getSourcePosition();
         if (from == null) return false;
-        Vec3 facing = calculateViewVector(0.0F, getYHeadRot());
+        Vec3 facing = calculateViewVector(0.0F, yBodyRot);
         Vec3 toSource = new Vec3(from.x - getX(), 0.0, from.z - getZ()).normalize();
         return toSource.dot(facing) > Math.cos(Math.toRadians(SHIELD_HALF_ANGLE));
     }

@@ -37,7 +37,10 @@
           "name": "minecraft:gold_ingot"
         }
       ],
-      "rolls": 1
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:killed_by_player"
+      }
     },
     {
       "entries": [
@@ -46,7 +49,35 @@
           "name": "mitchells-enhanced-vanilla:kings_crown"
         }
       ],
-      "rolls": 1
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:killed_by_player"
+          },
+          {
+            "type": "minecraft:any_of",
+            "terms": [
+              {
+                "type": "minecraft:entity_properties",
+                "entity": "attacking_player",
+                "predicate": {
+                  "minecraft:type_specific/player": {
+                    "advancements": {
+                      "mitchells-enhanced-vanilla:adventure/defeat_barrow_king": false
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:random_chance",
+                "chance": 0.25
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "entries": [
@@ -55,7 +86,35 @@
           "name": "mitchells-enhanced-vanilla:barrow_king_skull"
         }
       ],
-      "rolls": 1
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:killed_by_player"
+          },
+          {
+            "type": "minecraft:any_of",
+            "terms": [
+              {
+                "type": "minecraft:entity_properties",
+                "entity": "attacking_player",
+                "predicate": {
+                  "minecraft:type_specific/player": {
+                    "advancements": {
+                      "mitchells-enhanced-vanilla:adventure/defeat_barrow_king": false
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:random_chance",
+                "chance": 0.25
+              }
+            ]
+          }
+        ]
+      }
     },
     {
       "entries": [
@@ -64,7 +123,35 @@
           "name": "mitchells-enhanced-vanilla:kings_shield"
         }
       ],
-      "rolls": 1
+      "rolls": 1,
+      "condition": {
+        "type": "minecraft:all_of",
+        "terms": [
+          {
+            "type": "minecraft:killed_by_player"
+          },
+          {
+            "type": "minecraft:any_of",
+            "terms": [
+              {
+                "type": "minecraft:entity_properties",
+                "entity": "attacking_player",
+                "predicate": {
+                  "minecraft:type_specific/player": {
+                    "advancements": {
+                      "mitchells-enhanced-vanilla:adventure/defeat_barrow_king": false
+                    }
+                  }
+                }
+              },
+              {
+                "type": "minecraft:random_chance",
+                "chance": 0.25
+              }
+            ]
+          }
+        ]
+      }
     }
   ],
   "random_sequence": "mitchells-enhanced-vanilla:entities/barrow_king"
