@@ -182,7 +182,7 @@ public class BarrowKingEntity extends Monster {
         super(type, level);
         xpReward = XP_REWARD;
         setPersistenceRequired();
-        // Paths through wooden doors; BarrowKingBashDoorGoal slams them open
+        // Paths up to wooden doors; BarrowKingBashDoorGoal smashes through them
         getNavigation().setCanOpenDoors(true);
     }
 

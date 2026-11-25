@@ -14,7 +14,7 @@ import net.minecraft.world.phys.HitResult;
 
 // A ball of soul fire the King hurls at players he can't reach; it has no model, only particles
 public class SoulFlameEntity extends ThrowableProjectile {
-    public static final float DAMAGE = 7.0F;
+    public static final float DAMAGE = 5.0F;
     // Fizzles out if it hits nothing (ticks)
     public static final int LIFETIME = 100;
 

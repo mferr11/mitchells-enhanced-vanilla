@@ -43,7 +43,7 @@ public class BarrowKingCombatGoal extends Goal {
     public static final int CHARGE_MAX_TICKS = 30;
     // Blocks per tick at full speed (slowed by Frozen Arrows like his walk is)
     public static final double CHARGE_SPEED = 0.7;
-    public static final float CHARGE_DAMAGE = 10.0F;
+    public static final float CHARGE_DAMAGE = 7.0F;
     public static final double CHARGE_KNOCKBACK = 1.5;
     // Winded after a charge: the arrow window
     public static final int CHARGE_HIT_RECOVER_TICKS = 25;
@@ -90,13 +90,16 @@ public class BarrowKingCombatGoal extends Goal {
 
     // Target out of reach (pillared up, across a gap) for this long: he leaps or hurls a soul flame
     public static final int UNREACHABLE_TICKS = 3 * 20;
-    // Leaps when the target is at most this far above him and this close (blocks); otherwise hurls a soul flame
+    // Leaps when the target is this far above him (a pit or ledge) and this close (blocks); otherwise hurls a soul flame
+    public static final double LEAP_MIN_HEIGHT = 1.0;
     public static final double LEAP_MAX_HEIGHT = 2.5;
     public static final double LEAP_MAX_DISTANCE = 8.0;
-    // Crouch before the leap, launch speeds (~3 blocks high, ~4 across), longest airtime, landing recovery
+    // Crouch before the leap, launch speeds (~3 blocks high), longest airtime, landing recovery
     public static final int LEAP_WINDUP_TICKS = 10;
-    public static final double LEAP_UP_SPEED = 0.7;
-    public static final double LEAP_FORWARD_SPEED = 0.5;
+    public static final double LEAP_UP_SPEED = 0.75;
+    public static final double LEAP_FORWARD_SPEED = 0.6;
+    // Stops pushing forward mid-air once this close to where he aimed (blocks)
+    public static final double LEAP_ARRIVE_DISTANCE = 1.0;
     public static final int LEAP_MAX_TICKS = 40;
     public static final int LEAP_RECOVER_TICKS = 15;
     // Landing thump: strength (degrees), length, reach (blocks)
@@ -153,6 +156,8 @@ public class BarrowKingCombatGoal extends Goal {
     // Whether the last path actually ends at the target, rather than as close as he can get
     private boolean targetReachable = true;
     private int unreachableTicks;
+    // Where the current leap is headed
+    private Vec3 leapAim = Vec3.ZERO;
     private Vec3 lastChargePos = Vec3.ZERO;
 
     public BarrowKingCombatGoal(BarrowKingEntity king) {
@@ -285,7 +290,7 @@ public class BarrowKingCombatGoal extends Goal {
         if (unreachableTicks >= UNREACHABLE_TICKS && king.onGround()) {
             double rise = target.getY() - king.getY();
             double across = Math.sqrt(Mth.square(target.getX() - king.getX()) + Mth.square(target.getZ() - king.getZ()));
-            if (rise <= LEAP_MAX_HEIGHT && across <= LEAP_MAX_DISTANCE) {
+            if (rise >= LEAP_MIN_HEIGHT && rise <= LEAP_MAX_HEIGHT && across <= LEAP_MAX_DISTANCE) {
                 unreachableTicks = 0;
                 enter(State.LEAP_WINDUP, LEAP_WINDUP_TICKS);
             } else if (king.getSensing().hasLineOfSight(target)) {
@@ -301,9 +306,8 @@ public class BarrowKingCombatGoal extends Goal {
         if (target != null) faceTowards(target.position());
         if (timer % 3 == 0) dustAtFeet(level, 4);
         if (timer > 0) return;
-        Vec3 aim = target != null ? target.position() : king.position().add(king.getLookAngle());
-        Vec3 dir = new Vec3(aim.x - king.getX(), 0.0, aim.z - king.getZ()).normalize();
-        king.setDeltaMovement(dir.x * LEAP_FORWARD_SPEED, LEAP_UP_SPEED, dir.z * LEAP_FORWARD_SPEED);
+        leapAim = target != null ? target.position() : king.position().add(king.getLookAngle());
+        king.setDeltaMovement(leapPush(LEAP_UP_SPEED));
         king.playSound(SoundEvents.WITHER_SKELETON_STEP, 2.0F, 0.6F);
         dustAtFeet(level, 16);
         enter(State.LEAPING, LEAP_MAX_TICKS);
@@ -312,11 +316,23 @@ public class BarrowKingCombatGoal extends Goal {
     // In the air until he lands (or gives up waiting), then a heavy landing
     private void tickLeaping(ServerLevel level) {
         boolean landed = timer < LEAP_MAX_TICKS - 3 && king.onGround();
-        if (!landed && timer > 0) return;
+        if (!landed && timer > 0) {
+            // Keeps driving forward in the air, so a pit wall he was pressed against doesn't kill the leap
+            king.setDeltaMovement(leapPush(king.getDeltaMovement().y));
+            return;
+        }
         king.playSound(SoundEvents.MACE_SMASH_GROUND, 1.5F, 0.6F);
         ScreenShakePayload.shakeNearby(level, king.position(), LEAP_SHAKE_RADIUS, LEAP_SHAKE_STRENGTH, LEAP_SHAKE_TICKS);
         dustAtFeet(level, 24);
         endCharge(State.RECOVER, LEAP_RECOVER_TICKS);
+    }
+
+    // Full forward speed towards the leap's aim, or none once he's over it
+    private Vec3 leapPush(double upSpeed) {
+        Vec3 flat = new Vec3(leapAim.x - king.getX(), 0.0, leapAim.z - king.getZ());
+        if (flat.length() < LEAP_ARRIVE_DISTANCE) return new Vec3(0.0, upSpeed, 0.0);
+        Vec3 dir = flat.normalize().scale(LEAP_FORWARD_SPEED);
+        return new Vec3(dir.x, upSpeed, dir.z);
     }
 
     // Sword raised overhead while he takes aim, then a soul flame is hurled at the target
