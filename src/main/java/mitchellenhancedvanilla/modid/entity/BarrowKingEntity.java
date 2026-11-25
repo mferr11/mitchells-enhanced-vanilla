@@ -72,7 +72,7 @@ import org.jspecify.annotations.Nullable;
 public class BarrowKingEntity extends Monster {
     // Iron bow at full draw is ~4.5 damage, so roughly 30-35 hits
     public static final double MAX_HEALTH = 150.0;
-    // Base melee damage; the iron sword adds its own +5 on top
+    // Base melee damage; the golden sword adds its own +3 on top
     public static final double ATTACK_DAMAGE = 1.0;
     public static final double ARMOR = 6.0;
     public static final double MOVEMENT_SPEED = 0.25;
@@ -253,7 +253,7 @@ public class BarrowKingEntity extends Monster {
         SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
         // Shield must be in the off hand
         setLeftHanded(false);
-        setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.IRON_SWORD));
+        setItemSlot(EquipmentSlot.MAINHAND, new ItemStack(Items.GOLDEN_SWORD));
         // The King's Shield, shown with his weathered texture rather than the clean player one
         ItemStack shield = new ItemStack(ModItems.KINGS_SHIELD);
         shield.set(DataComponents.ITEM_MODEL, SHIELD_MODEL);

@@ -7,13 +7,17 @@ import net.minecraft.client.model.geom.ModelLayers;
 import net.minecraft.client.renderer.entity.ArmorModelSet;
 import net.minecraft.client.renderer.entity.EntityRendererProvider;
 import net.minecraft.client.renderer.entity.HumanoidMobRenderer;
+import net.minecraft.client.renderer.entity.layers.EyesLayer;
 import net.minecraft.client.renderer.entity.layers.HumanoidArmorLayer;
+import net.minecraft.client.renderer.rendertype.RenderType;
+import net.minecraft.client.renderer.rendertype.RenderTypes;
 import net.minecraft.resources.Identifier;
 import net.minecraft.world.entity.HumanoidArm;
 
 // Wither-skeleton-sized skeleton; the pose is driven by his synced combat stance
 public class BarrowKingRenderer extends HumanoidMobRenderer<BarrowKingEntity, BarrowKingRenderState, BarrowKingModel> {
     private static final Identifier TEXTURE = MitchellEnhancedVanilla.id("textures/entity/barrow_king/barrow_king.png");
+    private static final RenderType EYES = RenderTypes.eyes(MitchellEnhancedVanilla.id("textures/entity/barrow_king/barrow_king_eyes.png"));
 
     public BarrowKingRenderer(EntityRendererProvider.Context context) {
         super(context, new BarrowKingModel(context.bakeLayer(ModelLayers.WITHER_SKELETON)), 0.6F);
@@ -21,6 +25,13 @@ public class BarrowKingRenderer extends HumanoidMobRenderer<BarrowKingEntity, Ba
         addLayer(new HumanoidArmorLayer<>(this,
             ArmorModelSet.bake(ModelLayers.WITHER_SKELETON_ARMOR, context.getModelSet(), BarrowKingModel::new),
             context.getEquipmentRenderer()));
+        // Glowing eyes, drawn full-bright like a spider's
+        addLayer(new EyesLayer<>(this) {
+            @Override
+            public RenderType renderType() {
+                return EYES;
+            }
+        });
     }
 
     @Override
