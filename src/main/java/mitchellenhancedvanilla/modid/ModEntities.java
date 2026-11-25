@@ -13,8 +13,6 @@ import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.entity.SoulFlameEntity;
 import mitchellenhancedvanilla.modid.entity.WebSpitEntity;
-import net.fabricmc.fabric.api.biome.v1.BiomeModifications;
-import net.fabricmc.fabric.api.biome.v1.BiomeSelectors;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -22,7 +20,6 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntityType;
-import net.minecraft.world.entity.EntityTypes;
 import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.entity.SpawnPlacementTypes;
 import net.minecraft.world.entity.SpawnPlacements;
@@ -142,9 +139,6 @@ public class ModEntities {
             .clientTrackingRange(4)
             .updateInterval(10));
 
-    // Brood Spiders spawn alongside spiders, at a tenth of their weight and alone rather than in groups of 4
-    public static final int BROOD_SPIDER_SPAWN_WEIGHT = 10;
-
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());
         FabricDefaultAttributeRegistry.register(BARROW_SERVANT, BarrowServantEntity.createAttributes());
@@ -153,10 +147,8 @@ public class ModEntities {
         // Natural spawns (barrow graveyards at night) follow vanilla skeleton rules: dark, on solid ground
         SpawnPlacements.register(BARROW_SERVANT, SpawnPlacementTypes.ON_GROUND,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
-        // Same rules as vanilla spiders
+        // Same rules as vanilla spiders; they spawn by replacing spiders (see BroodSpawning), not from biome spawn lists
         SpawnPlacements.register(BROOD_SPIDER, SpawnPlacementTypes.ON_GROUND,
             Heightmap.Types.MOTION_BLOCKING_NO_LEAVES, Monster::checkMonsterSpawnRules);
-        BiomeModifications.addSpawn(BiomeSelectors.spawnsOneOf(EntityTypes.SPIDER), MobCategory.MONSTER, BROOD_SPIDER,
-            BROOD_SPIDER_SPAWN_WEIGHT, 1, 1);
     }
 }

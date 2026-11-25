@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.entity;
 
 import java.util.List;
 
+import mitchellenhancedvanilla.modid.BroodSpawning;
 import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
 import mitchellenhancedvanilla.modid.ModArmour;
 import mitchellenhancedvanilla.modid.ModEntities;
@@ -471,7 +472,11 @@ public class BarrowKingEntity extends Monster {
             broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.defeated")
                 .withStyle(ChatFormatting.GOLD));
             // Same test vanilla uses for player kills, so /kill or lava doesn't count
-            if (getLastHurtByPlayer() != null) awardDefeat(level);
+            if (getLastHurtByPlayer() != null) {
+                awardDefeat(level);
+                // His fall lets the Brood Spiders loose on the world
+                BroodSpawning.markKingDefeated(level);
+            }
         }
     }
 

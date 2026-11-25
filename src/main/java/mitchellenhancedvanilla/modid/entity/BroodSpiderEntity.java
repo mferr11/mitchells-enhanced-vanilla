@@ -1,5 +1,7 @@
 package mitchellenhancedvanilla.modid.entity;
 
+import java.util.EnumSet;
+
 import mitchellenhancedvanilla.modid.ModBlocks;
 import mitchellenhancedvanilla.modid.ModEntities;
 import net.minecraft.core.particles.BlockParticleOption;
@@ -9,13 +11,16 @@ import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
+import net.minecraft.world.entity.SpawnGroupData;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.ai.goal.FloatGoal;
+import net.minecraft.world.entity.ai.goal.Goal;
 import net.minecraft.world.entity.ai.goal.LeapAtTargetGoal;
 import net.minecraft.world.entity.ai.goal.LookAtPlayerGoal;
 import net.minecraft.world.entity.ai.goal.MeleeAttackGoal;
@@ -27,7 +32,9 @@ import net.minecraft.world.entity.animal.golem.IronGolem;
 import net.minecraft.world.entity.monster.spider.Spider;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
+import net.minecraft.world.level.ServerLevelAccessor;
 import net.minecraft.world.level.block.WebBlock;
+import org.jspecify.annotations.Nullable;
 
 // A bigger, tougher spider that spits webs to pin players in place from range
 public class BroodSpiderEntity extends Spider {
@@ -58,9 +65,8 @@ public class BroodSpiderEntity extends Spider {
     public static final int LARVAE_MIN = 2;
     public static final int LARVAE_MAX = 3;
 
-    private int spitCooldown = SPIT_COOLDOWN_MIN;
-    // Counts down while winding up a spit; 0 when not
-    private int spitWindup;
+    // Earliest tick it can start another spit (the first comes a few seconds after spawning)
+    private int nextSpitTick = SPIT_COOLDOWN_MIN;
 
     public BroodSpiderEntity(EntityType<? extends BroodSpiderEntity> type, Level level) {
         super(type, level);
@@ -75,10 +81,11 @@ public class BroodSpiderEntity extends Spider {
             .add(Attributes.MOVEMENT_SPEED, MOVEMENT_SPEED);
     }
 
-    // Vanilla spider's goals, minus the daylight checks (it hunts day or night) and the fear of armadillos
+    // Vanilla spider's goals plus the spit, minus the daylight checks (it hunts day or night) and the fear of armadillos
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(1, new FloatGoal(this));
+        goalSelector.addGoal(2, new SpitWebGoal());
         goalSelector.addGoal(3, new LeapAtTargetGoal(this, 0.4F));
         goalSelector.addGoal(4, new MeleeAttackGoal(this, 1.0, true));
         goalSelector.addGoal(5, new WaterAvoidingRandomStrollGoal(this, 0.8));
@@ -116,46 +123,74 @@ public class BroodSpiderEntity extends Spider {
         return false;
     }
 
+    // Drops the random Hard-difficulty spider buff (invisibility, strength, speed or regeneration)
     @Override
-    protected void customServerAiStep(ServerLevel level) {
-        super.customServerAiStep(level);
-        LivingEntity target = getTarget();
-        if (spitWindup > 0) {
-            tickSpitWindup(level, target);
-            return;
+    public @Nullable SpawnGroupData finalizeSpawn(ServerLevelAccessor level, DifficultyInstance difficulty,
+                                                  EntitySpawnReason reason, @Nullable SpawnGroupData groupData) {
+        SpawnGroupData data = super.finalizeSpawn(level, difficulty, reason, groupData);
+        removeAllEffects();
+        return data;
+    }
+
+    // Plants itself facing the target with web dripping from its mouth, then spits.
+    // Holds the move, look and jump controls, so the bite and leap goals stay off until it's done
+    private class SpitWebGoal extends Goal {
+        private int windup;
+
+        SpitWebGoal() {
+            setFlags(EnumSet.of(Flag.MOVE, Flag.LOOK, Flag.JUMP));
         }
-        if (spitCooldown > 0) {
-            spitCooldown--;
-            return;
+
+        @Override
+        public boolean canUse() {
+            return tickCount >= nextSpitTick && canSpitAt(getTarget());
         }
-        if (canSpitAt(level, target)) {
-            spitWindup = SPIT_WINDUP_TICKS;
+
+        @Override
+        public boolean canContinueToUse() {
+            return windup > 0;
+        }
+
+        @Override
+        public boolean requiresUpdateEveryTick() {
+            return true;
+        }
+
+        @Override
+        public void start() {
+            windup = SPIT_WINDUP_TICKS;
+            getNavigation().stop();
             playSound(SoundEvents.SPIDER_AMBIENT, 1.5F, 0.5F);
+        }
+
+        @Override
+        public void stop() {
+            // Also covers being interrupted (e.g. falling into water): no instant retry
+            nextSpitTick = tickCount + SPIT_COOLDOWN_MIN + random.nextInt(SPIT_COOLDOWN_SPREAD);
+        }
+
+        @Override
+        public void tick() {
+            windup--;
+            LivingEntity target = getTarget();
+            if (target != null) getLookControl().setLookAt(target, 30.0F, 30.0F);
+            ServerLevel level = getServerLevel(BroodSpiderEntity.this);
+            if (windup % 3 == 0) {
+                Vec3 mouth = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(getBbWidth() * 0.5));
+                level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ModBlocks.BROOD_COBWEB.defaultBlockState()),
+                    mouth.x, mouth.y, mouth.z, 2, 0.08, 0.05, 0.08, 0.0);
+            }
+            // Gives up if the target got away during the wind-up
+            if (windup <= 0 && canSpitAt(target)) spitWeb(level, target);
         }
     }
 
-    private boolean canSpitAt(ServerLevel level, LivingEntity target) {
+    private boolean canSpitAt(@Nullable LivingEntity target) {
         if (target == null || !target.isAlive()) return false;
         double distance = distanceTo(target);
         if (distance < SPIT_MIN_RANGE || distance > SPIT_MAX_RANGE || !getSensing().hasLineOfSight(target)) return false;
         // Already stuck: save the spit
-        return !(level.getBlockState(target.blockPosition()).getBlock() instanceof WebBlock);
-    }
-
-    // Plants itself facing the target with web dripping from its mouth, then spits (or gives up if the target got away)
-    private void tickSpitWindup(ServerLevel level, LivingEntity target) {
-        spitWindup--;
-        getNavigation().stop();
-        getMoveControl().setWantedPosition(getX(), getY(), getZ(), 0.0);
-        if (target != null) getLookControl().setLookAt(target, 30.0F, 30.0F);
-        if (spitWindup % 3 == 0) {
-            Vec3 mouth = getEyePosition().add(calculateViewVector(0.0F, getYHeadRot()).scale(getBbWidth() * 0.5));
-            level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ModBlocks.BROOD_COBWEB.defaultBlockState()),
-                mouth.x, mouth.y, mouth.z, 2, 0.08, 0.05, 0.08, 0.0);
-        }
-        if (spitWindup > 0) return;
-        if (canSpitAt(level, target)) spitWeb(level, target);
-        spitCooldown = SPIT_COOLDOWN_MIN + random.nextInt(SPIT_COOLDOWN_SPREAD);
+        return !(level().getBlockState(target.blockPosition()).getBlock() instanceof WebBlock);
     }
 
     private void spitWeb(ServerLevel level, LivingEntity target) {

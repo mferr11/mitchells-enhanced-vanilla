@@ -33,6 +33,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 		ModBlocks.initialize();
 		ModItems.initialize();
 		ModEntities.initialize();
+		BroodSpawning.initialize();
 		ModRecipes.initialize();
 		ModMenus.initialize();
 		ModParticles.initialize();

@@ -21,7 +21,8 @@
 		"ServerGamePacketListenerImplMixin",
 		"BundleContentsMutableMixin",
 		"BundleItemMixin",
-		"LivingEntityShieldBashMixin"
+		"LivingEntityShieldBashMixin",
+		"NaturalSpawnerMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

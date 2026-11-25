@@ -48,18 +48,23 @@ public class WebSpitEntity extends ThrowableItemProjectile {
         return Items.COBWEB;
     }
 
+    // Set when a shield caught it; onHitEntity runs inside super.onHit, before the web is placed
+    private boolean blocked;
+
     @Override
     protected void onHitEntity(EntityHitResult hit) {
         super.onHitEntity(hit);
         if (!(level() instanceof ServerLevel level)) return;
-        hit.getEntity().hurtServer(level, damageSources().thrown(this, getOwner()), DAMAGE);
+        boolean hurt = hit.getEntity().hurtServer(level, damageSources().thrown(this, getOwner()), DAMAGE);
+        // A failed hit on someone holding up a shield was blocked (rather than, say, landing during i-frames)
+        blocked = !hurt && hit.getEntity() instanceof LivingEntity living && living.getItemBlockingWith() != null;
     }
 
     @Override
     protected void onHit(HitResult hit) {
         super.onHit(hit);
         if (level() instanceof ServerLevel level) {
-            placeWeb(level, webPos(hit));
+            if (!blocked) placeWeb(level, webPos(hit));
             level.sendParticles(new BlockParticleOption(ParticleTypes.BLOCK, ModBlocks.BROOD_COBWEB.defaultBlockState()), getX(), getY(), getZ(), 8, 0.1, 0.1, 0.1, 0.05);
             discard();
         }
