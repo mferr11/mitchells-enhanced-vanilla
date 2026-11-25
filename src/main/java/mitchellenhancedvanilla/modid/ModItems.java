@@ -64,6 +64,8 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.CREAKING_HEART, ModItems.TARNISHED_CROWN);
 			creativeTab.insertAfter(Items.SPIDER_SPAWN_EGG, ModItems.BROOD_SPIDER_SPAWN_EGG, ModItems.BROOD_LARVA_SPAWN_EGG);
+			creativeTab.insertAfter(Items.SKELETON_SPAWN_EGG, ModItems.BARROW_SERVANT_SPAWN_EGG);
+			creativeTab.insertAfter(Items.WITHER_SKELETON_SPAWN_EGG, ModItems.BARROW_KING_SPAWN_EGG);
 		});
         // Each plating sits after the material it is made from
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.INGREDIENTS)
@@ -131,6 +133,10 @@ public class ModItems {
         new Item.Properties().spawnEgg(ModEntities.BROOD_SPIDER));
     public static final Item BROOD_LARVA_SPAWN_EGG = register(ModItemIds.BROOD_LARVA_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BROOD_LARVA));
+    public static final Item BARROW_KING_SPAWN_EGG = register(ModItemIds.BARROW_KING_SPAWN_EGG, SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.BARROW_KING));
+    public static final Item BARROW_SERVANT_SPAWN_EGG = register(ModItemIds.BARROW_SERVANT_SPAWN_EGG, SpawnEggItem::new,
+        new Item.Properties().spawnEgg(ModEntities.BARROW_SERVANT));
     public static final Item BARROW_KING_SKULL = register(ModItemIds.BARROW_KING_SKULL,
         p -> new StandingAndWallBlockItem(ModBlocks.BARROW_KING_SKULL, ModBlocks.BARROW_KING_WALL_SKULL, Direction.DOWN, Waypoint.addHideAttribute(p)),
         new Item.Properties().rarity(Rarity.RARE).equippableUnswappable(EquipmentSlot.HEAD).useBlockDescriptionPrefix());
