@@ -9,6 +9,7 @@ import mitchellenhancedvanilla.modid.entity.FrozenArrowEntity;
 import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
+import mitchellenhancedvanilla.modid.entity.SoulFlameEntity;
 import net.fabricmc.fabric.api.object.builder.v1.entity.FabricDefaultAttributeRegistry;
 import net.minecraft.core.Registry;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -101,6 +102,14 @@ public class ModEntities {
             .ridingOffset(-0.7F)
             .clientTrackingRange(8)
             .notInPeaceful());
+
+    // Small-fireball-sized hitbox; drawn entirely with particles
+    public static final EntityType<SoulFlameEntity> SOUL_FLAME = register("soul_flame",
+        EntityType.Builder.<SoulFlameEntity>of(SoulFlameEntity::new, MobCategory.MISC)
+            .noLootTable()
+            .sized(0.3125F, 0.3125F)
+            .clientTrackingRange(4)
+            .updateInterval(10));
 
     public static void initialize() {
         FabricDefaultAttributeRegistry.register(BARROW_KING, BarrowKingEntity.createAttributes());

@@ -24,6 +24,7 @@ import net.fabricmc.fabric.api.client.rendering.v1.ClientTooltipComponentCallbac
 import net.minecraft.client.gui.screens.inventory.tooltip.ClientBundleTooltip;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.entity.EntityRenderers;
+import net.minecraft.client.renderer.entity.NoopRenderer;
 
 public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 	@Override
@@ -37,6 +38,7 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ModArrowRenderer.register(ModEntities.EMERALD_ARROW);
 		EntityRenderers.register(ModEntities.BARROW_KING, BarrowKingRenderer::new);
 		EntityRenderers.register(ModEntities.BARROW_SERVANT, BarrowServantRenderer::new);
+		EntityRenderers.register(ModEntities.SOUL_FLAME, NoopRenderer::new);
 		ScreenShake.register();
 		BarrowKingSkullModel.register();
 		BowHud.register();

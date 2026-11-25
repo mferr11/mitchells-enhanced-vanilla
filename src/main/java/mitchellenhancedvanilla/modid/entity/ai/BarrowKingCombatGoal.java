@@ -6,6 +6,8 @@ import mitchellenhancedvanilla.modid.ModParticles;
 import mitchellenhancedvanilla.modid.ScreenShakePayload;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity;
 import mitchellenhancedvanilla.modid.entity.BarrowKingEntity.Pose;
+import mitchellenhancedvanilla.modid.entity.SoulFlameEntity;
+import net.minecraft.core.BlockPos;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
@@ -14,7 +16,9 @@ import net.minecraft.world.InteractionHand;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.ai.attributes.Attributes;
 import net.minecraft.world.entity.ai.goal.Goal;
+import net.minecraft.world.level.pathfinder.Path;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 
 // The King's fight: sword combos and a telegraphed charge, servant waves in phase 2, faster and harder in phase 3
 public class BarrowKingCombatGoal extends Goal {
@@ -49,6 +53,15 @@ public class BarrowKingCombatGoal extends Goal {
     public static final float WALL_SHAKE_STRENGTH = 1.5F;
     public static final int WALL_SHAKE_TICKS = 8;
     public static final double WALL_SHAKE_RADIUS = 24.0;
+    // A charge that moves less than this in a tick (after the first few) is stuck, and counts as hitting a wall
+    public static final double CHARGE_STUCK_DISTANCE = 0.1;
+    public static final int CHARGE_STUCK_GRACE_TICKS = 3;
+    // Disturbed ground along the charge line during the wind-up: how often (ticks), dust per block,
+    // how far past the target it runs, and the longest it gets (blocks)
+    public static final int CHARGE_PATH_INTERVAL = 3;
+    public static final int CHARGE_PATH_PARTICLES = 2;
+    public static final double CHARGE_PATH_OVERSHOOT = 3.0;
+    public static final double CHARGE_PATH_MAX = 21.0;
     // Soul and smoke puffs left behind him each tick while charging
     public static final int CHARGE_TRAIL_POINTS = 3;
     // Wisp streak behind each sword lunge: length (blocks) and puffs
@@ -75,14 +88,35 @@ public class BarrowKingCombatGoal extends Goal {
     // Roars in place as he throws the shield away
     public static final int ENRAGE_ROAR_TICKS = 25;
 
+    // Target out of reach (pillared up, across a gap) for this long: he leaps or hurls a soul flame
+    public static final int UNREACHABLE_TICKS = 3 * 20;
+    // Leaps when the target is at most this far above him and this close (blocks); otherwise hurls a soul flame
+    public static final double LEAP_MAX_HEIGHT = 2.5;
+    public static final double LEAP_MAX_DISTANCE = 8.0;
+    // Crouch before the leap, launch speeds (~3 blocks high, ~4 across), longest airtime, landing recovery
+    public static final int LEAP_WINDUP_TICKS = 10;
+    public static final double LEAP_UP_SPEED = 0.7;
+    public static final double LEAP_FORWARD_SPEED = 0.5;
+    public static final int LEAP_MAX_TICKS = 40;
+    public static final int LEAP_RECOVER_TICKS = 15;
+    // Landing thump: strength (degrees), length, reach (blocks)
+    public static final float LEAP_SHAKE_STRENGTH = 0.8F;
+    public static final int LEAP_SHAKE_TICKS = 6;
+    public static final double LEAP_SHAKE_RADIUS = 16.0;
+    // Soul flame: wind-up, speed and spread (like a skeleton's arrow), recovery
+    public static final int THROW_WINDUP_TICKS = 15;
+    public static final float THROW_SPEED = 1.6F;
+    public static final float THROW_INACCURACY = 2.0F;
+    public static final int THROW_RECOVER_TICKS = 15;
+
     public static final double CHASE_SPEED = 1.0;
     // Repath countdown, like vanilla melee mobs: normal, once he's reached the target, and after a failed search
     public static final int REPATH_INTERVAL = 10;
     public static final int REPATH_WHEN_ARRIVED = 4;
     public static final int REPATH_FAIL_DELAY = 15;
 
-    // COMBO_RECOVER is the shield-down pause after a combo; RECOVER the planted one (charge hit, summon, enrage roar);
-    // DAZED a real stun (wall, missed charge, guard break)
+    // COMBO_RECOVER is the shield-down pause after a combo; RECOVER the planted one (charge hit, summon, enrage roar,
+    // landing, soul flame); DAZED a real stun (wall, missed or stuck charge, guard break)
     private enum State {
         CHASE(Pose.GUARD, true),
         WINDUP(Pose.WINDUP, true),
@@ -91,7 +125,10 @@ public class BarrowKingCombatGoal extends Goal {
         CHARGE_WINDUP(Pose.BRACE, false),
         CHARGING(Pose.BRACE, false),
         DAZED(Pose.DAZED, false),
-        SUMMON(Pose.SUMMON, false);
+        SUMMON(Pose.SUMMON, false),
+        LEAP_WINDUP(Pose.BRACE, false),
+        LEAPING(Pose.BRACE, false),
+        THROW_WINDUP(Pose.WINDUP, false);
 
         final Pose pose;
         // Walks under his own power in this state
@@ -113,6 +150,10 @@ public class BarrowKingCombatGoal extends Goal {
     private Vec3 chargeDir = Vec3.ZERO;
     private int repathCooldown;
     private boolean lastPathFound = true;
+    // Whether the last path actually ends at the target, rather than as close as he can get
+    private boolean targetReachable = true;
+    private int unreachableTicks;
+    private Vec3 lastChargePos = Vec3.ZERO;
 
     public BarrowKingCombatGoal(BarrowKingEntity king) {
         this.king = king;
@@ -204,8 +245,12 @@ public class BarrowKingCombatGoal extends Goal {
             }
             case CHARGE_WINDUP -> tickChargeWindup(level, target);
             case CHARGING -> tickCharging(level, target);
+            case LEAP_WINDUP -> tickLeapWindup(level, target);
+            case LEAPING -> tickLeaping(level);
+            case THROW_WINDUP -> tickThrowWindup(level, target);
         }
     }
+
 
     private void tickChase(ServerLevel level, LivingEntity target) {
         if (target == null) return;
@@ -234,6 +279,63 @@ public class BarrowKingCombatGoal extends Goal {
             return;
         }
         followTarget(target);
+
+        // Stuck in a pit or the target is pillared up: he finds another way to them
+        unreachableTicks = targetReachable || king.isWithinMeleeAttackRange(target) ? 0 : unreachableTicks + 1;
+        if (unreachableTicks >= UNREACHABLE_TICKS && king.onGround()) {
+            double rise = target.getY() - king.getY();
+            double across = Math.sqrt(Mth.square(target.getX() - king.getX()) + Mth.square(target.getZ() - king.getZ()));
+            if (rise <= LEAP_MAX_HEIGHT && across <= LEAP_MAX_DISTANCE) {
+                unreachableTicks = 0;
+                enter(State.LEAP_WINDUP, LEAP_WINDUP_TICKS);
+            } else if (king.getSensing().hasLineOfSight(target)) {
+                unreachableTicks = 0;
+                king.playSound(SoundEvents.WITHER_SKELETON_AMBIENT, 1.5F, 0.5F);
+                enter(State.THROW_WINDUP, THROW_WINDUP_TICKS);
+            }
+        }
+    }
+
+    // Crouches with dust at his feet, then springs towards the target
+    private void tickLeapWindup(ServerLevel level, LivingEntity target) {
+        if (target != null) faceTowards(target.position());
+        if (timer % 3 == 0) dustAtFeet(level, 4);
+        if (timer > 0) return;
+        Vec3 aim = target != null ? target.position() : king.position().add(king.getLookAngle());
+        Vec3 dir = new Vec3(aim.x - king.getX(), 0.0, aim.z - king.getZ()).normalize();
+        king.setDeltaMovement(dir.x * LEAP_FORWARD_SPEED, LEAP_UP_SPEED, dir.z * LEAP_FORWARD_SPEED);
+        king.playSound(SoundEvents.WITHER_SKELETON_STEP, 2.0F, 0.6F);
+        dustAtFeet(level, 16);
+        enter(State.LEAPING, LEAP_MAX_TICKS);
+    }
+
+    // In the air until he lands (or gives up waiting), then a heavy landing
+    private void tickLeaping(ServerLevel level) {
+        boolean landed = timer < LEAP_MAX_TICKS - 3 && king.onGround();
+        if (!landed && timer > 0) return;
+        king.playSound(SoundEvents.MACE_SMASH_GROUND, 1.5F, 0.6F);
+        ScreenShakePayload.shakeNearby(level, king.position(), LEAP_SHAKE_RADIUS, LEAP_SHAKE_STRENGTH, LEAP_SHAKE_TICKS);
+        dustAtFeet(level, 24);
+        endCharge(State.RECOVER, LEAP_RECOVER_TICKS);
+    }
+
+    // Sword raised overhead while he takes aim, then a soul flame is hurled at the target
+    private void tickThrowWindup(ServerLevel level, LivingEntity target) {
+        if (target != null) {
+            king.getLookControl().setLookAt(target, 30.0F, 30.0F);
+            faceTowards(target.position());
+        }
+        if (timer > 0) return;
+        if (target != null && target.isAlive()) {
+            SoulFlameEntity flame = new SoulFlameEntity(level, king);
+            // Flies straight, so no allowance for drop
+            flame.shoot(target.getX() - flame.getX(), target.getY(0.5) - flame.getY(), target.getZ() - flame.getZ(),
+                THROW_SPEED, THROW_INACCURACY);
+            level.addFreshEntity(flame);
+            king.swingForAttack(InteractionHand.MAIN_HAND);
+            king.playSound(SoundEvents.BLAZE_SHOOT, 1.5F, 0.6F);
+        }
+        enter(State.RECOVER, THROW_RECOVER_TICKS);
     }
 
     // Sword raised overhead, then the swing lands
@@ -301,6 +403,8 @@ public class BarrowKingCombatGoal extends Goal {
         if (lastPathFound && king.getNavigation().isDone()) repathCooldown = Math.min(repathCooldown, REPATH_WHEN_ARRIVED);
         if (repathCooldown > 0) return;
         lastPathFound = king.getNavigation().moveTo(target, CHASE_SPEED);
+        Path path = king.getNavigation().getPath();
+        targetReachable = lastPathFound && path != null && path.canReach();
         repathCooldown = lastPathFound ? REPATH_INTERVAL : REPATH_INTERVAL + REPATH_FAIL_DELAY;
     }
 
@@ -311,12 +415,39 @@ public class BarrowKingCombatGoal extends Goal {
             faceTowards(target.position());
         }
         if (timer % 4 == 0) dustAtFeet(level, 6);
+        if (target != null && timer % CHARGE_PATH_INTERVAL == 0) chargePath(level, target);
         if (timer > 0) return;
 
         Vec3 aim = target != null ? target.position() : king.position().add(king.getLookAngle());
         chargeDir = new Vec3(aim.x - king.getX(), 0.0, aim.z - king.getZ()).normalize();
         chargeCooldown = enraged() ? ENRAGED_CHARGE_COOLDOWN_TICKS : CHARGE_COOLDOWN_TICKS;
+        lastChargePos = king.position();
         enter(State.CHARGING, CHARGE_MAX_TICKS);
+    }
+
+    // Faint line of disturbed ground from his feet towards the target: where the charge will go
+    private void chargePath(ServerLevel level, LivingEntity target) {
+        Vec3 toTarget = new Vec3(target.getX() - king.getX(), 0.0, target.getZ() - king.getZ());
+        double length = Math.min(toTarget.length() + CHARGE_PATH_OVERSHOOT, CHARGE_PATH_MAX);
+        Vec3 dir = toTarget.normalize();
+        for (double d = 1.0; d <= length; d += 1.0) {
+            double x = king.getX() + dir.x * d;
+            double z = king.getZ() + dir.z * d;
+            BlockPos ground = groundNear(level, Mth.floor(x), king.getBlockY(), Mth.floor(z));
+            if (ground != null) BarrowKingEntity.groundDust(level, ground, x, z, CHARGE_PATH_PARTICLES, 0.15, 0.03);
+        }
+    }
+
+    // The solid block with open space above it nearest his feet level, following small slopes
+    private static @Nullable BlockPos groundNear(ServerLevel level, int x, int feetY, int z) {
+        for (int dy = 1; dy >= -2; dy--) {
+            BlockPos pos = new BlockPos(x, feetY + dy - 1, z);
+            if (!level.getBlockState(pos).getCollisionShape(level, pos).isEmpty()
+                && level.getBlockState(pos.above()).getCollisionShape(level, pos.above()).isEmpty()) {
+                return pos;
+            }
+        }
+        return null;
     }
 
     private void tickCharging(ServerLevel level, LivingEntity target) {
@@ -336,8 +467,8 @@ public class BarrowKingCombatGoal extends Goal {
             swingSword(level);
             king.playSound(SoundEvents.ZOMBIE_ATTACK_IRON_DOOR, 1.0F, 0.7F);
             endCharge(State.RECOVER, CHARGE_HIT_RECOVER_TICKS);
-        } else if (king.horizontalCollision) {
-            // Slammed into a wall: dazed
+        } else if (king.horizontalCollision || isChargeStuck()) {
+            // Slammed into a wall (or wedged in a pit): dazed
             king.playSound(SoundEvents.ANVIL_LAND, 1.0F, 0.6F);
             ScreenShakePayload.shakeNearby(level, king.position(), WALL_SHAKE_RADIUS, WALL_SHAKE_STRENGTH, WALL_SHAKE_TICKS);
             dustAtFeet(level, 30);
@@ -345,6 +476,13 @@ public class BarrowKingCombatGoal extends Goal {
         } else if (timer <= 0) {
             endCharge(State.DAZED, CHARGE_MISS_STUN_TICKS);
         }
+        lastChargePos = king.position();
+    }
+
+    // Barely moved since last tick, once the charge has had a moment to get going
+    private boolean isChargeStuck() {
+        if (timer > CHARGE_MAX_TICKS - CHARGE_STUCK_GRACE_TICKS) return false;
+        return king.position().subtract(lastChargePos).horizontalDistance() < CHARGE_STUCK_DISTANCE;
     }
 
     // Ghostly streak behind him, spread over this tick's travel so the trail is continuous

@@ -11,6 +11,7 @@ import net.fabricmc.fabric.api.networking.v1.PlayerLookup;
 import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.world.phys.AABB;
 import mitchellenhancedvanilla.modid.ModItems;
+import mitchellenhancedvanilla.modid.entity.ai.BarrowKingBashDoorGoal;
 import mitchellenhancedvanilla.modid.entity.ai.BarrowKingCombatGoal;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.world.item.equipment.Equippable;
@@ -36,6 +37,7 @@ import net.minecraft.util.Mth;
 import net.minecraft.world.BossEvent;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.damagesource.DamageSource;
+import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EquipmentSlot;
@@ -179,6 +181,8 @@ public class BarrowKingEntity extends Monster {
         super(type, level);
         xpReward = XP_REWARD;
         setPersistenceRequired();
+        // Paths through wooden doors; BarrowKingBashDoorGoal slams them open
+        getNavigation().setCanOpenDoors(true);
     }
 
     public static AttributeSupplier.Builder createAttributes() {
@@ -194,6 +198,7 @@ public class BarrowKingEntity extends Monster {
     @Override
     protected void registerGoals() {
         goalSelector.addGoal(0, new FloatGoal(this));
+        goalSelector.addGoal(1, new BarrowKingBashDoorGoal(this));
         combatGoal = new BarrowKingCombatGoal(this);
         goalSelector.addGoal(2, combatGoal);
         goalSelector.addGoal(6, new LookAtPlayerGoal(this, Player.class, 16.0F));
@@ -352,9 +357,16 @@ public class BarrowKingEntity extends Monster {
             count, spread, spread, spread, speed);
     }
 
+    // Boss bar flags vanilla uses for the Wither and the Dragon: the sky dims from phase 2, fog closes in for phase 3
+    private void updateBossBarAtmosphere() {
+        bossEvent.setDarkenScreen(phase != Phase.DUEL);
+        bossEvent.setCreateWorldFog(phase == Phase.ENRAGED);
+    }
+
     // Phase 3: throws his shield aside and fights faster and harder
     private void enterEnragedPhase(ServerLevel level) {
         phase = Phase.ENRAGED;
+        updateBossBarAtmosphere();
         shieldShards(level, 24, 0.2, 0.2);
         level.playSound(null, getX(), getY(), getZ(), SoundEvents.SHIELD_BREAK.value(), SoundSource.HOSTILE, 1.5F, 0.6F);
         roar(level, 2.5F, 0.35F);
@@ -375,6 +387,7 @@ public class BarrowKingEntity extends Monster {
     // Phase 2: he calls his servants up out of the barrow
     private void enterServantPhase(ServerLevel level) {
         phase = Phase.SERVANTS;
+        updateBossBarAtmosphere();
         roar(level, 2.0F, 0.4F);
         broadcast(level, Component.translatable("entity.mitchells-enhanced-vanilla.barrow_king.servants")
             .withStyle(MESSAGE_COLOUR));
@@ -440,6 +453,12 @@ public class BarrowKingEntity extends Monster {
     @Override
     public boolean isWithinMeleeAttackRange(LivingEntity target) {
         return getAttackBoundingBox(SWORD_REACH).intersects(target.getBoundingBox());
+    }
+
+    // Can't be trapped in boats or minecarts
+    @Override
+    protected boolean canRide(Entity vehicle) {
+        return false;
     }
 
     @Override
@@ -654,6 +673,7 @@ public class BarrowKingEntity extends Monster {
         stageTicks = input.getIntOr(STAGE_TICKS_KEY, 0);
         phase = Phase.values()[Mth.clamp(input.getIntOr(PHASE_KEY, 0), 0, Phase.values().length - 1)];
         if (phase == Phase.ENRAGED) applyEnrageSpeed();
+        updateBossBarAtmosphere();
         if (stage != Stage.FIGHTING) {
             noPhysics = true;
             setNoGravity(true);
