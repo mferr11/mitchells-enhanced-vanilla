@@ -17,6 +17,10 @@ public class ModParticles {
     // The Barrow King's sword arc, in soul-fire blue
     public static final SimpleParticleType SOUL_SWEEP = register("soul_sweep");
 
+    // Barrow Tome casts (trail and burst): soul fire and wisps that vanish quickly (lifetimes set in the client initializer)
+    public static final SimpleParticleType SHORT_SOUL_FLAME = register("short_soul_flame");
+    public static final SimpleParticleType SHORT_SOUL_WISP = register("short_soul_wisp");
+
     private static SimpleParticleType register(String name) {
         return Registry.register(BuiltInRegistries.PARTICLE_TYPE, MitchellEnhancedVanilla.id(name), FabricParticleTypes.simple());
     }

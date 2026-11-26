@@ -1,6 +1,8 @@
 package mitchellenhancedvanilla.modid.entity;
 
 import mitchellenhancedvanilla.modid.ModEntities;
+import mitchellenhancedvanilla.modid.ModParticles;
+import net.minecraft.core.particles.ParticleOptions;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.network.syncher.SynchedEntityData;
 import net.minecraft.server.level.ServerLevel;
@@ -54,12 +56,16 @@ public class SoulFlameEntity extends ThrowableProjectile {
     public void tick() {
         super.tick();
         if (level().isClientSide()) {
-            // The flame itself: a tight cluster of soul fire, plus a few wisps trailing behind
+            // The flame itself: a tight cluster of soul fire, plus a few wisps trailing behind.
+            // A player's cast uses short-lived particles so the trail doesn't hang in front of their view
+            boolean cast = getOwner() instanceof Player;
+            ParticleOptions flame = cast ? ModParticles.SHORT_SOUL_FLAME : ParticleTypes.SOUL_FIRE_FLAME;
+            ParticleOptions wisp = cast ? ModParticles.SHORT_SOUL_WISP : ParticleTypes.SOUL;
             for (int i = 0; i < 3; i++) {
-                level().addParticle(ParticleTypes.SOUL_FIRE_FLAME, getX() + (random.nextDouble() - 0.5) * 0.2,
+                level().addParticle(flame, getX() + (random.nextDouble() - 0.5) * 0.2,
                     getY() + (random.nextDouble() - 0.5) * 0.2, getZ() + (random.nextDouble() - 0.5) * 0.2, 0.0, 0.0, 0.0);
             }
-            if (random.nextInt(3) == 0) level().addParticle(ParticleTypes.SOUL, getX(), getY(), getZ(), 0.0, 0.02, 0.0);
+            if (random.nextInt(3) == 0) level().addParticle(wisp, getX(), getY(), getZ(), 0.0, 0.02, 0.0);
         } else if (tickCount > LIFETIME) {
             discard();
         }
@@ -89,9 +95,9 @@ public class SoulFlameEntity extends ThrowableProjectile {
 
     // Shrapnel-style spray of soul fire, and damage to every living thing in reach except the caster and the direct hit
     private void burst(ServerLevel level) {
-        level.sendParticles(ParticleTypes.SOUL_FIRE_FLAME, getX(), getY(), getZ(), (int) (BURST_PARTICLES_PER_BLOCK * BURST_RADIUS),
+        level.sendParticles(ModParticles.SHORT_SOUL_FLAME, getX(), getY(), getZ(), (int) (BURST_PARTICLES_PER_BLOCK * BURST_RADIUS),
             0.1, 0.1, 0.1, BURST_SPEED_PER_BLOCK * BURST_RADIUS);
-        level.sendParticles(ParticleTypes.SOUL, getX(), getY(), getZ(), (int) (BURST_PARTICLES_PER_BLOCK * BURST_RADIUS / 3),
+        level.sendParticles(ModParticles.SHORT_SOUL_WISP, getX(), getY(), getZ(), (int) (BURST_PARTICLES_PER_BLOCK * BURST_RADIUS / 3),
             0.1, 0.1, 0.1, BURST_SPEED_PER_BLOCK * BURST_RADIUS * 0.5);
         playSound(SoundEvents.BLAZE_SHOOT, 1.5F, 0.5F);
         for (LivingEntity target : level.getEntitiesOfClass(LivingEntity.class, getBoundingBox().inflate(BURST_RADIUS))) {
