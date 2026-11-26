@@ -13,7 +13,7 @@ import net.minecraft.world.level.Level;
 
 // Hurls the Barrow King's soul flame where the player is looking; each cast costs durability
 public class BarrowTomeItem extends Item {
-    public static final int DURABILITY = 128;
+    public static final int DURABILITY = 256;
     // Same speed as the King's throw, but aimed true
     public static final float CAST_SPEED = 1.6F;
     public static final float CAST_INACCURACY = 0.0F;
