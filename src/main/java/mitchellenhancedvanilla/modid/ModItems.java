@@ -1,5 +1,6 @@
 package mitchellenhancedvanilla.modid;
 
+import java.util.List;
 import java.util.function.Function;
 
 import mitchellenhancedvanilla.modid.entity.AmethystArrowEntity;
@@ -32,6 +33,11 @@ import net.minecraft.world.waypoints.Waypoint;
 import net.minecraft.core.Direction;
 import net.minecraft.world.item.equipment.ArmorType;
 import net.minecraft.world.item.component.BundleContents;
+import net.minecraft.world.item.component.Consumables;
+import net.minecraft.world.item.consume_effects.ApplyStatusEffectsConsumeEffect;
+import net.minecraft.world.effect.MobEffectInstance;
+import net.minecraft.world.effect.MobEffects;
+import net.minecraft.world.food.Foods;
 
 public class ModItems {
 	public static Item register(ResourceKey<Item> itemKey, Function<Item.Properties, Item> itemFactory, Item.Properties settings) {
@@ -74,6 +80,7 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.STRING, ModItems.BROOD_SILK);
+			creativeTab.insertAfter(Items.SPIDER_EYE, ModItems.BROOD_SPIDER_EYE);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.CHAINMAIL_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.IRON_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.GOLD_INGOT, ModItems.GOLD_ARMOUR_PLATING);
@@ -135,6 +142,13 @@ public class ModItems {
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
     // Brood Spider drop; the string for bows stronger than iron
     public static final Item BROOD_SILK = register(ModItemIds.BROOD_SILK, Item::new, new Item.Properties());
+    // Brood Spider drop: a spider eye's food value, but poison II (5s) and nausea (8s)
+    public static final Item BROOD_SPIDER_EYE = register(ModItemIds.BROOD_SPIDER_EYE, Item::new,
+        new Item.Properties().food(Foods.SPIDER_EYE, Consumables.defaultFood()
+            .onConsume(new ApplyStatusEffectsConsumeEffect(List.of(
+                new MobEffectInstance(MobEffects.POISON, 5 * 20, 1),
+                new MobEffectInstance(MobEffects.NAUSEA, 8 * 20, 0))))
+            .build()));
     public static final Item BROOD_SPIDER_SPAWN_EGG = register(ModItemIds.BROOD_SPIDER_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BROOD_SPIDER));
     public static final Item BROOD_LARVA_SPAWN_EGG = register(ModItemIds.BROOD_LARVA_SPAWN_EGG, SpawnEggItem::new,
