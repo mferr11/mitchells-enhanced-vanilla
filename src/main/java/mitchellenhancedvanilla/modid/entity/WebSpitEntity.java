@@ -22,6 +22,8 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.level.Level;
 import mitchellenhancedvanilla.modid.ModBlocks;
+import mitchellenhancedvanilla.modid.block.BroodCobwebBlock;
+import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.phys.BlockHitResult;
 import net.minecraft.world.phys.EntityHitResult;
 import net.minecraft.world.phys.HitResult;
@@ -93,17 +95,19 @@ public class WebSpitEntity extends ThrowableItemProjectile {
 
     // One web for a spider's spit; a plus of five (centre and its four horizontal neighbours) for a player's cast
     private void placeWebs(ServerLevel level, BlockPos centre) {
-        boolean placed = placeWeb(level, centre);
-        if (castByPlayer()) {
-            for (Direction side : Direction.Plane.HORIZONTAL) placed |= placeWeb(level, centre.relative(side));
+        boolean cast = castByPlayer();
+        BlockState web = ((BroodCobwebBlock) ModBlocks.BROOD_COBWEB).withLifetime(cast ? BroodCobwebBlock.Lifetime.LONG : BroodCobwebBlock.Lifetime.SHORT);
+        boolean placed = placeWeb(level, centre, web);
+        if (cast) {
+            for (Direction side : Direction.Plane.HORIZONTAL) placed |= placeWeb(level, centre.relative(side), web);
         }
         if (placed) level.playSound(null, centre, SoundEvents.COBWEB_PLACE, SoundSource.HOSTILE, 1.0F, 0.8F);
     }
 
     // Same rule as the Weaving effect: only into air or other replaceable blocks (grass, snow layers), never into water or lava
-    private static boolean placeWeb(ServerLevel level, BlockPos pos) {
+    private static boolean placeWeb(ServerLevel level, BlockPos pos, BlockState web) {
         if (!level.getBlockState(pos).canBeReplaced() || !level.getFluidState(pos).isEmpty()) return false;
-        level.setBlockAndUpdate(pos, ModBlocks.BROOD_COBWEB.defaultBlockState());
+        level.setBlockAndUpdate(pos, web);
         return true;
     }
 }

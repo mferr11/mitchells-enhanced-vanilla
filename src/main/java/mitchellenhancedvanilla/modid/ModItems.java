@@ -63,6 +63,10 @@ public class ModItems {
 			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
 			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD, ModItems.BARROW_TOME, ModItems.TOME_OF_WEAVING);
 		});
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS)
+		.register((creativeTab) -> {
+			creativeTab.insertAfter(Items.COBWEB, ModItems.BROOD_COBWEB);
+		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.WITHER_SKELETON_SKULL, ModItems.BARROW_KING_SKULL);
@@ -145,6 +149,9 @@ public class ModItems {
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
     // Brood Spider drop; the string for bows stronger than iron
     public static final Item BROOD_SILK = register(ModItemIds.BROOD_SILK, Item::new, new Item.Properties());
+    // Crafted from Brood Silk; places a permanent web
+    public static final Item BROOD_COBWEB = register(ModItemIds.BROOD_COBWEB,
+        p -> new BlockItem(ModBlocks.BROOD_COBWEB, p), new Item.Properties().useBlockDescriptionPrefix());
 
     // Base for crafted tomes
     public static final Item EMPTY_TOME = register(ModItemIds.EMPTY_TOME, Item::new, new Item.Properties());

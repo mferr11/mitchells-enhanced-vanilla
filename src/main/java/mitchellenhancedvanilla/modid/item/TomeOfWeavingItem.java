@@ -17,7 +17,7 @@ public class TomeOfWeavingItem extends Item {
     // Same speed as the spider's spit, but aimed true
     public static final float CAST_SPEED = 1.3F;
     public static final float CAST_INACCURACY = 0.0F;
-    public static final int COOLDOWN_TICKS = 15;
+    public static final int COOLDOWN_TICKS = 10;
 
     public TomeOfWeavingItem(Properties properties) {
         super(properties);

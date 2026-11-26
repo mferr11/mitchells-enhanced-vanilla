@@ -54,10 +54,10 @@ public final class ModBlocks {
         BlockBehaviour.Properties.of().overrideLootTable(BARROW_KING_SKULL.getLootTable())
             .overrideDescription(BARROW_KING_SKULL.getDescriptionId()).strength(1.0F).pushReaction(PushReaction.POPPED));
 
-    // Vanilla cobweb's settings, but soft enough to cut free with anything, and no drops or item
+    // Vanilla cobweb's settings, but soft enough to cut free with anything. Only permanent webs drop anything
     public static final Block BROOD_COBWEB = register("brood_cobweb", BroodCobwebBlock::new,
         BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).sound(SoundType.COBWEB).forceSolidOn().noCollision()
-            .strength(0.5F).noLootTable().pushReaction(PushReaction.POPPED));
+            .strength(0.5F).pushReaction(PushReaction.POPPED));
 
     // Barrow ruins chest: a plain chest with its own look
     public static final Block BARROW_CHEST = register("barrow_chest",
