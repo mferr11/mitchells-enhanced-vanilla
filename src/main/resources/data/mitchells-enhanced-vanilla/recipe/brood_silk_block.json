@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "S": "mitchells-enhanced-vanilla:brood_silk"
+  },
+  "pattern": [
+    "SSS",
+    "SSS",
+    "SSS"
+  ],
+  "result": {
+    "id": "mitchells-enhanced-vanilla:brood_silk_block"
+  }
+}

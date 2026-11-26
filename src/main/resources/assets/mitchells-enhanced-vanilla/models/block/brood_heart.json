@@ -1,0 +1,7 @@
+{
+  "parent": "minecraft:block/cube_column",
+  "textures": {
+    "end": "mitchells-enhanced-vanilla:block/brood_heart_top",
+    "side": "mitchells-enhanced-vanilla:block/brood_heart"
+  }
+}

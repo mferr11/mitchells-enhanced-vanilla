@@ -7,6 +7,7 @@ import net.minecraft.client.particle.AttackSweepParticle;
 import net.minecraft.client.particle.CritParticle;
 import net.minecraft.client.particle.Particle;
 import net.minecraft.client.particle.ParticleProvider;
+import net.minecraft.client.particle.PortalParticle;
 import net.minecraft.client.particle.SingleQuadParticle;
 import net.minecraft.client.particle.SpriteSet;
 import net.minecraft.core.particles.SimpleParticleType;
@@ -24,6 +25,11 @@ public final class ColoredParticle {
     // Sword sweep arc; color is 0xRRGGBB
     public static void sweep(SimpleParticleType type, int color) {
         register(type, color, AttackSweepParticle.Provider::new, 0.8F);
+    }
+
+    // Eye of Ender style portal swirl; color is 0xRRGGBB
+    public static void portal(SimpleParticleType type, int color) {
+        register(type, color, PortalParticle.Provider::new, 0.5F);
     }
 
     // Each particle gets a slight random brightness between minBrightness and 1, like vanilla's own variation

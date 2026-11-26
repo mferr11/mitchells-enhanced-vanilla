@@ -12,9 +12,13 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.EntityTypes;
+import net.minecraft.world.entity.MobCategory;
 import net.minecraft.world.level.LightLayer;
+import org.jspecify.annotations.Nullable;
+import mitchellenhancedvanilla.modid.worldgen.ModStructures;
 
-// Brood Spiders only appear once the Barrow King has fallen: from then on they take over some natural spider spawns
+// Brood Spiders only appear once the Barrow King has fallen: from then on they take over some natural spider spawns,
+// and every monster spawn inside a brood nest
 public final class BroodSpawning {
     // Chance a natural spider spawn becomes a Brood Spider: anywhere else, and deep in caves
     public static final float SURFACE_CHANCE = 0.1F;
@@ -55,15 +59,25 @@ public final class BroodSpawning {
         return Boolean.TRUE.equals(level.getServer().overworld().getAttached(KING_DEFEATED));
     }
 
-    // The type to spawn in place of a natural spawn of `type` at `pos`: a Brood Spider sometimes, otherwise unchanged
-    public static EntityType<?> replaceNaturalSpawn(ServerLevel level, EntityType<?> type, BlockPos pos) {
-        if (type != EntityTypes.SPIDER || !isKingDefeated(level)) return type;
-        float chance = isUnderground(level, pos) ? UNDERGROUND_CHANCE : SURFACE_CHANCE;
-        if (level.getRandom().nextFloat() >= chance) return type;
-        // Vanilla only checked room for a spider; the bigger Brood Spider needs its own check
+    // The type to spawn in place of a natural spawn of `type` at `pos`: always a Brood Spider inside a nest (or nothing
+    // where one won't fit), sometimes one in place of a spider elsewhere, otherwise unchanged
+    public static @Nullable EntityType<?> replaceNaturalSpawn(ServerLevel level, EntityType<?> type, BlockPos pos) {
+        if (type.getCategory() != MobCategory.MONSTER || !isKingDefeated(level)) return type;
+        boolean nest = isInNest(level, pos);
+        if (!nest) {
+            if (type != EntityTypes.SPIDER) return type;
+            float chance = isUnderground(level, pos) ? UNDERGROUND_CHANCE : SURFACE_CHANCE;
+            if (level.getRandom().nextFloat() >= chance) return type;
+        }
+        // Vanilla only checked room for the original mob; the bigger Brood Spider needs its own check
         EntityType<?> brood = ModEntities.BROOD_SPIDER;
         boolean fits = level.noCollision(brood.getSpawnAABB(pos.getX() + 0.5, pos.getY(), pos.getZ() + 0.5));
-        return fits ? brood : type;
+        if (fits) return brood;
+        return nest ? null : type;
+    }
+
+    public static boolean isInNest(ServerLevel level, BlockPos pos) {
+        return level.structureManager().getStructureWithPieceAt(pos, structure -> structure.is(ModStructures.BROOD_NEST_KEY)).isValid();
     }
 
     // Real caves: below sea level with no sky light reaching it (so not cave mouths, ravines open to the sky, or buildings)

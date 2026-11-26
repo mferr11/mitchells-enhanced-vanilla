@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/template_wall_side",
+  "textures": {
+    "wall": "mitchells-enhanced-vanilla:block/brood_stone_bricks"
+  }
+}

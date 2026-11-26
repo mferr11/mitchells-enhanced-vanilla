@@ -1,0 +1,14 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "building",
+  "key": {
+    "#": "mitchells-enhanced-vanilla:polished_brood_stone"
+  },
+  "pattern": [
+    "###"
+  ],
+  "result": {
+    "count": 6,
+    "id": "mitchells-enhanced-vanilla:polished_brood_stone_slab"
+  }
+}

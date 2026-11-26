@@ -1,0 +1,13 @@
+{
+  "variants": {
+    "type=bottom": {
+      "model": "mitchells-enhanced-vanilla:block/polished_brood_stone_slab"
+    },
+    "type=double": {
+      "model": "mitchells-enhanced-vanilla:block/polished_brood_stone"
+    },
+    "type=top": {
+      "model": "mitchells-enhanced-vanilla:block/polished_brood_stone_slab_top"
+    }
+  }
+}

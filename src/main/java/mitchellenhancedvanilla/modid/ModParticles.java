@@ -21,6 +21,9 @@ public class ModParticles {
     public static final SimpleParticleType SHORT_SOUL_FLAME = register("short_soul_flame");
     public static final SimpleParticleType SHORT_SOUL_WISP = register("short_soul_wisp");
 
+    // Thrown Eye of Weaving's trail: the Eye of Ender's portal particle in brood colours
+    public static final SimpleParticleType BROOD_PORTAL = register("brood_portal");
+
     private static SimpleParticleType register(String name) {
         return Registry.register(BuiltInRegistries.PARTICLE_TYPE, MitchellEnhancedVanilla.id(name), FabricParticleTypes.simple());
     }

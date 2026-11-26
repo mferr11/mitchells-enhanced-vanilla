@@ -6,6 +6,7 @@ import mitchellenhancedvanilla.modid.menu.ModMenus;
 import mitchellenhancedvanilla.modid.quiver.CycleQuiverPayload;
 import mitchellenhancedvanilla.modid.quiver.Quiver;
 import mitchellenhancedvanilla.modid.recipe.ModRecipes;
+import mitchellenhancedvanilla.modid.worldgen.ModStructures;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.item.v1.DefaultItemComponentEvents;
 import net.minecraft.core.component.DataComponents;
@@ -31,6 +32,7 @@ public class MitchellEnhancedVanilla implements ModInitializer {
 
 		LOGGER.info("Hello Fabric world!");
 		ModBlocks.initialize();
+		ModStructures.initialize();
 		ModItems.initialize();
 		ModEntities.initialize();
 		BroodSpawning.initialize();

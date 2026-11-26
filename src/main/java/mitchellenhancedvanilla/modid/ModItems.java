@@ -12,6 +12,7 @@ import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.BarrowTomeItem;
 import mitchellenhancedvanilla.modid.item.TomeOfWeavingItem;
+import mitchellenhancedvanilla.modid.item.WeaverEyeItem;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import mitchellenhancedvanilla.modid.item.KingsShieldItem;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
@@ -65,7 +66,14 @@ public class ModItems {
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS)
 		.register((creativeTab) -> {
-			creativeTab.insertAfter(Items.COBWEB, ModItems.BROOD_COBWEB, ModItems.BROOD_EGG);
+			creativeTab.insertAfter(Items.COBWEB, ModItems.BROOD_COBWEB, ModItems.BROOD_EGG, ModItems.BROOD_STONE, ModItems.BROOD_SILK_BLOCK);
+		});
+        // Brood Stone and its cut blocks follow the deepslate family
+        CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.BUILDING_BLOCKS)
+		.register((creativeTab) -> {
+			creativeTab.insertAfter(Items.DEEPSLATE_TILE_WALL, ModItems.BROOD_STONE,
+				ModItems.POLISHED_BROOD_STONE, ModItems.POLISHED_BROOD_STONE_STAIRS, ModItems.POLISHED_BROOD_STONE_SLAB, ModItems.POLISHED_BROOD_STONE_WALL,
+				ModItems.BROOD_STONE_BRICKS, ModItems.BROOD_STONE_BRICK_STAIRS, ModItems.BROOD_STONE_BRICK_SLAB, ModItems.BROOD_STONE_BRICK_WALL);
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
@@ -77,6 +85,7 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.CREAKING_HEART, ModItems.TARNISHED_CROWN);
 			creativeTab.insertAfter(Items.SPIDER_SPAWN_EGG, ModItems.BROOD_SPIDER_SPAWN_EGG, ModItems.BROOD_LARVA_SPAWN_EGG);
+			creativeTab.insertAfter(Items.TRIAL_SPAWNER, ModItems.BROOD_COCOON, ModItems.BROOD_HEART);
 			creativeTab.insertAfter(Items.SKELETON_SPAWN_EGG, ModItems.BARROW_SERVANT_SPAWN_EGG);
 			creativeTab.insertAfter(Items.WITHER_SKELETON_SPAWN_EGG, ModItems.BARROW_KING_SPAWN_EGG);
 		});
@@ -85,7 +94,7 @@ public class ModItems {
 		.register((creativeTab) -> {
 			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.STRING, ModItems.BROOD_SILK);
-			creativeTab.insertAfter(Items.SPIDER_EYE, ModItems.BROOD_SPIDER_EYE);
+			creativeTab.insertAfter(Items.SPIDER_EYE, ModItems.BROOD_SPIDER_EYE, ModItems.BROOD_HEART_FRAGMENT);
 			creativeTab.insertAfter(Items.ENDER_EYE, ModItems.WEAVER_EYE);
 			creativeTab.insertAfter(Items.BOOK, ModItems.EMPTY_TOME);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.CHAINMAIL_ARMOUR_PLATING);
@@ -152,6 +161,32 @@ public class ModItems {
     // Crafted from Brood Silk; places a permanent web
     public static final Item BROOD_COBWEB = register(ModItemIds.BROOD_COBWEB,
         p -> new BlockItem(ModBlocks.BROOD_COBWEB, p), new Item.Properties().useBlockDescriptionPrefix());
+    // Brood nest walls
+    public static final Item BROOD_STONE = register(ModItemIds.BROOD_STONE,
+        p -> new BlockItem(ModBlocks.BROOD_STONE, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item POLISHED_BROOD_STONE = register(ModItemIds.POLISHED_BROOD_STONE,
+        p -> new BlockItem(ModBlocks.POLISHED_BROOD_STONE, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_STONE_BRICKS = register(ModItemIds.BROOD_STONE_BRICKS,
+        p -> new BlockItem(ModBlocks.BROOD_STONE_BRICKS, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item POLISHED_BROOD_STONE_STAIRS = register(ModItemIds.POLISHED_BROOD_STONE_STAIRS,
+        p -> new BlockItem(ModBlocks.POLISHED_BROOD_STONE_STAIRS, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item POLISHED_BROOD_STONE_SLAB = register(ModItemIds.POLISHED_BROOD_STONE_SLAB,
+        p -> new BlockItem(ModBlocks.POLISHED_BROOD_STONE_SLAB, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item POLISHED_BROOD_STONE_WALL = register(ModItemIds.POLISHED_BROOD_STONE_WALL,
+        p -> new BlockItem(ModBlocks.POLISHED_BROOD_STONE_WALL, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_STONE_BRICK_STAIRS = register(ModItemIds.BROOD_STONE_BRICK_STAIRS,
+        p -> new BlockItem(ModBlocks.BROOD_STONE_BRICK_STAIRS, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_STONE_BRICK_SLAB = register(ModItemIds.BROOD_STONE_BRICK_SLAB,
+        p -> new BlockItem(ModBlocks.BROOD_STONE_BRICK_SLAB, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_STONE_BRICK_WALL = register(ModItemIds.BROOD_STONE_BRICK_WALL,
+        p -> new BlockItem(ModBlocks.BROOD_STONE_BRICK_WALL, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_SILK_BLOCK = register(ModItemIds.BROOD_SILK_BLOCK,
+        p -> new BlockItem(ModBlocks.BROOD_SILK_BLOCK, p), new Item.Properties().useBlockDescriptionPrefix());
+    // Creative only: worldgen places cocoons in brood nests
+    public static final Item BROOD_COCOON = register(ModItemIds.BROOD_COCOON,
+        p -> new BlockItem(ModBlocks.BROOD_COCOON, p), new Item.Properties().useBlockDescriptionPrefix());
+    public static final Item BROOD_HEART = register(ModItemIds.BROOD_HEART,
+        p -> new BlockItem(ModBlocks.BROOD_HEART, p), new Item.Properties().useBlockDescriptionPrefix());
     // Places and stacks brood eggs; Silk Touch only, found in brood nests
     public static final Item BROOD_EGG = register(ModItemIds.BROOD_EGG,
         p -> new BlockItem(ModBlocks.BROOD_EGG, p), new Item.Properties().useBlockDescriptionPrefix());
@@ -170,12 +205,14 @@ public class ModItems {
                 new MobEffectInstance(MobEffects.POISON, 5 * 20, 1),
                 new MobEffectInstance(MobEffects.NAUSEA, 8 * 20, 0))))
             .build()));
-    // Crafted from a Brood Spider Eye and Brood Silk
-    public static final Item WEAVER_EYE = register(ModItemIds.WEAVER_EYE, Item::new, new Item.Properties());
+    // Crafted from a Brood Spider Eye and Brood Silk; thrown, it points to the nearest brood nest
+    public static final Item WEAVER_EYE = register(ModItemIds.WEAVER_EYE, WeaverEyeItem::new, new Item.Properties());
     public static final Item BROOD_SPIDER_SPAWN_EGG = register(ModItemIds.BROOD_SPIDER_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BROOD_SPIDER));
     public static final Item BROOD_LARVA_SPAWN_EGG = register(ModItemIds.BROOD_LARVA_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BROOD_LARVA));
+    // Brood Heart drop; the core of the Tome of Weaving
+    public static final Item BROOD_HEART_FRAGMENT = register(ModItemIds.BROOD_HEART_FRAGMENT, Item::new, new Item.Properties());
     public static final Item BARROW_KING_SPAWN_EGG = register(ModItemIds.BARROW_KING_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BARROW_KING));
     public static final Item BARROW_SERVANT_SPAWN_EGG = register(ModItemIds.BARROW_SERVANT_SPAWN_EGG, SpawnEggItem::new,

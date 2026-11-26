@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "mitchells-enhanced-vanilla:brood_stone",
+  "result": {
+    "id": "mitchells-enhanced-vanilla:polished_brood_stone"
+  }
+}

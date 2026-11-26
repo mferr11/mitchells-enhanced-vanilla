@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": {
+        "type": "minecraft:survives_explosion"
+      },
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "mitchells-enhanced-vanilla:brood_silk_block"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mitchells-enhanced-vanilla:blocks/brood_silk_block"
+}

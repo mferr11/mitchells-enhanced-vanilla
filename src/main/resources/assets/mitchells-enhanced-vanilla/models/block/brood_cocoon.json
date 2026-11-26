@@ -1,0 +1,32 @@
+{
+    "parent": "minecraft:block/block",
+    "textures": {
+        "heart": "mitchells-enhanced-vanilla:block/brood_cocoon",
+        "particle": "mitchells-enhanced-vanilla:block/brood_cocoon"
+    },
+    "elements": [
+        {
+            "from": [2, 0, 2],
+            "to": [14, 12, 14],
+            "faces": {
+                "down":  {"uv": [2, 2, 14, 14], "texture": "#heart", "cullface": "down"},
+                "up":    {"uv": [2, 2, 14, 14], "texture": "#heart"},
+                "north": {"uv": [2, 4, 14, 16], "texture": "#heart"},
+                "south": {"uv": [2, 4, 14, 16], "texture": "#heart"},
+                "west":  {"uv": [2, 4, 14, 16], "texture": "#heart"},
+                "east":  {"uv": [2, 4, 14, 16], "texture": "#heart"}
+            }
+        },
+        {
+            "from": [4, 12, 4],
+            "to": [12, 14, 12],
+            "faces": {
+                "up":    {"uv": [4, 4, 12, 12], "texture": "#heart"},
+                "north": {"uv": [4, 2, 12, 4], "texture": "#heart"},
+                "south": {"uv": [4, 2, 12, 4], "texture": "#heart"},
+                "west":  {"uv": [4, 2, 12, 4], "texture": "#heart"},
+                "east":  {"uv": [4, 2, 12, 4], "texture": "#heart"}
+            }
+        }
+    ]
+}

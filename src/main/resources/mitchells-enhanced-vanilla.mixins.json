@@ -21,6 +21,8 @@
 		"ServerGamePacketListenerImplMixin",
 		"BundleContentsMutableMixin",
 		"SimpleMutableContainerAccessor",
+		"EyeOfEnderAccessor",
+		"EyeOfEnderParticlesMixin",
 		"BundleItemMixin",
 		"LivingEntityShieldBashMixin",
 		"NaturalSpawnerMixin"

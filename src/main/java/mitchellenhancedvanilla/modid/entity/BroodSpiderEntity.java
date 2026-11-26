@@ -37,12 +37,12 @@ import org.jspecify.annotations.Nullable;
 // A bigger, tougher spider that spits webs to pin players in place from range
 public class BroodSpiderEntity extends Spider {
     // Vanilla spider: 16 health, 2 damage, 0.3 speed
-    public static final double MAX_HEALTH = 40.0;
+    public static final double MAX_HEALTH = 30.0;
     public static final double ATTACK_DAMAGE = 4.0;
     public static final double ARMOR = 2.0;
     public static final double MOVEMENT_SPEED = 0.25;
     // Renders and collides at this multiple of a vanilla spider
-    public static final float SCALE = 1.4F;
+    public static final float SCALE = 1.2F;
 
     // Spits at targets between these distances (blocks); closer ones get bitten instead
     public static final double SPIT_MIN_RANGE = 4.0;

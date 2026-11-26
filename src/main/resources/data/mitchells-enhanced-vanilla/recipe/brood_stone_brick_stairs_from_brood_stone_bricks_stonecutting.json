@@ -1,0 +1,7 @@
+{
+  "type": "minecraft:stonecutting",
+  "ingredient": "mitchells-enhanced-vanilla:brood_stone_bricks",
+  "result": {
+    "id": "mitchells-enhanced-vanilla:brood_stone_brick_stairs"
+  }
+}

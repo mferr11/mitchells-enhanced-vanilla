@@ -1,0 +1,8 @@
+{
+  "parent": "minecraft:block/slab",
+  "textures": {
+    "bottom": "mitchells-enhanced-vanilla:block/polished_brood_stone",
+    "side": "mitchells-enhanced-vanilla:block/polished_brood_stone",
+    "top": "mitchells-enhanced-vanilla:block/polished_brood_stone"
+  }
+}

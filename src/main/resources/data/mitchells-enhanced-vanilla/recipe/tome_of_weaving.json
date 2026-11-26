@@ -3,7 +3,8 @@
   "category": "equipment",
   "ingredients": [
     "mitchells-enhanced-vanilla:empty_tome",
-    "mitchells-enhanced-vanilla:weaver_eye"
+    "mitchells-enhanced-vanilla:weaver_eye",
+    "mitchells-enhanced-vanilla:brood_heart_fragment"
   ],
   "result": {
     "id": "mitchells-enhanced-vanilla:tome_of_weaving"

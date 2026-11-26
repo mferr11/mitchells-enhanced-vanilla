@@ -1,0 +1,7 @@
+{
+  "type": "mitchells-enhanced-vanilla:brood_nest",
+  "biomes": "#mitchells-enhanced-vanilla:has_structure/brood_nest",
+  "spawn_overrides": {},
+  "step": "underground_structures",
+  "terrain_adaptation": "none"
+}

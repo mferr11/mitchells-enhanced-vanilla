@@ -1,0 +1,6 @@
+{
+  "parent": "minecraft:block/wall_inventory",
+  "textures": {
+    "wall": "mitchells-enhanced-vanilla:block/polished_brood_stone"
+  }
+}

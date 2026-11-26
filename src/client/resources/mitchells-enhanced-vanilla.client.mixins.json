@@ -20,7 +20,9 @@
 		"GuiRendererMixin",
 		"GameRendererShakeMixin",
 		"SkullBlockRendererMixin",
-		"ShieldSpecialRendererMixin"
+		"ShieldSpecialRendererMixin",
+		"SpriteContentsMixin",
+		"SpriteAnimationStateMixin"
 	],
 	"injectors": {
 		"defaultRequire": 1

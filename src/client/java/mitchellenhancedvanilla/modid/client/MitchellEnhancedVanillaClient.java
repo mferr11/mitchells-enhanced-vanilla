@@ -78,6 +78,8 @@ public class MitchellEnhancedVanillaClient implements ClientModInitializer {
 		ColoredParticle.crit(ModParticles.EMERALD_CRIT, 0x17DD62);
 		// Barrow King sword arc, soul-fire blue
 		ColoredParticle.sweep(ModParticles.SOUL_SWEEP, 0x4FD8EB);
+		// Thrown Eye of Weaving trail, in the Brood Spider's orange-brown
+		ColoredParticle.portal(ModParticles.BROOD_PORTAL, 0xB5602A);
 		// Barrow Tome trail and burst, gone in a fraction of a second (ticks)
 		ShortLivedParticle.flame(ModParticles.SHORT_SOUL_FLAME, 4, 8);
 		ShortLivedParticle.wisp(ModParticles.SHORT_SOUL_WISP, 6, 10);
