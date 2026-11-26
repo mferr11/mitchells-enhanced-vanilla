@@ -1,7 +1,5 @@
 package mitchellenhancedvanilla.modid.block.entity;
 
-import mitchellenhancedvanilla.modid.block.BroodHeartBlock;
-
 import mitchellenhancedvanilla.modid.ModBlocks;
 import net.minecraft.core.BlockPos;
 import net.minecraft.sounds.SoundEvents;
@@ -15,17 +13,9 @@ public class BroodHeartBlockEntity extends BlockEntity {
     public static volatile int clientBeats;
 
     private int lastBeat = -1;
-    private long nextLarvaeTime;
 
     public BroodHeartBlockEntity(BlockPos pos, BlockState state) {
         super(ModBlocks.BROOD_HEART_ENTITY, pos, state);
-    }
-
-    // True (and starts the cooldown) if it's ready to spit larvae again
-    public boolean tryStartLarvaeCooldown(long gameTime) {
-        if (gameTime < nextLarvaeTime) return false;
-        nextLarvaeTime = gameTime + BroodHeartBlock.LARVAE_COOLDOWN;
-        return true;
     }
 
     // Thumps once per texture loop, on the frame the swell starts

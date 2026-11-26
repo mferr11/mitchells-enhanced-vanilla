@@ -26,13 +26,9 @@ import net.minecraft.world.level.block.state.properties.BooleanProperty;
 import net.minecraft.world.phys.Vec3;
 import org.jspecify.annotations.Nullable;
 
-// Brood nest centrepiece: sealed until the King falls, then spits larvae when hit and drops Brood Heart Fragments
+// Brood nest centrepiece: sealed until the King falls, then bursts into larvae and drops Brood Heart Fragments when broken
 public class BroodHeartBlock extends BaseEntityBlock {
     public static final BooleanProperty SEALED = BooleanProperty.create("sealed");
-    public static final int LARVAE_PER_HIT_MIN = 1;
-    public static final int LARVAE_PER_HIT_MAX = 2;
-    // Shortest gap between spits (ticks)
-    public static final int LARVAE_COOLDOWN = 30;
     public static final int BREAK_LARVAE = 4;
     public static final int BREAK_XP = 20;
 
@@ -68,7 +64,7 @@ public class BroodHeartBlock extends BaseEntityBlock {
         return state.getValue(SEALED) ? 0.0F : super.getDestroyProgress(state, player, level, pos);
     }
 
-    // Hitting it: bounces off while the King lives, opens it once he's dead, and spits larvae when open
+    // Hitting it: bounces off while the King lives, opens it once he's dead
     @Override
     protected void attack(BlockState state, Level level, BlockPos pos, Player player) {
         if (!(level instanceof ServerLevel serverLevel) || player.isCreative()) return;
@@ -80,12 +76,6 @@ public class BroodHeartBlock extends BaseEntityBlock {
                 return;
             }
             level.setBlock(pos, state.setValue(SEALED, false), Block.UPDATE_ALL);
-        }
-        if (serverLevel.getDifficulty() != Difficulty.PEACEFUL && level.getBlockEntity(pos) instanceof BroodHeartBlockEntity heart
-                && heart.tryStartLarvaeCooldown(level.getGameTime())) {
-            BroodLarvaEntity.scatter(serverLevel, centre,
-                LARVAE_PER_HIT_MIN + level.getRandom().nextInt(LARVAE_PER_HIT_MAX - LARVAE_PER_HIT_MIN + 1));
-            level.playSound(null, pos, SoundEvents.SLIME_SQUISH, SoundSource.BLOCKS, 1.0F, 0.7F);
         }
     }
 
