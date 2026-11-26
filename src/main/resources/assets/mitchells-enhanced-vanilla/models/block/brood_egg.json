@@ -1,0 +1,78 @@
+{
+    "parent": "minecraft:block/block",
+    "textures": {
+        "egg": "mitchells-enhanced-vanilla:block/brood_egg",
+        "particle": "mitchells-enhanced-vanilla:block/brood_egg"
+    },
+    "elements": [
+        {
+            "from": [
+                4.92,
+                0,
+                2.46
+            ],
+            "to": [
+                9.85,
+                8.62,
+                7.38
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "east": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        }
+    ]
+}

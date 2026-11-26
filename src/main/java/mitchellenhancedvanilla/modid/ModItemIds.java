@@ -37,6 +37,7 @@ public class ModItemIds {
     public static final ResourceKey<Item> BARROW_SERVANT_SPAWN_EGG = create("barrow_servant_spawn_egg");
     public static final ResourceKey<Item> BROOD_SILK = create("brood_silk");
     public static final ResourceKey<Item> BROOD_COBWEB = create("brood_cobweb");
+    public static final ResourceKey<Item> BROOD_EGG = create("brood_egg");
     public static final ResourceKey<Item> BROOD_SPIDER_EYE = create("brood_spider_eye");
     public static final ResourceKey<Item> WEAVER_EYE = create("weaver_eye");
     public static final ResourceKey<Item> EMPTY_TOME = create("empty_tome");

@@ -1,0 +1,287 @@
+{
+    "parent": "minecraft:block/block",
+    "textures": {
+        "egg": "mitchells-enhanced-vanilla:block/brood_egg",
+        "particle": "mitchells-enhanced-vanilla:block/brood_egg"
+    },
+    "elements": [
+        {
+            "from": [
+                4.92,
+                0,
+                2.46
+            ],
+            "to": [
+                9.85,
+                8.62,
+                7.38
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "east": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        },
+        {
+            "from": [
+                0.0,
+                0,
+                6.15
+            ],
+            "to": [
+                4.92,
+                6.15,
+                11.08
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        6,
+                        7,
+                        10,
+                        11
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        6,
+                        7,
+                        10,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg",
+                    "cullface": "west"
+                },
+                "east": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        },
+        {
+            "from": [
+                12.31,
+                0,
+                6.15
+            ],
+            "to": [
+                16.0,
+                4.92,
+                9.85
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        5,
+                        0,
+                        8,
+                        3
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        5,
+                        0,
+                        8,
+                        3
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        8,
+                        3,
+                        11,
+                        7
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        8,
+                        3,
+                        11,
+                        7
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        8,
+                        3,
+                        11,
+                        7
+                    ],
+                    "texture": "#egg"
+                },
+                "east": {
+                    "uv": [
+                        8,
+                        3,
+                        11,
+                        7
+                    ],
+                    "texture": "#egg",
+                    "cullface": "east"
+                }
+            }
+        },
+        {
+            "from": [
+                6.15,
+                0,
+                8.62
+            ],
+            "to": [
+                11.08,
+                4.92,
+                13.54
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        0,
+                        11,
+                        4,
+                        15
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        0,
+                        11,
+                        4,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        4,
+                        11,
+                        8,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        4,
+                        11,
+                        8,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        4,
+                        11,
+                        8,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "east": {
+                    "uv": [
+                        4,
+                        11,
+                        8,
+                        15
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        }
+    ]
+}

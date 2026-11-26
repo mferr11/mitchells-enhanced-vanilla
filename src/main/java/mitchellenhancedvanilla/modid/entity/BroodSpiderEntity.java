@@ -3,13 +3,11 @@ package mitchellenhancedvanilla.modid.entity;
 import java.util.EnumSet;
 
 import mitchellenhancedvanilla.modid.ModBlocks;
-import mitchellenhancedvanilla.modid.ModEntities;
 import net.minecraft.core.particles.BlockParticleOption;
 import net.minecraft.core.particles.ParticleTypes;
 import net.minecraft.world.phys.Vec3;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.sounds.SoundEvents;
-import net.minecraft.util.Mth;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.DifficultyInstance;
 import net.minecraft.world.entity.EntitySpawnReason;
@@ -104,16 +102,7 @@ public class BroodSpiderEntity extends Spider {
 
     // Larvae scatter out of the body in random directions
     private void releaseLarvae(ServerLevel level) {
-        int count = LARVAE_MIN + random.nextInt(LARVAE_MAX - LARVAE_MIN + 1);
-        for (int i = 0; i < count; i++) {
-            BroodLarvaEntity larva = ModEntities.BROOD_LARVA.create(level, EntitySpawnReason.MOB_SUMMONED);
-            if (larva == null) continue;
-            float yaw = random.nextFloat() * 360.0F;
-            larva.snapTo(getX(), getY() + 0.2, getZ(), yaw, 0.0F);
-            larva.finalizeSpawn(level, level.getCurrentDifficultyAt(blockPosition()), EntitySpawnReason.MOB_SUMMONED, null);
-            larva.setDeltaMovement(-Mth.sin(yaw * Mth.DEG_TO_RAD) * 0.2, 0.25, Mth.cos(yaw * Mth.DEG_TO_RAD) * 0.2);
-            level.addFreshEntity(larva);
-        }
+        BroodLarvaEntity.scatter(level, position(), LARVAE_MIN + random.nextInt(LARVAE_MAX - LARVAE_MIN + 1));
         playSound(SoundEvents.SLIME_SQUISH, 1.0F, 1.4F);
     }
 

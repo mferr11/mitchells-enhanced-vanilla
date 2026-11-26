@@ -1,0 +1,148 @@
+{
+    "parent": "minecraft:block/block",
+    "textures": {
+        "egg": "mitchells-enhanced-vanilla:block/brood_egg",
+        "particle": "mitchells-enhanced-vanilla:block/brood_egg"
+    },
+    "elements": [
+        {
+            "from": [
+                4.92,
+                0,
+                2.46
+            ],
+            "to": [
+                9.85,
+                8.62,
+                7.38
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        0,
+                        0,
+                        4,
+                        4
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "east": {
+                    "uv": [
+                        1,
+                        4,
+                        5,
+                        11
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        },
+        {
+            "from": [
+                0.0,
+                0,
+                6.15
+            ],
+            "to": [
+                4.92,
+                6.15,
+                11.08
+            ],
+            "faces": {
+                "down": {
+                    "uv": [
+                        6,
+                        7,
+                        10,
+                        11
+                    ],
+                    "texture": "#egg",
+                    "cullface": "down"
+                },
+                "up": {
+                    "uv": [
+                        6,
+                        7,
+                        10,
+                        11
+                    ],
+                    "texture": "#egg"
+                },
+                "north": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "south": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                },
+                "west": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg",
+                    "cullface": "west"
+                },
+                "east": {
+                    "uv": [
+                        10,
+                        10,
+                        14,
+                        15
+                    ],
+                    "texture": "#egg"
+                }
+            }
+        }
+    ]
+}

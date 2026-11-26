@@ -1,0 +1,64 @@
+{
+    "variants": {
+        "eggs=1,facing=north": {
+            "model": "mitchells-enhanced-vanilla:block/brood_egg"
+        },
+        "eggs=1,facing=east": {
+            "model": "mitchells-enhanced-vanilla:block/brood_egg",
+            "y": 90
+        },
+        "eggs=1,facing=south": {
+            "model": "mitchells-enhanced-vanilla:block/brood_egg",
+            "y": 180
+        },
+        "eggs=1,facing=west": {
+            "model": "mitchells-enhanced-vanilla:block/brood_egg",
+            "y": 270
+        },
+        "eggs=2,facing=north": {
+            "model": "mitchells-enhanced-vanilla:block/two_brood_eggs"
+        },
+        "eggs=2,facing=east": {
+            "model": "mitchells-enhanced-vanilla:block/two_brood_eggs",
+            "y": 90
+        },
+        "eggs=2,facing=south": {
+            "model": "mitchells-enhanced-vanilla:block/two_brood_eggs",
+            "y": 180
+        },
+        "eggs=2,facing=west": {
+            "model": "mitchells-enhanced-vanilla:block/two_brood_eggs",
+            "y": 270
+        },
+        "eggs=3,facing=north": {
+            "model": "mitchells-enhanced-vanilla:block/three_brood_eggs"
+        },
+        "eggs=3,facing=east": {
+            "model": "mitchells-enhanced-vanilla:block/three_brood_eggs",
+            "y": 90
+        },
+        "eggs=3,facing=south": {
+            "model": "mitchells-enhanced-vanilla:block/three_brood_eggs",
+            "y": 180
+        },
+        "eggs=3,facing=west": {
+            "model": "mitchells-enhanced-vanilla:block/three_brood_eggs",
+            "y": 270
+        },
+        "eggs=4,facing=north": {
+            "model": "mitchells-enhanced-vanilla:block/four_brood_eggs"
+        },
+        "eggs=4,facing=east": {
+            "model": "mitchells-enhanced-vanilla:block/four_brood_eggs",
+            "y": 90
+        },
+        "eggs=4,facing=south": {
+            "model": "mitchells-enhanced-vanilla:block/four_brood_eggs",
+            "y": 180
+        },
+        "eggs=4,facing=west": {
+            "model": "mitchells-enhanced-vanilla:block/four_brood_eggs",
+            "y": 270
+        }
+    }
+}

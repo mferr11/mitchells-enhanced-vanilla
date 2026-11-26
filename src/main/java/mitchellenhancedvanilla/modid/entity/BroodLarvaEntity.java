@@ -1,10 +1,13 @@
 package mitchellenhancedvanilla.modid.entity;
 
 import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.util.Mth;
 import net.minecraft.sounds.SoundEvent;
 import net.minecraft.sounds.SoundEvents;
 import net.minecraft.world.damagesource.DamageSource;
 import net.minecraft.world.entity.Entity;
+import net.minecraft.world.entity.EntitySpawnReason;
 import net.minecraft.world.entity.EntityType;
 import net.minecraft.world.entity.ai.attributes.AttributeSupplier;
 import net.minecraft.world.entity.ai.attributes.Attributes;
@@ -19,6 +22,8 @@ import net.minecraft.world.entity.monster.Monster;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.phys.Vec3;
+import mitchellenhancedvanilla.modid.ModEntities;
 
 // Hatchlings that burst out of a dead Brood Spider: an endermite's body without its portal particles or lifespan
 public class BroodLarvaEntity extends Monster {
@@ -30,6 +35,19 @@ public class BroodLarvaEntity extends Monster {
     public BroodLarvaEntity(EntityType<? extends BroodLarvaEntity> type, Level level) {
         super(type, level);
         xpReward = 1;
+    }
+
+    // Hops this many larvae out of `from` in random directions (a dying Brood Spider, a burst egg sac)
+    public static void scatter(ServerLevel level, Vec3 from, int count) {
+        for (int i = 0; i < count; i++) {
+            BroodLarvaEntity larva = ModEntities.BROOD_LARVA.create(level, EntitySpawnReason.MOB_SUMMONED);
+            if (larva == null) continue;
+            float yaw = level.getRandom().nextFloat() * 360.0F;
+            larva.snapTo(from.x, from.y + 0.2, from.z, yaw, 0.0F);
+            larva.finalizeSpawn(level, level.getCurrentDifficultyAt(BlockPos.containing(from)), EntitySpawnReason.MOB_SUMMONED, null);
+            larva.setDeltaMovement(-Mth.sin(yaw * Mth.DEG_TO_RAD) * 0.2, 0.25, Mth.cos(yaw * Mth.DEG_TO_RAD) * 0.2);
+            level.addFreshEntity(larva);
+        }
     }
 
     public static AttributeSupplier.Builder createAttributes() {

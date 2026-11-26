@@ -65,7 +65,7 @@ public class ModItems {
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.NATURAL_BLOCKS)
 		.register((creativeTab) -> {
-			creativeTab.insertAfter(Items.COBWEB, ModItems.BROOD_COBWEB);
+			creativeTab.insertAfter(Items.COBWEB, ModItems.BROOD_COBWEB, ModItems.BROOD_EGG);
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
@@ -152,6 +152,9 @@ public class ModItems {
     // Crafted from Brood Silk; places a permanent web
     public static final Item BROOD_COBWEB = register(ModItemIds.BROOD_COBWEB,
         p -> new BlockItem(ModBlocks.BROOD_COBWEB, p), new Item.Properties().useBlockDescriptionPrefix());
+    // Places and stacks brood eggs; Silk Touch only, found in brood nests
+    public static final Item BROOD_EGG = register(ModItemIds.BROOD_EGG,
+        p -> new BlockItem(ModBlocks.BROOD_EGG, p), new Item.Properties().useBlockDescriptionPrefix());
 
     // Base for crafted tomes
     public static final Item EMPTY_TOME = register(ModItemIds.EMPTY_TOME, Item::new, new Item.Properties());

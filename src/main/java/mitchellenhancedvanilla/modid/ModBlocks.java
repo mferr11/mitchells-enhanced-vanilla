@@ -9,6 +9,7 @@ import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import mitchellenhancedvanilla.modid.block.ModChestBlock;
 import mitchellenhancedvanilla.modid.block.BroodCobwebBlock;
+import mitchellenhancedvanilla.modid.block.BroodEggBlock;
 import mitchellenhancedvanilla.modid.block.entity.ModChestBlockEntity;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.SoundType;
@@ -58,6 +59,11 @@ public final class ModBlocks {
     public static final Block BROOD_COBWEB = register("brood_cobweb", BroodCobwebBlock::new,
         BlockBehaviour.Properties.of().mapColor(MapColor.WOOL).sound(SoundType.COBWEB).forceSolidOn().noCollision()
             .strength(0.5F).pushReaction(PushReaction.POPPED));
+
+    // Brood nest eggs, 1 to 4 to a block like turtle eggs; hatch larvae when broken or trampled (see the block class)
+    public static final Block BROOD_EGG = register("brood_egg", BroodEggBlock::new,
+        BlockBehaviour.Properties.of().mapColor(MapColor.TERRACOTTA_WHITE).sound(SoundType.FROGSPAWN).strength(0.3F)
+            .noOcclusion().pushReaction(PushReaction.POPPED));
 
     // Barrow ruins chest: a plain chest with its own look
     public static final Block BARROW_CHEST = register("barrow_chest",

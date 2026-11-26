@@ -1,0 +1,51 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "condition": "minecraft:tool/can_silk_touch",
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "modifier": [
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "mitchells-enhanced-vanilla:brood_egg",
+                "state": {
+                  "eggs": "2"
+                }
+              },
+              "count": 2
+            },
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "mitchells-enhanced-vanilla:brood_egg",
+                "state": {
+                  "eggs": "3"
+                }
+              },
+              "count": 3
+            },
+            {
+              "type": "minecraft:set_count",
+              "condition": {
+                "type": "minecraft:match_block",
+                "blocks": "mitchells-enhanced-vanilla:brood_egg",
+                "state": {
+                  "eggs": "4"
+                }
+              },
+              "count": 4
+            }
+          ],
+          "name": "mitchells-enhanced-vanilla:brood_egg"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "mitchells-enhanced-vanilla:blocks/brood_egg"
+}
