@@ -2,6 +2,7 @@ package mitchellenhancedvanilla.modid.client;
 
 import com.mojang.blaze3d.platform.InputConstants;
 import mitchellenhancedvanilla.modid.MitchellEnhancedVanilla;
+import mitchellenhancedvanilla.modid.client.hud.QuiverHotbar;
 import mitchellenhancedvanilla.modid.quiver.CycleQuiverPayload;
 import mitchellenhancedvanilla.modid.quiver.Quiver;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
@@ -24,6 +25,7 @@ public final class QuiverKeys {
     private static void tick(Minecraft mc) {
         while (CYCLE.consumeClick()) {
             if (mc.player != null && Quiver.contents(mc.player).size() > 1) {
+                QuiverHotbar.expectCycle(mc.player);
                 ClientPlayNetworking.send(CycleQuiverPayload.INSTANCE);
             }
         }

@@ -51,8 +51,21 @@ public final class QuiverHotbar {
     // Arrows leaving on the left during a slide: the old previous and the old current
     private static ItemStack leavingPrevious = ItemStack.EMPTY;
     private static ItemStack leavingCurrent = ItemStack.EMPTY;
+    // Cycle key pressed: the next quiver the server sends back is the rotated one, even if it looks the same
+    // (two stacks of one arrow type). Given up after a while in case the server didn't cycle.
+    private static final long CYCLE_WAIT_MS = 1000;
+    private static boolean cyclePending = false;
+    private static long cycleRequestMs;
+    private static ItemStack quiverAtRequest = ItemStack.EMPTY;
 
     private QuiverHotbar() {}
+
+    // Called as the cycle request is sent
+    public static void expectCycle(Player player) {
+        cyclePending = true;
+        cycleRequestMs = Util.getMillis();
+        quiverAtRequest = Quiver.get(player);
+    }
 
     public static void register() {
         HudElementRegistry.attachElementAfter(
@@ -76,7 +89,7 @@ public final class QuiverHotbar {
         for (int i = 0; i < SLOTS; i++) drawFrame(graphics, i, left, top);
 
         ItemStack[] shown = shownArrows(player);
-        float slide = slideOffset(shown);
+        float slide = slideOffset(player, shown);
         // Arrows sliding in or out are cut off at the strip's outer borders
         graphics.enableScissor(Mth.floor(left) + 1, top, Mth.ceil(left + STRIP_WIDTH) - 1, top + BOX);
         for (int i = 0; i < SLOTS; i++) {
@@ -98,13 +111,19 @@ public final class QuiverHotbar {
     }
 
     // 1 right after a rotation, easing to 0; other changes (new arrows, running out) just snap
-    private static float slideOffset(ItemStack[] shown) {
+    private static float slideOffset(Player player, ItemStack[] shown) {
         boolean changed = false;
         for (int i = 0; i < SLOTS; i++) {
             if (!ItemStack.isSameItemSameComponents(shown[i], lastShown[i])) changed = true;
         }
-        if (changed) {
-            boolean rotated = !shown[CURRENT].isEmpty()
+        // The server replaces the quiver stack when it syncs, so a new reference is its answer to the request
+        boolean cycled = cyclePending && Quiver.get(player) != quiverAtRequest;
+        if (cycled || Util.getMillis() - cycleRequestMs > CYCLE_WAIT_MS) {
+            cyclePending = false;
+            quiverAtRequest = ItemStack.EMPTY;
+        }
+        if (changed || cycled) {
+            boolean rotated = cycled || !shown[CURRENT].isEmpty()
                 && ItemStack.isSameItemSameComponents(shown[CURRENT], lastShown[CURRENT + 1])
                 && !ItemStack.isSameItemSameComponents(shown[CURRENT], lastShown[CURRENT]);
             if (initialised && rotated) {

@@ -20,6 +20,7 @@
 		"InventoryMixin",
 		"ServerGamePacketListenerImplMixin",
 		"BundleContentsMutableMixin",
+		"SimpleMutableContainerAccessor",
 		"BundleItemMixin",
 		"LivingEntityShieldBashMixin",
 		"NaturalSpawnerMixin"
