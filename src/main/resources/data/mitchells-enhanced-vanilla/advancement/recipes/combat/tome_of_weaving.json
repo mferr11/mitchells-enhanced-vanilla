@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_weaver_eye": {
+      "conditions": {
+        "items": [
+          {
+            "items": "mitchells-enhanced-vanilla:weaver_eye"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipes": "mitchells-enhanced-vanilla:tome_of_weaving"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_weaver_eye"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "mitchells-enhanced-vanilla:tome_of_weaving"
+    ]
+  }
+}

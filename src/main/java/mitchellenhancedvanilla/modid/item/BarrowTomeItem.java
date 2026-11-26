@@ -11,8 +11,9 @@ import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 
-// Hurls the Barrow King's soul flame where the player is looking
+// Hurls the Barrow King's soul flame where the player is looking; each cast costs durability
 public class BarrowTomeItem extends Item {
+    public static final int DURABILITY = 128;
     // Same speed as the King's throw, but aimed true
     public static final float CAST_SPEED = 1.6F;
     public static final float CAST_INACCURACY = 0.0F;
@@ -31,6 +32,7 @@ public class BarrowTomeItem extends Item {
             SoulFlameEntity flame = new SoulFlameEntity(server, player);
             flame.shootFromRotation(player, player.getXRot(), player.getYRot(), 0.0F, CAST_SPEED, CAST_INACCURACY);
             server.addFreshEntity(flame);
+            stack.hurtAndBreak(1, player, hand);
         }
         player.getCooldowns().addCooldown(stack, COOLDOWN_TICKS);
         return InteractionResult.SUCCESS;

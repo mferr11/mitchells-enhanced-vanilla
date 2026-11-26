@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": "mitchells-enhanced-vanilla:brood_spider_eye",
+    "S": "mitchells-enhanced-vanilla:brood_silk"
+  },
+  "pattern": [
+    "SSS",
+    "SES",
+    "SSS"
+  ],
+  "result": {
+    "id": "mitchells-enhanced-vanilla:weaver_eye"
+  }
+}

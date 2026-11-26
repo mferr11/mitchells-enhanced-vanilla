@@ -11,6 +11,7 @@ import mitchellenhancedvanilla.modid.entity.GoldArrowEntity;
 import mitchellenhancedvanilla.modid.entity.PrismarineArrowEntity;
 import mitchellenhancedvanilla.modid.entity.ReinforcedArrowEntity;
 import mitchellenhancedvanilla.modid.item.BarrowTomeItem;
+import mitchellenhancedvanilla.modid.item.TomeOfWeavingItem;
 import mitchellenhancedvanilla.modid.item.ModArrowItem;
 import mitchellenhancedvanilla.modid.item.KingsShieldItem;
 import mitchellenhancedvanilla.modid.item.QuiverItem;
@@ -60,7 +61,7 @@ public class ModItems {
 				ModItems.REINFORCED_ARROW, ModItems.FROZEN_ARROW, ModItems.COPPER_ARROW, ModItems.AMETHYST_ARROW,
 				ModItems.GOLD_ARROW, ModItems.PRISMARINE_ARROW, ModItems.EMERALD_ARROW);
 			creativeTab.insertAfter(Items.GOLDEN_BOOTS, ModItems.KINGS_CROWN);
-			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD, ModItems.BARROW_TOME);
+			creativeTab.insertAfter(Items.SHIELD, ModItems.KINGS_SHIELD, ModItems.BARROW_TOME, ModItems.TOME_OF_WEAVING);
 		});
         CreativeModeTabEvents.modifyOutputEvent(CreativeModeTabs.FUNCTIONAL_BLOCKS)
 		.register((creativeTab) -> {
@@ -81,6 +82,8 @@ public class ModItems {
 			creativeTab.insertAfter(Items.COPPER_INGOT, ModItems.COPPER_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.STRING, ModItems.BROOD_SILK);
 			creativeTab.insertAfter(Items.SPIDER_EYE, ModItems.BROOD_SPIDER_EYE);
+			creativeTab.insertAfter(Items.ENDER_EYE, ModItems.WEAVER_EYE);
+			creativeTab.insertAfter(Items.BOOK, ModItems.EMPTY_TOME);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.CHAINMAIL_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.IRON_INGOT, ModItems.IRON_ARMOUR_PLATING);
 			creativeTab.insertAfter(Items.GOLD_INGOT, ModItems.GOLD_ARMOUR_PLATING);
@@ -135,13 +138,21 @@ public class ModItems {
     public static final Item KINGS_SHIELD = register(ModItemIds.KINGS_SHIELD, KingsShieldItem::new,
         KingsShieldItem.properties());
 
-    // Casts the Barrow King's soul flame
+    // Casts the Barrow King's soul flame; repaired with gold
     public static final Item BARROW_TOME = register(ModItemIds.BARROW_TOME, BarrowTomeItem::new,
-        new Item.Properties().stacksTo(1).rarity(Rarity.RARE));
+        new Item.Properties().durability(BarrowTomeItem.DURABILITY).repairable(Items.GOLD_INGOT).rarity(Rarity.RARE));
 
     // Barrow King trophy: placeable on floors and walls, wearable like a skeleton skull
     // Brood Spider drop; the string for bows stronger than iron
     public static final Item BROOD_SILK = register(ModItemIds.BROOD_SILK, Item::new, new Item.Properties());
+
+    // Base for crafted tomes
+    public static final Item EMPTY_TOME = register(ModItemIds.EMPTY_TOME, Item::new, new Item.Properties());
+
+    // Spits brood webs; repaired with Brood Silk
+    public static final Item TOME_OF_WEAVING = register(ModItemIds.TOME_OF_WEAVING, TomeOfWeavingItem::new,
+        new Item.Properties().durability(TomeOfWeavingItem.DURABILITY).repairable(BROOD_SILK).rarity(Rarity.UNCOMMON));
+
     // Brood Spider drop: a spider eye's food value, but poison II (5s) and nausea (8s)
     public static final Item BROOD_SPIDER_EYE = register(ModItemIds.BROOD_SPIDER_EYE, Item::new,
         new Item.Properties().food(Foods.SPIDER_EYE, Consumables.defaultFood()
@@ -149,6 +160,8 @@ public class ModItems {
                 new MobEffectInstance(MobEffects.POISON, 5 * 20, 1),
                 new MobEffectInstance(MobEffects.NAUSEA, 8 * 20, 0))))
             .build()));
+    // Crafted from a Brood Spider Eye and Brood Silk
+    public static final Item WEAVER_EYE = register(ModItemIds.WEAVER_EYE, Item::new, new Item.Properties());
     public static final Item BROOD_SPIDER_SPAWN_EGG = register(ModItemIds.BROOD_SPIDER_SPAWN_EGG, SpawnEggItem::new,
         new Item.Properties().spawnEgg(ModEntities.BROOD_SPIDER));
     public static final Item BROOD_LARVA_SPAWN_EGG = register(ModItemIds.BROOD_LARVA_SPAWN_EGG, SpawnEggItem::new,
